@@ -4,7 +4,7 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_aqie-dc-frontend&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=DEFRA_aqie-dc-frontend)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DEFRA_aqie-dc-frontend&metric=coverage)](https://sonarcloud.io/summary/new_code?id=DEFRA_aqie-dc-frontend)
 
-Core delivery platform Node.js Frontend Template...
+Core delivery platform Node.js Frontend Template.
 
 - [Requirements](#requirements)
   - [Node.js](#nodejs)
