@@ -9,7 +9,7 @@ export const legalBasis = {
         path: '/legal-basis-for-{type}',
         options: {
           validate: {
-            params: (value, options) => {
+            params: (value) => {
               if (!['appliances', 'fuels'].includes(value.type)) {
                 throw new Error('Invalid type')
               }
