@@ -1,0 +1,104 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
+{% from "govuk/components/details/macro.njk" import govukDetails %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+{% from "search/macro.njk" import govukPublishingSearch %}
+
+{% macro filterDetails(summaryText, detailsText, filterName, filterItems) %}
+  {{ govukDetails({
+    summaryText: summaryText,
+    text: detailsText,
+    html: govukCheckboxes({
+      name: filterName,
+      items: filterItems
+    })
+  }) }}
+{% endmacro %}
+
+{% block content %}
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <h1 class="govuk-heading-xl">{{ heading }}</h1>
+      
+      {% for description in descriptions %}
+        <p class="govuk-body">
+          {% if description.isPlainText %}
+            {{ description.text }}
+          {% else %}
+            {{ description.text }}<a href="{{ description.linkHref }}" class="govuk-link">{{ description.linkText }}</a>.
+          {% endif %}
+        </p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-third">
+      <form method="get" action="/finder">
+        <h2 class="govuk-heading-m">Search</h2>
+        
+        {{ govukPublishingSearch({
+          id: search.id,
+          name: search.name,
+          value: searchQuery,
+          label: search.label
+        }) }}
+
+        {{ filterDetails(
+          filters.countries.summaryText,
+          filters.countries.detailsText,
+          "countries",
+          filters.countries.items
+        ) }}
+
+        {{ filterDetails(
+          filters.fuels.summaryText,
+          null,
+          "fuels",
+          filters.fuels.items
+        ) }}
+
+        {{ filterDetails(
+          filters.types.summaryText,
+          null,
+          "types",
+          filters.types.items
+        ) }}
+
+        {{ filterDetails(
+          filters.manufacturers.summaryText,
+          null,
+          "manufacturers",
+          filters.manufacturers.items
+        ) }}
+      </form>
+    </div>
+
+    <div class="govuk-grid-column-two-thirds">
+      <div style="border: 3px solid #d4351c; padding: 15px; margin-bottom: 30px;">
+        <p class="govuk-body" style="margin: 0;">
+          <strong>{{ totalRecords }} records</strong>
+        </p>
+        <p class="govuk-body" style="margin: 10px 0 0 0;">
+          For {{ govukTag({
+            text: "✕ England",
+            classes: "govuk-tag--grey"
+          }) }}
+        </p>
+      </div>
+
+      {% for appliance in appliances %}
+        <div class="govuk-!-margin-bottom-6" style="border-bottom: 1px solid #b1b4b6; padding-bottom: 20px;">
+          <h3 class="govuk-heading-m">
+            <a href="#" class="govuk-link">{{ appliance.name }}</a>
+          </h3>
+          <p class="govuk-body">Manufactured by {{ appliance.manufacturer }}</p>
+          <p class="govuk-body govuk-!-margin-bottom-1">Fuels allowed: {{ appliance.fuels }}</p>
+          <p class="govuk-body">Appliance type: {{ appliance.type }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}
