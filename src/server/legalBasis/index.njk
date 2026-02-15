@@ -1,0 +1,89 @@
+{% extends 'layouts/page.njk' %}
+
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+
+{% block beforeContent %}
+  {{ govukBackLink({
+    text: "Back to list",
+    href: backLinkHref
+  }) }}
+{% endblock %}
+
+{% block content %}
+  {{ appHeading({
+    text: heading
+  }) }}
+
+  <p class="govuk-body-s govuk-!-margin-bottom-4">
+    From: <a href="{{ departmentInfo.url }}" class="govuk-link">{{ departmentInfo.name }}</a>
+  </p>
+
+  <p class="govuk-body-s govuk-!-margin-bottom-8">
+    Published {{ publishedDate }}
+  </p>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+      <div class="govuk-body" data-testid="app-page-body">
+        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} {{ requirementsText.requirementsHeading }}</p>
+        <ul class="govuk-list govuk-list--bullet govuk-!-margin-bottom-2">
+          {% for requirement in requirements %}
+          <li>
+            {% if requirement.type == 'link' %}
+              {{ requirement.prefix }} <a href="{{ listHref }}" class="govuk-link">{{ requirement.linkText }} {{ itemType }}</a>
+            {% else %}
+              {{ requirement.text }}
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        <p class="govuk-!-margin-bottom-2">{{ requirementsText.authorisedForUse }}</p>
+
+        <p class="govuk-!-margin-bottom-2">{{ requirementsText.notAuthorised.prefix }} {{ itemType }} {{ requirementsText.notAuthorised.text }}</p>
+
+        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} {{ requirementsText.countryAuthorisation }}</p>
+
+        <h2 class="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-2">{{ countries.england.heading }}</h2>
+        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} {{ countries.england.description }}</p>
+        {% if countries.england.legislation.length > 0 %}
+        <ul class="govuk-list govuk-list--bullet govuk-!-margin-bottom-2">
+          {% for law in countries.england.legislation %}
+          <li>{{ law }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        <h2 class="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-2">{{ countries.scotland.heading }}</h2>
+        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} {{ countries.scotland.description }}</p>
+        {% if countries.scotland.legislation.length > 0 %}
+        <ul class="govuk-list govuk-list--bullet govuk-!-margin-bottom-2">
+          {% for law in countries.scotland.legislation %}
+          <li>{{ law }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        <h2 class="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-2">{{ countries.wales.heading }}</h2>
+        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} {{ countries.wales.description }}</p>
+        {% if countries.wales.legislation.length > 0 %}
+        <ul class="govuk-list govuk-list--bullet govuk-!-margin-bottom-2">
+          {% for law in countries.wales.legislation %}
+          <li>{{ law }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        <h2 class="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-2">{{ countries.northernIreland.heading }}</h2>
+        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} {{ countries.northernIreland.description }}</p>
+        {% if countries.northernIreland.legislation.length > 0 %}
+        <ul class="govuk-list govuk-list--bullet govuk-!-margin-bottom-2">
+          {% for law in countries.northernIreland.legislation %}
+          <li>{{ law }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
