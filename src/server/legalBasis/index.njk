@@ -1,18 +1,9 @@
 {% extends 'layouts/page.njk' %}
 
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+{% set pageHeading = heading %}
+{% set backLinkText = "Back to list" %}
 
-{% block beforeContent %}
-  {{ govukBackLink({
-    text: "Back to list",
-    href: backLinkHref
-  }) }}
-{% endblock %}
-
-{% block content %}
-  {{ appHeading({
-    text: heading
-  }) }}
+{% block pageContent %}
 
   <p class="govuk-body-s govuk-!-margin-bottom-4">
     From: <a href="{{ departmentInfo.url }}" class="govuk-link">{{ departmentInfo.name }}</a>

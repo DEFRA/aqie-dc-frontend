@@ -1,10 +1,9 @@
 {% extends 'layouts/page.njk' %}
 
-{% block content %}
-  {{ appHeading({
-    text: heading,
-    caption: "aqie-dc-frontend"
-  }) }}
+{% set pageHeading = heading %}
+{% set pageCaption = "aqie-dc-frontend" %}
+
+{% block pageContent %}
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
