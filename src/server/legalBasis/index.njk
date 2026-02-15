@@ -15,43 +15,73 @@
   }) }}
 
   <p class="govuk-body-s govuk-!-margin-bottom-4">
-    From: <a href="https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs" class="govuk-link">Department for Environment, Food and Rural Affairs</a>
+    From: <a href="{{ departmentInfo.url }}" class="govuk-link">{{ departmentInfo.name }}</a>
   </p>
 
   <p class="govuk-body-s govuk-!-margin-bottom-8">
-    Published 14 January 2026
+    Published {{ publishedDate }}
   </p>
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       <div class="govuk-body" data-testid="app-page-body">
-        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} that are:</p>
+        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} {{ requirementsText.requirementsHeading }}</p>
         <ul class="govuk-list govuk-list--bullet govuk-!-margin-bottom-2">
-          <li>on the <a href="{{ listHref }}" class="govuk-link">list of authorised {{ itemType }}</a></li>
-          <li>only used to burn the allowed fuels</li>
-          <li>used only as instructed by the manufacturer</li>
+          {% for requirement in requirements %}
+          <li>
+            {% if requirement.type == 'link' %}
+              {{ requirement.prefix }} <a href="{{ listHref }}" class="govuk-link">{{ requirement.linkText }} {{ itemType }}</a>
+            {% else %}
+              {{ requirement.text }}
+            {% endif %}
+          </li>
+          {% endfor %}
         </ul>
-        <p class="govuk-!-margin-bottom-2">are authorised for use in smoke control areas.</p>
+        <p class="govuk-!-margin-bottom-2">{{ requirementsText.authorisedForUse }}</p>
 
-        <p class="govuk-!-margin-bottom-2">Any {{ itemType }} that do not appear on this list are not authorised for use in smoke control areas.</p>
+        <p class="govuk-!-margin-bottom-2">{{ requirementsText.notAuthorised.prefix }} {{ itemType }} {{ requirementsText.notAuthorised.text }}</p>
 
-        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} are authorised for use in each country by that country's government.</p>
+        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} {{ requirementsText.countryAuthorisation }}</p>
 
-        <h2 class="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-2">England</h2>
-        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} are authorised for use in smoke control areas in England by the Secretary of State under:</p>
+        <h2 class="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-2">{{ countries.england.heading }}</h2>
+        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} {{ countries.england.description }}</p>
+        {% if countries.england.legislation.length > 0 %}
         <ul class="govuk-list govuk-list--bullet govuk-!-margin-bottom-2">
-          <li>The Clean Air Act 1993 (as updated by the Deregulation Act 2015)</li>
-          <li>The Air Quality (Domestic Solid Fuels Standards) (England) Regulations 2020</li>
+          {% for law in countries.england.legislation %}
+          <li>{{ law }}</li>
+          {% endfor %}
         </ul>
+        {% endif %}
 
-        <h2 class="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-2">Scotland</h2>
-        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} are authorised for use in smoke control areas in Scotland by Scottish Ministers under the Clean Air Act 1993 (as updated by the Regulatory Reform (Scotland) Act 2014).</p>
+        <h2 class="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-2">{{ countries.scotland.heading }}</h2>
+        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} {{ countries.scotland.description }}</p>
+        {% if countries.scotland.legislation.length > 0 %}
+        <ul class="govuk-list govuk-list--bullet govuk-!-margin-bottom-2">
+          {% for law in countries.scotland.legislation %}
+          <li>{{ law }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
 
-        <h2 class="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-2">Wales</h2>
-        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} are authorised for use in smoke control areas in Wales by Welsh Ministers under the Clean Air Act 1993 (as amended).</p>
+        <h2 class="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-2">{{ countries.wales.heading }}</h2>
+        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} {{ countries.wales.description }}</p>
+        {% if countries.wales.legislation.length > 0 %}
+        <ul class="govuk-list govuk-list--bullet govuk-!-margin-bottom-2">
+          {% for law in countries.wales.legislation %}
+          <li>{{ law }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
 
-        <h2 class="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-2">Northern Ireland</h2>
-        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} are authorised for use in smoke control areas in Northern Ireland by the Department of Agriculture, Environment and Rural Affairs under the Clean Air (Northern Ireland) Order 1981 (as updated by the Environmental Better Regulation Act (Northern Ireland) 2016).</p>
+        <h2 class="govuk-heading-m govuk-!-margin-top-6 govuk-!-margin-bottom-2">{{ countries.northernIreland.heading }}</h2>
+        <p class="govuk-!-margin-bottom-2">{{ itemType | capitalize }} {{ countries.northernIreland.description }}</p>
+        {% if countries.northernIreland.legislation.length > 0 %}
+        <ul class="govuk-list govuk-list--bullet govuk-!-margin-bottom-2">
+          {% for law in countries.northernIreland.legislation %}
+          <li>{{ law }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
       </div>
     </div>
   </div>

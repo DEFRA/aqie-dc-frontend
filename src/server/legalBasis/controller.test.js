@@ -18,13 +18,16 @@ describe('legalBasisController', () => {
 
       const result = legalBasisController.handler(request, mockH)
 
-      expect(mockH.view).toHaveBeenCalledWith('legalBasis/index', {
-        pageTitle: 'Legal basis for appliances',
-        heading: 'Legal basis for appliance authorisation',
-        itemType: 'appliances',
-        listHref: '/authorised-appliances',
-        backLinkHref: '/X'
-      })
+      expect(mockH.view).toHaveBeenCalledWith(
+        'legalBasis/index',
+        expect.objectContaining({
+          pageTitle: 'Legal basis for appliances',
+          heading: 'Legal basis for appliance authorisation',
+          itemType: 'appliances',
+          listHref: '/authorised-appliances',
+          backLinkHref: '/X'
+        })
+      )
       expect(result).toBe('rendered view')
     })
 
@@ -35,13 +38,16 @@ describe('legalBasisController', () => {
 
       const result = legalBasisController.handler(request, mockH)
 
-      expect(mockH.view).toHaveBeenCalledWith('legalBasis/index', {
-        pageTitle: 'Legal basis for fuels',
-        heading: 'Legal basis for fuel authorisation',
-        itemType: 'fuels',
-        listHref: '/authorised-fuels',
-        backLinkHref: '/X'
-      })
+      expect(mockH.view).toHaveBeenCalledWith(
+        'legalBasis/index',
+        expect.objectContaining({
+          pageTitle: 'Legal basis for fuels',
+          heading: 'Legal basis for fuel authorisation',
+          itemType: 'fuels',
+          listHref: '/authorised-fuels',
+          backLinkHref: '/X'
+        })
+      )
       expect(result).toBe('rendered view')
     })
 
