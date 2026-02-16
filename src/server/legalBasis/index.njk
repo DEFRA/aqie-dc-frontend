@@ -6,11 +6,11 @@
 {% block pageContent %}
 
   <p class="govuk-body-s govuk-!-margin-bottom-4">
-    From: <a href="{{ departmentInfo.url }}" class="govuk-link">{{ departmentInfo.name }}</a>
+    {{ departmentLabel }} <a href="{{ departmentInfo.url }}" class="govuk-link">{{ departmentInfo.name }}</a>
   </p>
 
   <p class="govuk-body-s govuk-!-margin-bottom-8">
-    Published {{ publishedDate }}
+    {{ publishedLabel }} {{ publishedDate }}
   </p>
 
   <div class="govuk-grid-row">

@@ -19,8 +19,10 @@ export const legalBasisContent = {
     }
   },
 
+  publishedLabel: 'Published',
   publishedDate: '14 January 2026',
 
+  departmentLabel: 'From:',
   departmentInfo: {
     name: 'Department for Environment, Food and Rural Affairs',
     url: 'https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs'

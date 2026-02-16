@@ -16,7 +16,9 @@ export const legalBasisController = {
       listHref: `/authorised-${plural}`,
       backLinkHref: '/X',
       publishedDate: legalBasisContent.publishedDate,
+      publishedLabel: legalBasisContent.publishedLabel,
       departmentInfo: legalBasisContent.departmentInfo,
+      departmentLabel: legalBasisContent.departmentLabel,
       requirementsText: legalBasisContent.requirementsText,
       requirements: legalBasisContent.requirements,
       countries: legalBasisContent.countries
