@@ -11,7 +11,7 @@ export const finder = {
       server.route([
         {
           method: 'GET',
-          path: '/finder',
+          path: '/finder/{type}/{language?}',
           ...finderController
         }
       ])

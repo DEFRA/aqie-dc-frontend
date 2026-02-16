@@ -1,90 +1,67 @@
+import { fetchAll } from '../common/api/api.js'
 import { finderContent } from './content.js'
 
-/**
- * Helper function to build checkbox items with checked states
- */
-function buildCheckboxItems(items, selectedValues) {
-  return items.map((item) => ({
-    value: item.value,
-    text: item.text,
-    checked: selectedValues.includes(item.value)
-  }))
-}
+const ITEMS_PER_PAGE = 2
 
 /**
  * Controller for the authorised appliances finder page
  */
 export const finderController = {
-  handler(request, h) {
+  async handler(request, h) {
+    const { type, language = 'en' } = request.params
     const searchQuery = request.query.search || ''
-    const selectedCountries = Array.isArray(request.query.countries)
-      ? request.query.countries
-      : request.query.countries
-        ? [request.query.countries]
-        : []
-    const selectedFuels = Array.isArray(request.query.fuels)
-      ? request.query.fuels
-      : request.query.fuels
-        ? [request.query.fuels]
-        : []
-    const selectedTypes = Array.isArray(request.query.types)
-      ? request.query.types
-      : request.query.types
-        ? [request.query.types]
-        : []
-    const selectedManufacturers = Array.isArray(request.query.manufacturers)
-      ? request.query.manufacturers
-      : request.query.manufacturers
-        ? [request.query.manufacturers]
-        : []
+    const currentPage = Math.max(1, parseInt(request.query.page) || 1)
+
+    let totalResponse = []
+    // Fetch appliances from backend (fallback to empty list on error)
+    if (type === 'appliances') {
+      totalResponse = await fetchAll('appliance')
+    } else if (type === 'fuels') {
+      totalResponse = await fetchAll('fuel')
+    }
+    // Add search and filter logic here if needed, for now we will just use the total response as the search and filtered response
+    const searchAndFilteredResponse = totalResponse
+    console.log('Total records fetched:', totalResponse)
+    // Calculate pagination
+    const totalRecords = searchAndFilteredResponse.length
+    const totalPages =
+      totalRecords > 0 ? Math.ceil(totalRecords / ITEMS_PER_PAGE) : 0
+    const validPage =
+      totalPages > 0 ? Math.min(currentPage, Math.max(1, totalPages)) : 1
+    const startIndex = (validPage - 1) * ITEMS_PER_PAGE
+    const pageSpecificRecords = searchAndFilteredResponse.slice(
+      startIndex,
+      startIndex + ITEMS_PER_PAGE
+    )
+
+    // Build pagination links
+    const paginationLinks = []
+    if (totalPages > 0) {
+      for (let i = 1; i <= totalPages; i++) {
+        paginationLinks.push({
+          text: i.toString(),
+          href: `?page=${i}&search=${encodeURIComponent(searchQuery)}`,
+          isCurrent: i === validPage
+        })
+      }
+    }
+    const pageEndRecord = Math.min(validPage * ITEMS_PER_PAGE, totalRecords)
 
     return h.view('finder/index', {
-      pageTitle: finderContent.pageTitle,
-      heading: finderContent.heading,
-      descriptions: finderContent.descriptions,
+      ...finderContent[language],
+      type,
+      language,
       search: finderContent.search,
-      filters: {
-        countries: {
-          summaryText: finderContent.filters.countries.summaryText,
-          detailsText: finderContent.filters.countries.detailsText,
-          items: buildCheckboxItems(
-            finderContent.filters.countries.items,
-            selectedCountries
-          )
-        },
-        fuels: {
-          summaryText: finderContent.filters.fuels.summaryText,
-          items: buildCheckboxItems(
-            finderContent.filters.fuels.items,
-            selectedFuels
-          )
-        },
-        types: {
-          summaryText: finderContent.filters.types.summaryText,
-          items: buildCheckboxItems(
-            finderContent.filters.types.items,
-            selectedTypes
-          )
-        },
-        manufacturers: {
-          summaryText: finderContent.filters.manufacturers.summaryText,
-          items: buildCheckboxItems(
-            finderContent.filters.manufacturers.items,
-            selectedManufacturers
-          )
-        }
-      },
       searchQuery,
-      appliances: finderContent.appliances,
-      totalRecords: finderContent.appliances.length,
+      pageSpecificRecords,
+      totalRecords,
+      currentPage: validPage,
+      totalPages,
+      paginationLinks,
+      pageEndRecord,
       breadcrumbs: [
-        {
-          text: 'Home',
-          href: '/'
-        },
-        {
-          text: finderContent.pageTitle
-        }
+        { text: 'Home', href: '/' },
+        { text: finderContent[language].pageTitle }
       ]
     })
   }
