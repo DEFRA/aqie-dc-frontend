@@ -32,7 +32,7 @@ describe('legalBasis plugin', () => {
       legalBasis.plugin.register(mockServer)
 
       const routeConfig = mockServer.route.mock.calls[0][0]
-      expect(routeConfig.path).toBe('/legal-basis-for-{type}')
+      expect(routeConfig.path).toBe('/legal-basis-for-{type}/{language?}')
     })
 
     it('should have a handler function', () => {

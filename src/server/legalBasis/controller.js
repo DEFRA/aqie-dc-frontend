@@ -6,22 +6,23 @@ import { legalBasisContent } from './content.js'
  */
 export const legalBasisController = {
   handler(request, h) {
-    const { type } = request.params // 'appliances' or 'fuels'
-    const { pageTitle, heading, plural } = legalBasisContent.types[type]
+    const { type, language = 'en' } = request.params // 'appliances' or 'fuels' and optional language parameter
+    const content = legalBasisContent[language]
+    const { pageTitle, heading, plural } = content.types[type]
 
     return h.view('legalBasis/index', {
       pageTitle,
       heading,
       itemType: plural,
       listHref: `/authorised-${plural}`,
-      backLinkHref: '/X',
-      publishedDate: legalBasisContent.publishedDate,
-      publishedLabel: legalBasisContent.publishedLabel,
-      departmentInfo: legalBasisContent.departmentInfo,
-      departmentLabel: legalBasisContent.departmentLabel,
-      requirementsText: legalBasisContent.requirementsText,
-      requirements: legalBasisContent.requirements,
-      countries: legalBasisContent.countries
+      backLinkHref: '/X', //TODO: add correct back link once other page finalised
+      publishedDate: content.publishedDate,
+      publishedLabel: content.publishedLabel,
+      departmentInfo: content.departmentInfo,
+      departmentLabel: content.departmentLabel,
+      requirementsText: content.requirementsText,
+      requirements: content.requirements,
+      countries: content.countries
     })
   }
 }

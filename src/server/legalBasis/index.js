@@ -6,7 +6,7 @@ export const legalBasis = {
     register(server) {
       server.route({
         method: 'GET',
-        path: '/legal-basis-for-{type}',
+        path: '/legal-basis-for-{type}/{language?}',
         options: {
           validate: {
             params: (value) => {
