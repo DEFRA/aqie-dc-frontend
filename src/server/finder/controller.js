@@ -1,5 +1,6 @@
 import { fetchAll } from '../common/api/api.js'
 import { finderContent } from './content.js'
+import { singularize } from '../common/util.js'
 
 const ITEMS_PER_PAGE = 2
 
@@ -13,12 +14,7 @@ export const finderController = {
     const currentPage = Math.max(1, parseInt(request.query.page) || 1)
 
     let totalResponse = []
-    // Fetch appliances from backend (fallback to empty list on error)
-    if (type === 'appliances') {
-      totalResponse = await fetchAll('appliance')
-    } else if (type === 'fuels') {
-      totalResponse = await fetchAll('fuel')
-    }
+    totalResponse = await fetchAll(singularize(type))
     // Add search and filter logic here if needed, for now we will just use the total response as the search and filtered response
     const searchAndFilteredResponse = totalResponse
     console.log('Total records fetched:', totalResponse)
@@ -46,23 +42,18 @@ export const finderController = {
       }
     }
     const pageEndRecord = Math.min(validPage * ITEMS_PER_PAGE, totalRecords)
-
     return h.view('finder/index', {
-      ...finderContent[language],
+      ...finderContent[type][language],
       type,
       language,
-      search: finderContent.search,
+      search: finderContent.search, //need to update while handling search options
       searchQuery,
       pageSpecificRecords,
       totalRecords,
       currentPage: validPage,
       totalPages,
       paginationLinks,
-      pageEndRecord,
-      breadcrumbs: [
-        { text: 'Home', href: '/' },
-        { text: finderContent[language].pageTitle }
-      ]
+      pageEndRecord
     })
   }
 }

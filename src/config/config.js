@@ -234,6 +234,19 @@ export const config = convict({
     default: '',
     sensitive: true,
     env: 'CDP_X_API_KEY'
+  },
+  DefraUrl: {
+    doc: 'Defra URL',
+    format: 'url',
+    default:
+      'https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs',
+    env: 'DEFRA_URL'
+  },
+  ScaUrl: {
+    doc: 'Smoke control area URL',
+    format: 'url',
+    default: 'https://www.gov.uk/smoke-control-area-rules',
+    env: 'SCA_URL'
   }
 })
 

@@ -2,6 +2,14 @@
 
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/tag/macro.njk" import govukTag %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+
+{% block beforeContent  %}
+{{ govukBackLink({
+      text: backLinkText if backLinkText else "Back",
+      href: backLinkHref
+    }) }}
+{% endblock %}
 
 
 {% block content %}
@@ -14,7 +22,7 @@
           {% if description.isPlainText %}
             {{ description.text }}
           {% else %}
-            {{ description.text }}<a href="{{ description.linkHref }}" class="govuk-link">{{ description.linkText }}</a>.
+            {{ description.text }}<a href="{{ description.linkHref }}" class="govuk-link" target="_blank" >{{ description.linkText }}</a>.
           {% endif %}
         </p>
       {% endfor %}
@@ -30,25 +38,40 @@
     </div>
 
     <div class="govuk-grid-column-two-thirds">
-        <p class="govuk-body" style="margin: 10px 0 0 0;">
+      {% if pageSpecificRecords.length > 0 %}
+        <p class="govuk-body">
            <strong>{{showing}} {{ (currentPage - 1) * 2 + 1 }} {{to}} {{ pageEndRecord }} {{of}} {{ totalRecords }} {{records}}</strong>
         </p>
         <hr class="govuk-section-break govuk-section-break--visible">
 
 
-      {% if pageSpecificRecords.length > 0 %}
-        {% for pageSpecificRecord in pageSpecificRecords %}
-          <div class="govuk-!-margin-bottom-1">
-            <h3 class="govuk-heading-m govuk-!-margin-top-1">
-              <a href="/details/{{type}}/{{pageSpecificRecord.id}}/{{language}}" class="govuk-link">{{ pageSpecificRecord.name }}</a>
-            </h3>
-            <p class="govuk-body"><strong>{{manufacturedBy}} {{ pageSpecificRecord.manufacturer }}</strong></p>
-            <p class="govuk-body">{{fuelsAllowed}} {{ pageSpecificRecord.fuels }}</p>
-            <p class="govuk-body">{{applianceType}} {{ pageSpecificRecord.type }}</p>
-            <p class="govuk-body">{{authorisedIn}} {{ pageSpecificRecord.authorisedIn }}</p>
-          </div>
-          <hr class="govuk-section-break govuk-section-break--visible">
-        {% endfor %}
+      
+       {% if type === 'appliances' %}
+          {% for pageSpecificRecord in pageSpecificRecords %}
+            <div class="govuk-!-margin-bottom-1">
+              <h3 class="govuk-heading-m govuk-!-margin-top-1">
+                <a href="/details/appliances/{{pageSpecificRecord.id}}/{{language}}" class="govuk-link">{{ pageSpecificRecord.name }}</a>
+              </h3>
+              <p class="govuk-body"><strong>{{manufacturedBy}} {{ pageSpecificRecord.manufacturer }}</strong></p>
+              <p class="govuk-body">{{fuelsAllowed}} {{ pageSpecificRecord.fuels }}</p>
+              <p class="govuk-body">{{applianceType}} {{ pageSpecificRecord.type }}</p>
+              <p class="govuk-body">{{authorisedIn}} {{ pageSpecificRecord.authorisedIn }}</p>
+            </div>
+            <hr class="govuk-section-break govuk-section-break--visible">
+          {% endfor %}
+        {% else %}
+          {% for pageSpecificRecord in pageSpecificRecords %}
+            <div class="govuk-!-margin-bottom-1">
+              <h3 class="govuk-heading-m govuk-!-margin-top-1">
+                <a href="/details/fuels/{{pageSpecificRecord.id}}/{{language}}" class="govuk-link">{{ pageSpecificRecord.name }}</a>
+              </h3>
+              <p class="govuk-body"><strong>{{manufacturedBy}} {{ pageSpecificRecord.manufacturer }}</strong></p>
+              <p class="govuk-body">{{fuelID}} {{ pageSpecificRecord.id }}</p>
+              <p class="govuk-body">{{authorisedIn}} {{ pageSpecificRecord.authorisedIn }}</p>
+            </div>
+            <hr class="govuk-section-break govuk-section-break--visible">
+          {% endfor %}
+        {% endif %}
 
         <!-- Pagination -->
         {% if totalPages >=  1 %}
@@ -96,7 +119,8 @@
           </nav>
         {% endif %}
       {% else %}
-        <p class="govuk-body">{{noResults}}</p>
+      <br>
+        <p class="govuk-body"><strong>{{noResults}}</strong></p>
       {% endif %}
     </div>
   </div>
