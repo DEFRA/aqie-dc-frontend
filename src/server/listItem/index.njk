@@ -1,26 +1,204 @@
 {% extends 'layouts/page.njk' %}
+{% from "govuk/components/table/macro.njk" import govukTable %}
 
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
-
-{% block beforeContent %}
-  {{ govukBackLink({
-    text: "Back to list",
-    href: backLinkHref
-  }) }}
-{% endblock %}
+{% set pageHeading = applianceDetails.name %}
+{% set backLinkText = "Back to list" %}
 
 {% block content %}
-  {{ appHeading({
-    text: heading
-  }) }}
 
+  <h1 class="govuk-heading-xl">{{ applianceDetails.name }}</h1>
+  
+  <p class="govuk-body">Manufactured by {{ applianceDetails.manufacturer }}.</p>
+  
+  <p class="govuk-body-s govuk-!-margin-bottom-4">
+    {{ departmentLabel }} <a href="{{ departmentInfo.url }}" class="govuk-link">{{ departmentInfo.name }}</a>
+  </p>
+
+  <p class="govuk-body-s govuk-!-margin-bottom-8">
+    {{ publishedLabel }} {{ publishedDate }}
+  </p>
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
-      <div class="govuk-body" data-testid="app-page-body">
-        <p>List item details will be displayed here.</p>
-      </div>
+      
+      <h2 class="govuk-heading-m">Conditions for use</h2>
+      <p class="govuk-!-margin-bottom-2">This appliance must be installed, maintained and operated as instructed:</p>
+
+      {{ govukTable({
+  firstCellIsHeader: true,
+  rows: [
+    [
+      {
+        text: "Instruction manual title:"
+      },
+      {
+        html: conditionsForUse.instructionManual.title
+      }
+    ],
+    [
+      {
+        text: "Instruction manual date:"
+      },
+      {
+        html: conditionsForUse.instructionManual.date
+      }
+    ],
+    [
+      {
+        text: "Instruction manual reference:"
+      },
+      {
+        html: conditionsForUse.instructionManual.reference
+      }
+    ],
+    [
+      {
+        text: "Additional conditions for use:"
+      },
+      {
+        html: conditionsForUse.additionalConditions
+      }
+    ]
+  ]
+}) }}
+
+      
+      
+      <h2 class="govuk-heading-m govuk-!-margin-top-6">Appliance details</h2>
+      
+      {{ govukTable({
+  firstCellIsHeader: true,
+  rows: [
+    [
+      {
+        text: "Authorised in:"
+      },
+      {
+        html: applianceDetails.authorisedIn
+      }
+    ],
+    [
+      {
+        text: "Fuels allowed:"
+      },
+      {
+        html: applianceDetails.fuelsAllowed
+      }
+    ],
+    [
+      {
+        text: "Appliance type:"
+      },
+      {
+        html: applianceDetails.type
+      }
+    ],
+    [
+      {
+        text: "Output (kW):"
+      },
+      {
+        html: applianceDetails.output
+      }
+    ],
+    [
+      {
+        text: "Manufacturer:"
+      },
+      {
+        html: applianceDetails.manufacturer
+      }
+    ],
+    [
+      {
+        text: "Manufacturer address:"
+      },
+      {
+        html: applianceDetails.manufacturerAddress
+      }
+    ]
+  ]
+}) }}
+      
+      <h2 class="govuk-heading-m govuk-!-margin-top-6">Authorisation by country</h2>
+      
+      <p class="govuk-body">The appliance is authorised for use in smoke control areas.</p>
+      
+      {% set countryRows = [] %}
+      {% for country in authorisation %}
+        {% set countryRows = (countryRows.push([
+          { text: country.name },
+          { html: country.status },
+          { html: country.firstAuthorised or "Not authorised" }
+        ]), countryRows) %}
+      {% endfor %}
+      
+      {{ govukTable({
+        head: [
+          {
+            text: "Country"
+          },
+          {
+            text: "Authorised"
+          },
+          {
+            text: "Date first Authorised"
+          }
+        ],
+        rows: countryRows
+      }) }}
+      
+      <p class="govuk-body govuk-!-margin-top-6">
+        <a href="{{ legalBasisHref }}" class="govuk-link">See the legal basis for authorisation in each UK country.</a>
+      </p>
+      
     </div>
   </div>
 
 {% endblock %}
+
+ {# {{ govukTable({
+  firstCellIsHeader: true,
+  rows: [
+    [
+      {
+        text: "England:"
+      },
+      {
+        html: "Authorised. First authorised 1 August 2021."
+      }
+    ],
+    [
+      {
+        text: "Scotland:"
+      },
+      {
+        html: "Authorised. First authorised 2 August 2021."
+      }
+    ],
+    [
+      {
+        text: "Wales:"
+      },
+      {
+        html: "Not authorised."
+      }
+    ],
+    [
+      {
+        text: "Northern Ireland:"
+      },
+      {
+        html: "Authorised. First authorised 5 August 2021."
+      }
+    ]
+  ]
+}) }}
+      
+      <p class="govuk-body govuk-!-margin-top-6">
+        <a href="{{ legalBasisHref }}" class="govuk-link">See the legal basis for authorisation in each UK country.</a>
+      </p>
+      
+    </div>
+  </div> #}
+
