@@ -10,13 +10,12 @@ export const listItemController = {
   async handler(request, h) {
     //http://localhost:3002/details/appliances/APP-1771256122660/en
     const { type, id, language = 'en' } = request.params // id from URL and optional language parameter
-
-    //TODO: Use the type and language to fetch the correct content for the page, for now we will just use the default content
-    //const content = listItemContent[language] //content depending on language
-    //const { pageTitle, heading, plural } = content.types[type] then depenidng on lang then get the correct type
-
-    // Fetch the specific appliance by ID (for demonstration, using a hardcoded ID, replace with dynamic ID as needed)
+    const content = listItemContent[language] //content depending on language
+    
+    //TODO: differenccated between fuel or applicance i.e. content.types[type]
     const appliance = singularize(type)
+
+    // Fetch the specific appliance by ID 
     const item = await fetchById(appliance, id)
 
     if (!item) {
@@ -78,14 +77,17 @@ export const listItemController = {
     ]
 
     return h.view('listItem/index', {
-      id,
-      type: appliance,
-      language,
       pageTitle: item.modelName,
-      publishedLabel: listItemContent.publishedLabel,
+      publishedLabel: content.publishedLabel,
       publishedDate: item.publishedDate,
-      departmentInfo: listItemContent.departmentInfo,
-      departmentLabel: listItemContent.departmentLabel,
+      manufacturedByLabel: content.manufacturedByLabel,
+      departmentInfo: content.departmentInfo,
+      departmentLabel: content.departmentLabel,
+      conditionsForUseHeading: content.conditionsForUseHeading,
+      conditionsForUseDescription: content.conditionsForUseDescription,
+      instructionManualLabels: content.instructionManualLabels,
+      applianceDetailsHeading: content.applianceDetailsHeading,
+      applianceDetailsLabels: content.applianceDetailsLabels,
       applianceDetails: {
         name: item.modelName,
         manufacturer: item.manufacturerName,
@@ -101,10 +103,15 @@ export const listItemController = {
           date: item.instructionManualDate,
           reference: item.instructionManualVersion
         },
-        additionalConditions: item.conditionForUse //TODO this should be conditions in schema
+        additionalConditions: item.conditionForUse //TODO this should be 'conditions...' in schema
       },
+      authorisationHeading: content.authorisationHeading,
+      authorisationDescription: content.authorisationDescription,
+      authorisationTableHeaders: content.authorisationTableHeaders,
+      notAuthorised: content.notAuthorised,
       authorisation,
-      legalBasisHref: listItemContent.legalBasisHref
+      legalBasisText: content.legalBasisText,
+      legalBasisHref: content.legalBasisHref
     })
   }
 }

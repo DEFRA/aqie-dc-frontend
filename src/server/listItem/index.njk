@@ -7,31 +7,31 @@
 {% block content %}
 
   <h1 class="govuk-heading-xl">{{ applianceDetails.name }}</h1>
-  //TODO: Remove after testing
-  <p class="govuk-body-s">From params: {{ id }} {{ type }} {{ language }}</p>
   
-  <p class="govuk-body">Manufactured by {{ applianceDetails.manufacturer }}.</p>
-  
+  <p class="govuk-body">{{ manufacturedByLabel }} {{ applianceDetails.manufacturer }}</p>
+
+  <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
   <p class="govuk-body-s govuk-!-margin-bottom-4">
     {{ departmentLabel }} <a href="{{ departmentInfo.url }}" class="govuk-link">{{ departmentInfo.name }}</a>
   </p>
 
   <p class="govuk-body-s govuk-!-margin-bottom-8">
-    {{ publishedLabel }} {{ publishedDate }}
+    {{ publishedLabel }} {{ publishedDate | formatDate('d MMMM yyyy') }}
   </p>
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
       
-      <h2 class="govuk-heading-m">Conditions for use</h2>
-      <p class="govuk-!-margin-bottom-2">This appliance must be installed, maintained and operated as instructed:</p>
+      <h2 class="govuk-heading-m">{{ conditionsForUseHeading }}</h2>
+      <p class="govuk-!-margin-bottom-2">{{ conditionsForUseDescription }}</p>
 
       {{ govukTable({
   firstCellIsHeader: true,
   rows: [
     [
       {
-        text: "Instruction manual title:"
+        text: instructionManualLabels.title
       },
       {
         html: conditionsForUse.instructionManual.title
@@ -39,7 +39,7 @@
     ],
     [
       {
-        text: "Instruction manual date:"
+        text: instructionManualLabels.date
       },
       {
         html: conditionsForUse.instructionManual.date | formatDate('d MMMM yyyy')
@@ -47,7 +47,7 @@
     ],
     [
       {
-        text: "Instruction manual reference:"
+        text: instructionManualLabels.reference
       },
       {
         html: conditionsForUse.instructionManual.reference
@@ -55,7 +55,7 @@
     ],
     [
       {
-        text: "Additional conditions for use:"
+        text: instructionManualLabels.additionalConditions
       },
       {
         html: conditionsForUse.additionalConditions
@@ -66,14 +66,14 @@
 
       
       
-      <h2 class="govuk-heading-m govuk-!-margin-top-6">Appliance details</h2>
+      <h2 class="govuk-heading-m govuk-!-margin-top-6">{{ applianceDetailsHeading }}</h2>
       
       {{ govukTable({
   firstCellIsHeader: true,
   rows: [
     [
       {
-        text: "Authorised in:"
+        text: applianceDetailsLabels.authorisedIn
       },
       {
         html: applianceDetails.authorisedIn
@@ -81,7 +81,7 @@
     ],
     [
       {
-        text: "Fuels allowed:"
+        text: applianceDetailsLabels.fuelsAllowed
       },
       {
         html: applianceDetails.fuelsAllowed
@@ -89,7 +89,7 @@
     ],
     [
       {
-        text: "Appliance type:"
+        text: applianceDetailsLabels.type
       },
       {
         html: applianceDetails.type
@@ -97,7 +97,7 @@
     ],
     [
       {
-        text: "Output (kW):"
+        text: applianceDetailsLabels.output
       },
       {
         html: applianceDetails.output
@@ -105,7 +105,7 @@
     ],
     [
       {
-        text: "Manufacturer:"
+        text: applianceDetailsLabels.manufacturer
       },
       {
         html: applianceDetails.manufacturer
@@ -113,7 +113,7 @@
     ],
     [
       {
-        text: "Manufacturer address:"
+        text: applianceDetailsLabels.manufacturerAddress
       },
       {
         html: applianceDetails.manufacturerAddress
@@ -122,36 +122,36 @@
   ]
 }) }}
       
-      <h2 class="govuk-heading-m govuk-!-margin-top-6">Authorisation by country</h2>
+      <h2 class="govuk-heading-m govuk-!-margin-top-6">{{ authorisationHeading }}</h2>
       
-      <p class="govuk-body">The appliance is authorised for use in smoke control areas.</p>
+      <p class="govuk-body">{{ authorisationDescription }}</p>
       
       {% set countryRows = [] %}
       {% for country in authorisation %}
         {% set countryRows = (countryRows.push([
           { text: country.name },
           { html: country.status },
-          { html: (country.firstAuthorised | formatDate('d MMMM yyyy')) if country.firstAuthorised else "Not authorised" }
+          { html: (country.firstAuthorised | formatDate('d MMMM yyyy')) if country.firstAuthorised else notAuthorised }
         ]), countryRows) %}
       {% endfor %}
       
       {{ govukTable({
         head: [
           {
-            text: "Country"
+            text: authorisationTableHeaders.country
           },
           {
-            text: "Authorised"
+            text: authorisationTableHeaders.authorised
           },
           {
-            text: "Date first Authorised"
+            text: authorisationTableHeaders.dateFirstAuthorised
           }
         ],
         rows: countryRows
       }) }}
       
       <p class="govuk-body govuk-!-margin-top-6">
-        <a href="{{ legalBasisHref }}" class="govuk-link">See the legal basis for authorisation in each UK country.</a>
+        <a href="{{ legalBasisHref }}" class="govuk-link">{{ legalBasisText }}</a>
       </p>
       
     </div>
