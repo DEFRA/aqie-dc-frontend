@@ -25,7 +25,7 @@ export const listItemContent = {
 
     applianceDetailsHeading: 'Appliance details',
     applianceDetailsLabels: {
-      authorisedIn: 'Authorised in:',
+      certifiedIn: 'Certified in:',
       fuelsAllowed: 'Fuels allowed:',
       type: 'Appliance type:',
       output: 'Output (kW):',
@@ -33,17 +33,17 @@ export const listItemContent = {
       manufacturerAddress: 'Manufacturer address:'
     },
 
-    authorisationHeading: 'Authorisation by country',
-    authorisationDescription:
-      'The appliance is authorised for use in smoke control areas.',
-    authorisationTableHeaders: {
+    certificationHeading: 'Certification by country',
+    certificationDescription:
+      'The appliance is certified for use in smoke control areas.',
+    certificationTableHeaders: {
       country: 'Country',
-      authorised: 'Authorised',
-      dateFirstAuthorised: 'Date first Authorised'
+      certified: 'Certified',
+      dateFirstCertified: 'Date first Certified'
     },
-    notAuthorised: 'Not authorised',
+    notCertified: 'Not certified',
 
-    legalBasisText: 'See the legal basis for authorisation in each UK country.',
+    legalBasisText: 'See the legal basis for certification in each UK country.',
     legalBasisHref: '/legal-basis-for-appliances'
   },
   cy: {
@@ -69,7 +69,7 @@ export const listItemContent = {
 
     applianceDetailsHeading: 'Appliance details--CY',
     applianceDetailsLabels: {
-      authorisedIn: 'Authorised in:--CY',
+      certifiedIn: 'Certified in:--CY',
       fuelsAllowed: 'Fuels allowed:--CY',
       type: 'Appliance type:--CY',
       output: 'Output (kW):--CY',
@@ -77,17 +77,18 @@ export const listItemContent = {
       manufacturerAddress: 'Manufacturer address:--CY'
     },
 
-    authorisationHeading: 'Authorisation by country--CY',
-    authorisationDescription:
-      'The appliance is authorised for use in smoke control areas.--CY',
-    authorisationTableHeaders: {
+    certificationHeading: 'Certification by country--CY',
+    certificationDescription:
+      'The appliance is certified for use in smoke control areas.--CY',
+    certificationTableHeaders: {
       country: 'Country--CY',
-      authorised: 'Authorised--CY',
-      dateFirstAuthorised: 'Date first Authorised--CY'
+      certified: 'Certified--CY',
+      dateFirstCertified: 'Date first Certified--CY'
     },
-    notAuthorised: 'Not authorised--CY',
+    notCertified: 'Not certified--CY',
 
-    legalBasisText: 'See the legal basis for authorisation in each UK country.--CY',
+    legalBasisText:
+      'See the legal basis for certification in each UK country.--CY',
     legalBasisHref: '/legal-basis-for-appliances'
   }
 }

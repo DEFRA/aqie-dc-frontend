@@ -73,10 +73,10 @@
   rows: [
     [
       {
-        text: applianceDetailsLabels.authorisedIn
+        text: applianceDetailsLabels.certifiedIn
       },
       {
-        html: applianceDetails.authorisedIn
+        html: applianceDetails.certifiedIn
       }
     ],
     [
@@ -122,29 +122,29 @@
   ]
 }) }}
       
-      <h2 class="govuk-heading-m govuk-!-margin-top-6">{{ authorisationHeading }}</h2>
+      <h2 class="govuk-heading-m govuk-!-margin-top-6">{{ certificationHeading }}</h2>
       
-      <p class="govuk-body">{{ authorisationDescription }}</p>
+      <p class="govuk-body">{{ certificationDescription }}</p>
       
       {% set countryRows = [] %}
-      {% for country in authorisation %}
+      {% for country in certification %}
         {% set countryRows = (countryRows.push([
           { text: country.name },
           { html: country.status },
-          { html: (country.firstAuthorised | formatDate('d MMMM yyyy')) if country.firstAuthorised else notAuthorised }
+          { html: (country.firstCertified | formatDate('d MMMM yyyy')) if country.firstCertified else notCertified }
         ]), countryRows) %}
       {% endfor %}
       
       {{ govukTable({
         head: [
           {
-            text: authorisationTableHeaders.country
+            text: certificationTableHeaders.country
           },
           {
-            text: authorisationTableHeaders.authorised
+            text: certificationTableHeaders.certified
           },
           {
-            text: authorisationTableHeaders.dateFirstAuthorised
+            text: certificationTableHeaders.dateFirstCertified
           }
         ],
         rows: countryRows
@@ -158,49 +158,3 @@
   </div>
 
 {% endblock %}
-
- {# {{ govukTable({
-  firstCellIsHeader: true,
-  rows: [
-    [
-      {
-        text: "England:"
-      },
-      {
-        html: "Authorised. First authorised 1 August 2021."
-      }
-    ],
-    [
-      {
-        text: "Scotland:"
-      },
-      {
-        html: "Authorised. First authorised 2 August 2021."
-      }
-    ],
-    [
-      {
-        text: "Wales:"
-      },
-      {
-        html: "Not authorised."
-      }
-    ],
-    [
-      {
-        text: "Northern Ireland:"
-      },
-      {
-        html: "Authorised. First authorised 5 August 2021."
-      }
-    ]
-  ]
-}) }}
-      
-      <p class="govuk-body govuk-!-margin-top-6">
-        <a href="{{ legalBasisHref }}" class="govuk-link">See the legal basis for authorisation in each UK country.</a>
-      </p>
-      
-    </div>
-  </div> #}
-

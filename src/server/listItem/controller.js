@@ -8,14 +8,13 @@ import { singularize } from '../common/util.js'
  */
 export const listItemController = {
   async handler(request, h) {
-    //http://localhost:3002/details/appliances/APP-1771256122660/en
     const { type, id, language = 'en' } = request.params // id from URL and optional language parameter
     const content = listItemContent[language] //content depending on language
-    
+
     //TODO: differenccated between fuel or applicance i.e. content.types[type]
     const appliance = singularize(type)
 
-    // Fetch the specific appliance by ID 
+    // Fetch the specific appliance by ID
     const item = await fetchById(appliance, id)
 
     if (!item) {
@@ -23,28 +22,28 @@ export const listItemController = {
     }
     console.log('Fetched item:', item)
 
-    // Build the authorised countries list from approval fields
-    const authorisedCountries = []
+    // Build the certified countries list from approval fields
+    const certifiedCountries = []
     if (item.englandApproval === 'Approved') {
-      authorisedCountries.push('England')
+      certifiedCountries.push('England')
     }
     if (item.scotlandApproval === 'Approved') {
-      authorisedCountries.push('Scotland')
+      certifiedCountries.push('Scotland')
     }
     if (item.walesApproval === 'Approved') {
-      authorisedCountries.push('Wales')
+      certifiedCountries.push('Wales')
     }
     if (item.nIrelandApproval === 'Approved') {
-      authorisedCountries.push('Northern Ireland')
+      certifiedCountries.push('Northern Ireland')
     }
-    const authorisedIn = authorisedCountries.join(', ')
+    const certifiedIn = certifiedCountries.join(', ')
 
-    // Build authorisation by country table
-    const authorisation = [
+    // Build certification by country table
+    const certification = [
       {
         name: 'England',
         status: item.englandApproval === 'Approved' ? 'Yes' : 'No',
-        firstAuthorised:
+        firstCertified:
           item.englandApproval === 'Approved'
             ? item.englandFirstAuthorisedDate
             : null
@@ -52,7 +51,7 @@ export const listItemController = {
       {
         name: 'Scotland',
         status: item.scotlandApproval === 'Approved' ? 'Yes' : 'No',
-        firstAuthorised:
+        firstCertified:
           item.scotlandApproval === 'Approved'
             ? item.scotlandFirstAuthorisedDate
             : null
@@ -60,7 +59,7 @@ export const listItemController = {
       {
         name: 'Wales',
         status: item.walesApproval === 'Approved' ? 'Yes' : 'No',
-        firstAuthorised:
+        firstCertified:
           item.walesApproval === 'Approved'
             ? item.walesFirstAuthorisedDate
             : null
@@ -68,7 +67,7 @@ export const listItemController = {
       {
         name: 'Northern Ireland',
         status: item.nIrelandApproval === 'Approved' ? 'Yes' : 'No',
-        firstAuthorised:
+        firstCertified:
           item.nIrelandApproval === 'Approved'
             ? item.nIrelandFirstAuthorisedDate
             : null
@@ -91,7 +90,7 @@ export const listItemController = {
       applianceDetails: {
         name: item.modelName,
         manufacturer: item.manufacturerName,
-        authorisedIn,
+        certifiedIn,
         fuelsAllowed: item.allowedFuels,
         type: item.applianceType,
         output: item.nominalOutput,
@@ -105,11 +104,11 @@ export const listItemController = {
         },
         additionalConditions: item.conditionForUse //TODO this should be 'conditions...' in schema
       },
-      authorisationHeading: content.authorisationHeading,
-      authorisationDescription: content.authorisationDescription,
-      authorisationTableHeaders: content.authorisationTableHeaders,
-      notAuthorised: content.notAuthorised,
-      authorisation,
+      certificationHeading: content.certificationHeading,
+      certificationDescription: content.certificationDescription,
+      certificationTableHeaders: content.certificationTableHeaders,
+      notCertified: content.notCertified,
+      certification,
       legalBasisText: content.legalBasisText,
       legalBasisHref: content.legalBasisHref
     })
