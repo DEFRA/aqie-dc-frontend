@@ -11,7 +11,18 @@ export const listItem = {
       server.route([
         {
           method: 'GET',
-          path: '/list-item',
+          path: '/details/appliances/{id}/{language?}', // language is optional
+          options: {
+            validate: {
+              params: (value) => {
+                // Validate that id is a number/string and language is valid
+                if (value.language && !['en', 'cy'].includes(value.language)) {
+                  throw new Error('Invalid language')
+                }
+                return value
+              }
+            }
+          },
           ...listItemController
         }
       ])
