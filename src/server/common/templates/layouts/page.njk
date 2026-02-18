@@ -46,9 +46,9 @@
 {% endblock %}
 
 {% block content %}
-  {% if pageHeading %}
+  {% if heading %}
     {{ appHeading({
-      text: pageHeading,
+      text: heading,
       caption: pageCaption if pageCaption else undefined
     }) }}
   {% endif %}

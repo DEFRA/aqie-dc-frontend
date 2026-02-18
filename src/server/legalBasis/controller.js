@@ -14,7 +14,7 @@ export const legalBasisController = {
       pageTitle,
       heading,
       itemType: plural,
-      listHref: `/authorised-${plural}`,
+      listHref: `/finder/${plural}/${language}`,
       backLinkHref: '/X', //TODO: add correct back link once other page finalised
       publishedDate: content.publishedDate,
       publishedLabel: content.publishedLabel,
