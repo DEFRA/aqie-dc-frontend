@@ -24,7 +24,7 @@ describe('legalBasisController', () => {
           pageTitle: 'Legal basis for appliances',
           heading: 'Legal basis for appliance authorisation',
           itemType: 'appliances',
-          listHref: '/authorised-appliances',
+          listHref: '/finder/appliances/en',
           backLinkHref: '/X'
         })
       )
@@ -44,7 +44,7 @@ describe('legalBasisController', () => {
           pageTitle: 'Legal basis for fuels',
           heading: 'Legal basis for fuel authorisation',
           itemType: 'fuels',
-          listHref: '/authorised-fuels',
+          listHref: '/finder/fuels/en',
           backLinkHref: '/X'
         })
       )
@@ -81,7 +81,7 @@ describe('legalBasisController', () => {
       legalBasisController.handler(request, mockH)
 
       const viewCall = mockH.view.mock.calls[0][1]
-      expect(viewCall.listHref).toBe('/authorised-appliances')
+      expect(viewCall.listHref).toBe('/finder/appliances/en')
     })
 
     it('should set correct listHref for fuels', () => {
@@ -92,7 +92,7 @@ describe('legalBasisController', () => {
       legalBasisController.handler(request, mockH)
 
       const viewCall = mockH.view.mock.calls[0][1]
-      expect(viewCall.listHref).toBe('/authorised-fuels')
+      expect(viewCall.listHref).toBe('/finder/fuels/en')
     })
 
     it('should always set backLinkHref to /X', () => {
