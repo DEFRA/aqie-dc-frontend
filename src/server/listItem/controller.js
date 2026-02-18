@@ -16,26 +16,94 @@ export const listItemController = {
     //const { pageTitle, heading, plural } = content.types[type] then depenidng on lang then get the correct type
 
     // Fetch the specific appliance by ID (for demonstration, using a hardcoded ID, replace with dynamic ID as needed)
-    let appliance = singularize(type)
-    let item = await fetchById(appliance, id)
+    const appliance = singularize(type)
+    const item = await fetchById(appliance, id)
 
     if (!item) {
       return h.response(`${appliance} not found`).code(404)
     }
     console.log('Fetched item:', item)
 
+    // Build the authorised countries list from approval fields
+    const authorisedCountries = []
+    if (item.englandApproval === 'Approved') {
+      authorisedCountries.push('England')
+    }
+    if (item.scotlandApproval === 'Approved') {
+      authorisedCountries.push('Scotland')
+    }
+    if (item.walesApproval === 'Approved') {
+      authorisedCountries.push('Wales')
+    }
+    if (item.nIrelandApproval === 'Approved') {
+      authorisedCountries.push('Northern Ireland')
+    }
+    const authorisedIn = authorisedCountries.join(', ')
+
+    // Build authorisation by country table
+    const authorisation = [
+      {
+        name: 'England',
+        status: item.englandApproval === 'Approved' ? 'Yes' : 'No',
+        firstAuthorised:
+          item.englandApproval === 'Approved'
+            ? item.englandFirstAuthorisedDate
+            : null
+      },
+      {
+        name: 'Scotland',
+        status: item.scotlandApproval === 'Approved' ? 'Yes' : 'No',
+        firstAuthorised:
+          item.scotlandApproval === 'Approved'
+            ? item.scotlandFirstAuthorisedDate
+            : null
+      },
+      {
+        name: 'Wales',
+        status: item.walesApproval === 'Approved' ? 'Yes' : 'No',
+        firstAuthorised:
+          item.walesApproval === 'Approved'
+            ? item.walesFirstAuthorisedDate
+            : null
+      },
+      {
+        name: 'Northern Ireland',
+        status: item.nIrelandApproval === 'Approved' ? 'Yes' : 'No',
+        firstAuthorised:
+          item.nIrelandApproval === 'Approved'
+            ? item.nIrelandFirstAuthorisedDate
+            : null
+      }
+      //TODO: xnFirstAuthorisedDate (e.g. nIrelandFirstAuthorisedDate) dont exisit, need more info on this
+    ]
+
     return h.view('listItem/index', {
-      id: id,
+      id,
       type: appliance,
-      language: language,
-      pageTitle: listItemContent.pageTitle,
-      publishedDate: listItemContent.publishedDate,
+      language,
+      pageTitle: item.modelName,
       publishedLabel: listItemContent.publishedLabel,
+      publishedDate: item.publishedDate,
       departmentInfo: listItemContent.departmentInfo,
       departmentLabel: listItemContent.departmentLabel,
-      applianceDetails: listItemContent.applianceDetails,
-      conditionsForUse: listItemContent.conditionsForUse,
-      authorisation: listItemContent.authorisation,
+      applianceDetails: {
+        name: item.modelName,
+        manufacturer: item.manufacturerName,
+        authorisedIn,
+        fuelsAllowed: item.allowedFuels,
+        type: item.applianceType,
+        output: item.nominalOutput,
+        manufacturerAddress: item.manufacturerAddress
+      },
+      conditionsForUse: {
+        instructionManual: {
+          title: item.instructionManualTitle,
+          date: item.instructionManualDate,
+          reference: item.instructionManualVersion
+        },
+        additionalConditions: item.conditionForUse //TODO this should be conditions in schema
+      },
+      authorisation,
       legalBasisHref: listItemContent.legalBasisHref
     })
   }

@@ -42,7 +42,7 @@
         text: "Instruction manual date:"
       },
       {
-        html: conditionsForUse.instructionManual.date
+        html: conditionsForUse.instructionManual.date | formatDate('d MMMM yyyy')
       }
     ],
     [
@@ -131,7 +131,7 @@
         {% set countryRows = (countryRows.push([
           { text: country.name },
           { html: country.status },
-          { html: country.firstAuthorised or "Not authorised" }
+          { html: (country.firstAuthorised | formatDate('d MMMM yyyy')) if country.firstAuthorised else "Not authorised" }
         ]), countryRows) %}
       {% endfor %}
       

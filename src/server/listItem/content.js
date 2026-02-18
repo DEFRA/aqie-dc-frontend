@@ -2,8 +2,6 @@
  * Content for the List Item (Appliance Details) page
  */
 export const listItemContent = {
-  pageTitle: "Scooby Doo's Superb Fuel Burner",
-
   publishedLabel: 'Published',
   publishedDate: '14 January 2026',
 
