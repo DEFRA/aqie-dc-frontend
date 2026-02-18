@@ -1,6 +1,7 @@
 {% extends "govuk/template.njk" %}
 
 {# Import GOVUK components globally #}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
 {% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
 
@@ -29,14 +30,30 @@
 {% endblock %}
 
 {% block beforeContent %}
-  {% if breadcrumbs.length > 1 %}
+{# {% if breadcrumbs.length > 1 %}
     {{ govukBreadcrumbs({
       items: breadcrumbs
+    }) }} #} 
+   {# not using breadcrumbs for now, but leaving the code incase we do want to add them in #}
+  
+  {% if backLinkHref %}
+    {{ govukBackLink({
+      text: backLinkText if backLinkText else "Back",
+      href: backLinkHref
     }) }}
   {% endif %}
 {% endblock %}
 
-{% block content %}{% endblock %}
+{% block content %}
+  {% if heading %}
+    {{ appHeading({
+      text: heading,
+      caption: pageCaption if pageCaption else undefined
+    }) }}
+  {% endif %}
+
+  {% block pageContent %}{% endblock %}
+{% endblock %}
 
 {% block footer %}
   {{ govukFooter({
