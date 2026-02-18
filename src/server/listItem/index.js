@@ -11,7 +11,7 @@ export const listItem = {
       server.route([
         {
           method: 'GET',
-          path: '/details/appliances/{id}/{language?}', // language is optional
+          path: '/details/{type}/{id}/{language?}', // type (appliances/fuels), id, and optional language
           options: {
             validate: {
               params: (value) => {
