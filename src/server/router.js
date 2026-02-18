@@ -18,8 +18,9 @@ export const router = {
       await server.register([health])
 
       // Application specific routes, add your own routes here
-      await server.register([home, about, listItem])
+      await server.register([home, about])
       await server.register([finder])
+      await server.register([listItem])
       await server.register([legalBasis])
 
       // Static assets
