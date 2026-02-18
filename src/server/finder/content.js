@@ -61,7 +61,7 @@ export const finderContent = {
           isPlainText: true
         },
         {
-          text: 'You can also find ',
+          text: 'You can also find --CY',
           linkText:
             'fuels that are certified for use in smoke control areas--CY',
           linkHref: '/finder/fuels/cy'

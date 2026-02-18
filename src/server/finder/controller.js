@@ -11,7 +11,7 @@ export const finderController = {
   async handler(request, h) {
     const { type, language = 'en' } = request.params
     const searchQuery = request.query.search || ''
-    const currentPage = Math.max(1, parseInt(request.query.page) || 1)
+    const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
 
     let totalResponse = []
     totalResponse = await fetchAll(singularize(type))
