@@ -29,8 +29,8 @@ export async function fetchAll(type) {
     try {
       const json = JSON.parse(text)
       return Array.isArray(json.data) ? json.data : []
-    } catch (parseErr) {
-      logger.error('Failed to parse JSON response:', parseErr)
+    } catch (error) {
+      logger.error('Failed to parse JSON response:', error)
       return []
     }
   } catch (err) {
