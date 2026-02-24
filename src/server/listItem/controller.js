@@ -102,7 +102,7 @@ export const listItemController = {
           date: item.instructionManualDate,
           version: item.instructionManualVersion
         },
-        additionalConditions: item.conditionForUse //TODO this should be 'conditions...' in schema
+         additionalConditions: item.instructionManualAdditionalInfo
       },
       certificationHeading: content.certificationHeading,
       certificationDescription: content.certificationDescription,
