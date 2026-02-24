@@ -100,7 +100,7 @@ export const listItemController = {
         instructionManual: {
           title: item.instructionManualTitle,
           date: item.instructionManualDate,
-          reference: item.instructionManualVersion
+          version: item.instructionManualVersion
         },
         additionalConditions: item.conditionForUse //TODO this should be 'conditions...' in schema
       },

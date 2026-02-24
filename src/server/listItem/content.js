@@ -19,7 +19,7 @@ export const listItemContent = {
     instructionManualLabels: {
       title: 'Instruction manual title:',
       date: 'Instruction manual date:',
-      reference: 'Instruction manual reference:',
+      version: 'Instruction manual version:',
       additionalConditions: 'Additional conditions for use:'
     },
 
@@ -63,7 +63,7 @@ export const listItemContent = {
     instructionManualLabels: {
       title: 'Instruction manual title:--CY',
       date: 'Instruction manual date:--CY',
-      reference: 'Instruction manual reference:--CY',
+      version: 'Instruction manual version:--CY',
       additionalConditions: 'Additional conditions for use:--CY'
     },
 
