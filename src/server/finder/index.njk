@@ -9,9 +9,28 @@
 
 
 {% block content %}
-{# Placing filter here for now #}
-{%- set filterOptionsHtml %}
 
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+      <h1 class="govuk-heading-xl">{{ heading }}</h1>
+      {% for description in descriptions %}
+        <p class="govuk-body">
+          {% if description.isPlainText %}
+            {{ description.text }}
+          {% else %}
+            {{ description.text }}<a href="{{ description.linkHref }}" class="govuk-link" target="_blank" >{{ description.linkText }}</a>.
+          {% endif %}
+        </p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-third">
+      <form method="get" action="/finder">
+        <h2 class="govuk-heading-m">Search</h2>
+        {# --- Filter options at the side --- #}
+{%- set filterOptionsHtml %}
   {{ govukInput({
     id: "keywords",
     name: "keywords",
@@ -20,7 +39,6 @@
       classes: "govuk-label--m"
     }
   }) }}
-
   {{ govukCheckboxes({
     idPrefix: "type",
     name: "type",
@@ -48,7 +66,6 @@
       }
     ]
   }) }}
-
   {{ govukCheckboxes({
     idPrefix: "status",
     name: "status",
@@ -82,23 +99,30 @@
   heading: {
     text: "Filter"
   },
-
   submit: {
     attributes: {
         "data-test-id": "submit-button"
     }
   },
-
+  optionsHtml: filterOptionsHtml
+}) }}
+{# --- End filter options at the side --- #}
+      </form>
+    </div>
+    <div class="govuk-grid-column-two-thirds">
+      {% if pageSpecificRecords.length > 0 %}
+        <p class="govuk-body">
+           <strong>{{showing}} {{ (currentPage - 1) * 2 + 1 }} {{to}} {{ pageEndRecord }} {{of}} {{ totalRecords }} {{records}}</strong>
+        </p>
+        {# --- Selected filters at the top --- #}
+{{ mojFilter({
   selectedFilters: {
-
     heading: {
       text: "Selected filters"
     },
-
     clearLink: {
       text: "Clear filters"
     },
-
     categories: [
       {
         heading: {
@@ -122,44 +146,11 @@
         }]
       }
     ]
-  },
-  optionsHtml: filterOptionsHtml
+  }
 }) }}
-{# End of filter #}
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
-      <h1 class="govuk-heading-xl">{{ heading }}</h1>
-      
-      {% for description in descriptions %}
-        <p class="govuk-body">
-          {% if description.isPlainText %}
-            {{ description.text }}
-          {% else %}
-            {{ description.text }}<a href="{{ description.linkHref }}" class="govuk-link" target="_blank" >{{ description.linkText }}</a>.
-          {% endif %}
-        </p>
-      {% endfor %}
-    </div>
-  </div>
-
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-one-third">
-      <form method="get" action="/finder">
-        <h2 class="govuk-heading-m">Search</h2>
-
-      </form>
-    </div>
-
-    <div class="govuk-grid-column-two-thirds">
-      {% if pageSpecificRecords.length > 0 %}
-        <p class="govuk-body">
-           <strong>{{showing}} {{ (currentPage - 1) * 2 + 1 }} {{to}} {{ pageEndRecord }} {{of}} {{ totalRecords }} {{records}}</strong>
-        </p>
+{# --- End selected filters at the top --- #}
         <hr class="govuk-section-break govuk-section-break--visible">
-
-
-      
-       {% if type === 'appliances' %}
+        {% if type === 'appliances' %}
           {% for pageSpecificRecord in pageSpecificRecords %}
             <div class="govuk-!-margin-bottom-1">
               <h3 class="govuk-heading-m govuk-!-margin-top-1">
@@ -185,7 +176,6 @@
             <hr class="govuk-section-break govuk-section-break--visible">
           {% endfor %}
         {% endif %}
-
         <!-- Pagination -->
         {% if totalPages >=  1 %}
           <nav class="govuk-pagination" aria-label="Pagination">
@@ -216,7 +206,6 @@
                     </a>
                     </li>
                   {% endif %}
-                
               {% endfor %}
             </ul>
               {% if currentPage < totalPages %}
@@ -237,4 +226,6 @@
       {% endif %}
     </div>
   </div>
+
+
 {% endblock %}
