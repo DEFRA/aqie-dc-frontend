@@ -1,14 +1,5 @@
 {% extends 'layouts/page.njk' %}
 
-{% from "govuk/components/button/macro.njk" import govukButton %}
-{% from "govuk/components/tag/macro.njk" import govukTag %}
-{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
-{% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
-{% from "govuk/components/input/macro.njk" import govukInput %}
-
-{# {% from "moj/components/filter/macro.njk" import mojFilter %} #}
-{# this should come globally from template page.njk #}
-
 {% block beforeContent  %}
 {{ govukBackLink({
       text: backLinkText if backLinkText else "Back",
