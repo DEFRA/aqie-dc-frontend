@@ -29,6 +29,23 @@ export const serveStaticFiles = {
             }
           },
           method: 'GET',
+          path: '/assets/{param*}',
+          handler: {
+            directory: {
+              path: 'assets',
+              redirectToSlash: true
+            }
+          }
+        },
+        {
+          options: {
+            auth: false,
+            cache: {
+              expiresIn: config.get('staticCacheTimeout'),
+              privacy: 'private'
+            }
+          },
+          method: 'GET',
           path: `${config.get('assetPath')}/{param*}`,
           handler: {
             directory: {

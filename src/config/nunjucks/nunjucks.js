@@ -14,7 +14,7 @@ const nunjucksEnvironment = nunjucks.configure(
     'node_modules/govuk-frontend/dist/',
     path.resolve(dirname, '../../server/common/templates'),
     path.resolve(dirname, '../../server/common/components'),
-    path.resolve(dirname, '../../node_modules/@ministryofjustice/frontend'),
+    path.resolve(dirname, '../../../node_modules/@ministryofjustice/frontend')
   ],
   {
     autoescape: true,

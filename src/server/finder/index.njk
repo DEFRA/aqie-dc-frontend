@@ -1,5 +1,17 @@
 {% extends 'layouts/page.njk' %}
 
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
+{% from "govuk/components/back-link/macro.njk" import govukBackLink %}
+
+{% block beforeContent  %}
+{{ govukBackLink({
+      text: backLinkText if backLinkText else "Back",
+      href: backLinkHref
+    }) }}
+{% endblock %}
+
+
 {% block content %}
 {# Placing filter here for now #}
 {%- set filterOptionsHtml %}
