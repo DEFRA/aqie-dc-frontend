@@ -47,37 +47,72 @@ const buildPaginationLinks = (currentPage, totalPages, searchQuery) => {
  */
 export const finderController = {
   async handler(request, h) {
+  const { type, language = 'en' } = request.params
+    const searchQuery = request.query.search || ''
+    const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
+
+
+  let totalResponse = []
+  totalResponse = await fetchAll(singularize(type))
         // --- Filter options for 'Fuels Allowed' ---
+       
         let selectedFuelsAllowed = [];
         if (Array.isArray(request.query.fuelsAllowed)) {
           selectedFuelsAllowed = request.query.fuelsAllowed;
         } else if (request.query.fuelsAllowed) {
           selectedFuelsAllowed = [request.query.fuelsAllowed];
         }
-        const fuelsAllowedOptions = [
-          { value: "woodpellets", text: "Wood Pellets", checked: selectedFuelsAllowed.includes("woodpellets") },
-          { value: "whateverelse", text: "Whatever else", checked: selectedFuelsAllowed.includes("whateverelse") },
-          { value: "thatis", text: "that is", checked: selectedFuelsAllowed.includes("thatis") },
-          { value: "indb", text: "in DB", checked: selectedFuelsAllowed.includes("indb") }
-        ];
+
+         //Fuels allowed options are options from the DB
+    const fuelsAllowedSet = [];
+    for (const item of totalResponse) {
+      if (item.fuels) {
+        const values = Array.isArray(item.fuels) ? item.fuels : [item.fuels];
+        for (const val of values) {
+          if (!fuelsAllowedSet.includes(val)) {
+            fuelsAllowedSet.push(val);
+          }
+        }
+      }
+    }
+    console.log('Unique fuelsAllowed values:', fuelsAllowedSet);
+    //TODO is this function else where
+    function capitalize(str) {
+      if (!str) return str;
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    const fuelsAllowedOptions = fuelsAllowedSet.map(val => ({
+      value: val,
+      text: capitalize(val),
+      checked: selectedFuelsAllowed.includes(val)
+    }));
 
         // --- Filter options for 'Appliance Type' ---
-        let selectedApplianceType = [];
-        if (Array.isArray(request.query.applianceType)) {
-          selectedApplianceType = request.query.applianceType;
-        } else if (request.query.applianceType) {
-          selectedApplianceType = [request.query.applianceType];
+    let selectedApplianceType = [];
+    if (Array.isArray(request.query.applianceType)) {
+      selectedApplianceType = request.query.applianceType;
+    } else if (request.query.applianceType) {
+      selectedApplianceType = [request.query.applianceType];
+    }
+    // Build unique applianceTypeSet from all items - options always match what's in your dataset.
+    const applianceTypeSet = [];
+    for (const item of totalResponse) {
+      if (item.type) {
+        const values = Array.isArray(item.type) ? item.type : [item.type];
+        for (const val of values) {
+          if (!applianceTypeSet.includes(val)) {
+            applianceTypeSet.push(val);
+          }
         }
-        const applianceTypeOptions = [
-          { value: "heat", text: "heat", checked: selectedApplianceType.includes("heat") },
-          { value: "whateverelse", text: "Whatever else", checked: selectedApplianceType.includes("whateverelse") },
-          { value: "thatis", text: "that is", checked: selectedApplianceType.includes("thatis") },
-          { value: "indb", text: "in DB", checked: selectedApplianceType.includes("indb") }
-        ];
-    const { type, language = 'en' } = request.params
-    const searchQuery = request.query.search || ''
-    const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
-
+      }
+    }
+    const applianceTypeOptions = applianceTypeSet.map(val => ({
+      value: val,
+      text: capitalize(val),
+      checked: selectedApplianceType.includes(val)
+    }));
+   
 
     // --- Filter options for 'Certified In' ---
     let selectedAuthorisedIn = [];
@@ -150,8 +185,6 @@ export const finderController = {
       ]
     };
 
-    let totalResponse = []
-    totalResponse = await fetchAll(singularize(type))
 
     // Filter logic for 'Certified In' (authorisedIn)
     let filteredResponse = totalResponse;
