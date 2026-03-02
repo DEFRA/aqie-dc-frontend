@@ -3,6 +3,7 @@ import { finderContent } from './content.js'
 import { singularize, fuelTranslation } from '../common/util.js'
 
 export const ITEMS_PER_PAGE = 25
+const ElllipsicalPageLimit = 3 // Number of pages to show before and after current page when using ellipses
 
 const buildPaginationLinks = (currentPage, totalPages, searchQuery) => {
   const links = []
@@ -18,7 +19,7 @@ const buildPaginationLinks = (currentPage, totalPages, searchQuery) => {
   add(1)
 
   // Left ellipsis
-  if (currentPage - 1 >= 3) {
+  if (currentPage - 1 >= ElllipsicalPageLimit) {
     links.push({ text: '…' }) // No link
   }
 
@@ -35,7 +36,9 @@ const buildPaginationLinks = (currentPage, totalPages, searchQuery) => {
   }
 
   // Always show last page
-  if (totalPages > 1) add(totalPages)
+  if (totalPages > 1) {
+    add(totalPages)
+  }
 
   return links
 }
