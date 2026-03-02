@@ -148,14 +148,35 @@ export const finderController = {
     };
 
 
-    // Filter logic for 'Certified In' (authorisedIn)
+    // Filter logic for 'Certified In' (authorisedIn) and 'Fuels Allowed'
     let filteredResponse = totalResponse;
+    // Filter by Certified In
     if (selectedAuthorisedIn.length > 0) {
-      filteredResponse = totalResponse.filter(item =>
+      filteredResponse = filteredResponse.filter(item =>
         item.authorisedIn && selectedAuthorisedIn.some(val =>
           Array.isArray(item.authorisedIn)
             ? item.authorisedIn.includes(val)
             : String(item.authorisedIn).includes(val)
+        )
+      );
+    }
+    // Filter by Fuels Allowed
+    if (selectedFuelsAllowed.length > 0) {
+      filteredResponse = filteredResponse.filter(item =>
+        item.fuels && selectedFuelsAllowed.some(val =>
+          Array.isArray(item.fuels)
+            ? item.fuels.includes(val)
+            : String(item.fuels) === val
+        )
+      );
+    }
+    // Filter by Appliance Type
+    if (selectedApplianceType.length > 0) {
+      filteredResponse = filteredResponse.filter(item =>
+        item.type && selectedApplianceType.some(val =>
+          Array.isArray(item.type)
+            ? item.type.includes(val)
+            : String(item.type) === val
         )
       );
     }
