@@ -27,78 +27,45 @@
 
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-one-third">
-      <form method="get" action="/finder">
+      <form method="get" action="/finder/{{ type }}/{{ language }}" id="filter-form">
         <h2 class="govuk-heading-m">Search</h2>
         {# --- Filter options at the side --- #}
+
 {%- set filterOptionsHtml %}
-  {{ govukInput({
-    id: "keywords",
-    name: "keywords",
-    label: {
-      text: "Keywords",
-      classes: "govuk-label--m"
-    }
-  }) }}
-  {{ govukCheckboxes({
-    idPrefix: "type",
-    name: "type",
+{{ govukDetails({
+  summaryText: "Certified In",
+  open: true,
+  html: govukCheckboxes({
+    idPrefix: "TODO",
+    name: "authorisedIn",
     classes: "govuk-checkboxes--small",
-    fieldset: {
-      legend: {
-        text: "Type",
-        classes: "govuk-fieldset__legend--m"
-      }
-    },
-    items: [
-      {
-        value: "1",
-        text: "Blue (18)",
-        checked: true
-      },
-      {
-        value: "2",
-        text: "Yellow (5)",
-        checked: true
-      },
-      {
-        value: "3",
-        text: "Red (2)"
-      }
-    ]
-  }) }}
-  {{ govukCheckboxes({
-    idPrefix: "status",
-    name: "status",
+    items: typeOptions
+  })
+}) }}
+{{ govukDetails({
+  summaryText: "Fuels Allowed",
+  open: true,
+  html: govukCheckboxes({
+    idPrefix: "fuelsAllowed",
+    name: "fuelsAllowed",
     classes: "govuk-checkboxes--small",
-    fieldset: {
-      legend: {
-        text: "Status",
-        classes: "govuk-fieldset__legend--m"
-      }
-    },
-    items: [
-      {
-        value: "complete",
-        text: "Completed (2)",
-        checked: true
-      },
-      {
-        value: "incomplete",
-        text: "Incomplete (5)"
-      },
-      {
-        value: "inprogress",
-        text: "In progress (3)",
-        checked: false
-      }
-    ]
-  }) }}
+    items: fuelsAllowedOptions
+  })
+}) }}
+
+{{ govukDetails({
+  summaryText: "Appliance Type",
+  open: true,
+  html: govukCheckboxes({
+    idPrefix: "applianceType",
+    name: "applianceType",
+    classes: "govuk-checkboxes--small",
+    items: applianceTypeOptions
+  })
+}) }}
 {% endset -%}
 
 {{ mojFilter({
-  heading: {
-    text: "Filter"
-  },
   submit: {
     attributes: {
         "data-test-id": "submit-button"
@@ -106,6 +73,7 @@
   },
   optionsHtml: filterOptionsHtml
 }) }}
+  <a href="/finder/{{ type }}/{{ language }}" class="govuk-link govuk-link--no-visited-state govuk-!-margin-left-2" style="margin-top: 1em; display: inline-block;">Clear filters</a>
 {# --- End filter options at the side --- #}
       </form>
     </div>
@@ -114,39 +82,9 @@
         <p class="govuk-body">
            <strong>{{showing}} {{ (currentPage - 1) * 2 + 1 }} {{to}} {{ pageEndRecord }} {{of}} {{ totalRecords }} {{records}}</strong>
         </p>
-        {# --- Selected filters at the top --- #}
+         {# --- Selected filters at the top --- #}
 {{ mojFilter({
-  selectedFilters: {
-    heading: {
-      text: "Selected filters"
-    },
-    clearLink: {
-      text: "Clear filters"
-    },
-    categories: [
-      {
-        heading: {
-          text: "Type"
-        },
-        items: [{
-          href: "/path/to/remove/this",
-          text: "Blue"
-        }, {
-          href: "/path/to/remove/this",
-          text: "Yellow"
-        }]
-      },
-      {
-        heading: {
-          text: "Status"
-        },
-        items: [{
-          href: "/path/to/remove/this",
-          text: "Completed"
-        }]
-      }
-    ]
-  }
+  selectedFilters: selectedFilters
 }) }}
 {# --- End selected filters at the top --- #}
   <div class="govuk-grid-row">
