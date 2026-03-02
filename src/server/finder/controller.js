@@ -87,10 +87,10 @@ export const finderController = {
       selectedAuthorisedIn = [request.query.authorisedIn];
     }
     const typeOptions = [
-      { value: "england", text: "England", checked: selectedAuthorisedIn.includes("england") },
-      { value: "scotland", text: "Scotland", checked: selectedAuthorisedIn.includes("scotland") },
-      { value: "wales", text: "Wales", checked: selectedAuthorisedIn.includes("wales") },
-      { value: "nireland", text: "Northern Ireland", checked: selectedAuthorisedIn.includes("nireland") }
+      { value: "England", text: "England", checked: selectedAuthorisedIn.includes("England") },
+      { value: "Scotland", text: "Scotland", checked: selectedAuthorisedIn.includes("Scotland") },
+      { value: "Wales", text: "Wales", checked: selectedAuthorisedIn.includes("Wales") },
+      { value: "NorthernIreland", text: "Northern Ireland", checked: selectedAuthorisedIn.includes("Northern Ireland") }
     ];
 
     // Helper to build query string without a specific type value (for remove links)
@@ -152,8 +152,20 @@ export const finderController = {
 
     let totalResponse = []
     totalResponse = await fetchAll(singularize(type))
-    // Add search and filter logic here if needed, for now we will just use the total response as the search and filtered response
-    const searchAndFilteredResponse = totalResponse
+
+    // Filter logic for 'Certified In' (authorisedIn)
+    let filteredResponse = totalResponse;
+    if (selectedAuthorisedIn.length > 0) {
+      filteredResponse = totalResponse.filter(item =>
+        item.authorisedIn && selectedAuthorisedIn.some(val =>
+          Array.isArray(item.authorisedIn)
+            ? item.authorisedIn.includes(val)
+            : String(item.authorisedIn).includes(val)
+        )
+      );
+    }
+
+    const searchAndFilteredResponse = filteredResponse;
     console.log('Total records fetched:', totalResponse)
     // Calculate pagination
     const totalRecords = searchAndFilteredResponse.length
