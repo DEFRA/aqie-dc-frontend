@@ -9,9 +9,108 @@ const ITEMS_PER_PAGE = 2
  */
 export const finderController = {
   async handler(request, h) {
+        // --- Filter options for 'Fuels Allowed' ---
+        let selectedFuelsAllowed = [];
+        if (Array.isArray(request.query.fuelsAllowed)) {
+          selectedFuelsAllowed = request.query.fuelsAllowed;
+        } else if (request.query.fuelsAllowed) {
+          selectedFuelsAllowed = [request.query.fuelsAllowed];
+        }
+        const fuelsAllowedOptions = [
+          { value: "woodpellets", text: "Wood Pellets", checked: selectedFuelsAllowed.includes("woodpellets") },
+          { value: "whateverelse", text: "Whatever else", checked: selectedFuelsAllowed.includes("whateverelse") },
+          { value: "thatis", text: "that is", checked: selectedFuelsAllowed.includes("thatis") },
+          { value: "indb", text: "in DB", checked: selectedFuelsAllowed.includes("indb") }
+        ];
+
+        // --- Filter options for 'Appliance Type' ---
+        let selectedApplianceType = [];
+        if (Array.isArray(request.query.applianceType)) {
+          selectedApplianceType = request.query.applianceType;
+        } else if (request.query.applianceType) {
+          selectedApplianceType = [request.query.applianceType];
+        }
+        const applianceTypeOptions = [
+          { value: "heat", text: "heat", checked: selectedApplianceType.includes("heat") },
+          { value: "whateverelse", text: "Whatever else", checked: selectedApplianceType.includes("whateverelse") },
+          { value: "thatis", text: "that is", checked: selectedApplianceType.includes("thatis") },
+          { value: "indb", text: "in DB", checked: selectedApplianceType.includes("indb") }
+        ];
     const { type, language = 'en' } = request.params
     const searchQuery = request.query.search || ''
     const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
+
+
+    // --- Filter options for 'Certified In' ---
+    let selectedAuthorisedIn = [];
+    if (Array.isArray(request.query.authorisedIn)) {
+      selectedAuthorisedIn = request.query.authorisedIn;
+    } else if (request.query.authorisedIn) {
+      selectedAuthorisedIn = [request.query.authorisedIn];
+    }
+    const typeOptions = [
+      { value: "england", text: "England", checked: selectedAuthorisedIn.includes("england") },
+      { value: "scotland", text: "Scotland", checked: selectedAuthorisedIn.includes("scotland") },
+      { value: "wales", text: "Wales", checked: selectedAuthorisedIn.includes("wales") },
+      { value: "nireland", text: "Northern Ireland", checked: selectedAuthorisedIn.includes("nireland") }
+    ];
+
+    // Helper to build query string without a specific type value (for remove links)
+    function buildQueryStringWithoutValue(keyToRemove, removeValue, query) {
+      const params = [];
+      for (const [key, value] of Object.entries(query)) {
+        if (key === keyToRemove) {
+          // Remove the value to be removed
+          const values = Array.isArray(value) ? value : [value];
+          values.filter(v => v !== removeValue).forEach(v => params.push(`${key}=${encodeURIComponent(v)}`));
+        } else {
+          if (Array.isArray(value)) {
+            value.forEach(v => params.push(`${key}=${encodeURIComponent(v)}`));
+          } else {
+            params.push(`${key}=${encodeURIComponent(value)}`);
+          }
+        }
+      }
+      return params.join('&');
+    }
+
+    // Build selectedFilters for mojFilter with category headings
+
+    const allSelectedItems = [
+      ...typeOptions
+        .filter(option => selectedAuthorisedIn.includes(option.value))
+        .map(option => ({
+          href: `?${buildQueryStringWithoutValue('authorisedIn', option.value, request.query)}`,
+          text: option.text
+        })),
+      ...fuelsAllowedOptions
+        .filter(option => selectedFuelsAllowed.includes(option.value))
+        .map(option => ({
+          href: `?${buildQueryStringWithoutValue('fuelsAllowed', option.value, request.query)}`,
+          text: option.text
+        })),
+      ...applianceTypeOptions
+        .filter(option => selectedApplianceType.includes(option.value))
+        .map(option => ({
+          href: `?${buildQueryStringWithoutValue('applianceType', option.value, request.query)}`,
+          text: option.text
+        }))
+    ];
+    
+    const selectedFilters = {
+      // heading: {
+      //   text: "for TODO"
+      // },
+      clearLink: {
+        text: "Clear filters",
+        href: `/finder/${type}/${language}`
+      },
+      categories: [
+        {
+          heading: { text: "For" },
+          items: allSelectedItems  }
+      ]
+    };
 
     let totalResponse = []
     totalResponse = await fetchAll(singularize(type))
@@ -42,6 +141,7 @@ export const finderController = {
       }
     }
     const pageEndRecord = Math.min(validPage * ITEMS_PER_PAGE, totalRecords)
+
     return h.view('finder/index', {
       ...finderContent[type][language],
       type,
@@ -53,7 +153,11 @@ export const finderController = {
       currentPage: validPage,
       totalPages,
       paginationLinks,
-      pageEndRecord
+      pageEndRecord,
+      selectedFilters,
+      typeOptions,
+      fuelsAllowedOptions,
+      applianceTypeOptions
     })
   }
 }
