@@ -26,37 +26,37 @@ export const listItemController = {
     const certification = [
       {
         name: 'England',
-        status: item.englandApproval === 'Cer' ? 'Yes' : 'No',
+        status: item.englandApproval === 'Certified' ? 'Yes' : 'No',
         firstCertified:
-          item.englandApproval === 'Approved'
-            ? item.englandFirstAuthorisedDate
+          item.englandApproval === 'Certified'
+            ? item.englandDateFirstAuthorised
             : null
       },
       {
         name: 'Scotland',
-        status: item.scotlandApproval === 'Approved' ? 'Yes' : 'No',
+        status: item.scotlandApproval === 'Certified' ? 'Yes' : 'No',
         firstCertified:
-          item.scotlandApproval === 'Approved'
-            ? item.scotlandFirstAuthorisedDate
+          item.scotlandApproval === 'Certified'
+            ? item.scotlandDateFirstAuthorised
             : null
       },
       {
         name: 'Wales',
-        status: item.walesApproval === 'Approved' ? 'Yes' : 'No',
+        status: item.walesApproval === 'Certified' ? 'Yes' : 'No',
         firstCertified:
-          item.walesApproval === 'Approved'
-            ? item.walesFirstAuthorisedDate
+          item.walesApproval === 'Certified'
+            ? item.walesDateFirstAuthorised
             : null
       },
       {
         name: 'Northern Ireland',
-        status: item.nIrelandApproval === 'Approved' ? 'Yes' : 'No',
+        status: item.nIrelandApproval === 'Certified' ? 'Yes' : 'No',
         firstCertified:
-          item.nIrelandApproval === 'Approved'
-            ? item.nIrelandFirstAuthorisedDate
+          item.nIrelandApproval === 'Certified'
+            ? item.nIrelandDateFirstAuthorised
             : null
       }
-      //TODO: xnFirstAuthorisedDate (e.g. nIrelandFirstAuthorisedDate) dont exisit, need more info on this
+      // //TODO: xnFirstAuthorisedDate (e.g. nIrelandFirstAuthorisedDate) dont exisit, need more info on this
     ]
 
     return h.view('listItem/index', {
