@@ -47,24 +47,53 @@ const buildPaginationLinks = (currentPage, totalPages, searchQuery) => {
  */
 export const finderController = {
   async handler(request, h) {
-  const { type, language = 'en' } = request.params
-    const searchQuery = request.query.search || ''
-    const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
+    const { type, language = 'en' } = request.params;
+    const searchQuery = request.query.search || '';
+    const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1);
 
+    let totalResponse = [];
+    totalResponse = await fetchAll(singularize(type));
 
-  let totalResponse = []
-  totalResponse = await fetchAll(singularize(type))
-        // --- Filter options for 'Fuels Allowed' ---
-       
-        let selectedFuelsAllowed = [];
-        if (Array.isArray(request.query.fuelsAllowed)) {
-          selectedFuelsAllowed = request.query.fuelsAllowed;
-        } else if (request.query.fuelsAllowed) {
-          selectedFuelsAllowed = [request.query.fuelsAllowed];
-        }
+    const searchAndFilteredResponse = filteredResponse;
+    console.log('Total records fetched:', totalResponse);
 
-         //Fuels allowed options are options from the DB
-    const fuelsAllowedSet = [];
+    //TODO is this elsewhere
+       function capitalize(str) {
+      if (!str) return str;
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // --- Certified In ---
+    //Record of selected options that are params in URL - (Note: After form is submitted, the selected options are added to the URL)
+      let selectedCertifiedIn = [];
+    if (Array.isArray(request.query.certifiedIn)) {
+      selectedCertifiedIn = request.query.certifiedIn;
+    } else if (request.query.certifiedIn) {
+      selectedCertifiedIn = [request.query.certifiedIn];
+    }
+    
+    //Checkbox Options
+    const certifiedInOptions = [
+      { value: "England", text: "England", checked: selectedCertifiedIn.includes("England") },
+      { value: "Scotland", text: "Scotland", checked: selectedCertifiedIn.includes("Scotland") },
+      { value: "Wales", text: "Wales", checked: selectedCertifiedIn.includes("Wales") },
+      { value: "NorthernIreland", text: "Northern Ireland", checked: selectedCertifiedIn.includes("Northern Ireland") }
+    ];
+
+  
+    
+
+    // --- Fuels Allowed ---
+    //Record of selected options that are params in URL
+    let selectedFuelsAllowed = [];
+    if (Array.isArray(request.query.fuelsAllowed)) {
+      selectedFuelsAllowed = request.query.fuelsAllowed;
+    } else if (request.query.fuelsAllowed) {
+      selectedFuelsAllowed = [request.query.fuelsAllowed];
+    }
+
+    //Checkbox Options - Fuels Allowed options are those present in the dataset
+      const fuelsAllowedSet = [];
     for (const item of totalResponse) {
       if (item.fuels) {
         const values = Array.isArray(item.fuels) ? item.fuels : [item.fuels];
@@ -75,27 +104,20 @@ export const finderController = {
         }
       }
     }
-    console.log('Unique fuelsAllowed values:', fuelsAllowedSet);
-    //TODO is this function else where
-    function capitalize(str) {
-      if (!str) return str;
-      return str.charAt(0).toUpperCase() + str.slice(1);
-    }
-
     const fuelsAllowedOptions = fuelsAllowedSet.map(val => ({
       value: val,
       text: capitalize(val),
       checked: selectedFuelsAllowed.includes(val)
     }));
 
-        // --- Filter options for 'Appliance Type' ---
+    // Record of selected options that are params in URL
     let selectedApplianceType = [];
     if (Array.isArray(request.query.applianceType)) {
       selectedApplianceType = request.query.applianceType;
     } else if (request.query.applianceType) {
       selectedApplianceType = [request.query.applianceType];
     }
-    // Build unique applianceTypeSet from all items - options always match what's in your dataset.
+    // Checkbox Options - Appliance Typeoptions are those present in the dataset
     const applianceTypeSet = [];
     for (const item of totalResponse) {
       if (item.type) {
@@ -112,23 +134,9 @@ export const finderController = {
       text: capitalize(val),
       checked: selectedApplianceType.includes(val)
     }));
-   
 
-    // --- Filter options for 'Certified In' ---
-    let selectedAuthorisedIn = [];
-    if (Array.isArray(request.query.authorisedIn)) {
-      selectedAuthorisedIn = request.query.authorisedIn;
-    } else if (request.query.authorisedIn) {
-      selectedAuthorisedIn = [request.query.authorisedIn];
-    }
-    const typeOptions = [
-      { value: "England", text: "England", checked: selectedAuthorisedIn.includes("England") },
-      { value: "Scotland", text: "Scotland", checked: selectedAuthorisedIn.includes("Scotland") },
-      { value: "Wales", text: "Wales", checked: selectedAuthorisedIn.includes("Wales") },
-      { value: "NorthernIreland", text: "Northern Ireland", checked: selectedAuthorisedIn.includes("Northern Ireland") }
-    ];
-
-    // Helper to build query string without a specific type value (for remove links)
+    // --- Selected Filters (all categories) ---
+    // X remove button, Helper to build query string without a specific value (selected option to be removed)
     function buildQueryStringWithoutValue(keyToRemove, removeValue, query) {
       const params = [];
       for (const [key, value] of Object.entries(query)) {
@@ -147,13 +155,12 @@ export const finderController = {
       return params.join('&');
     }
 
-    // Build selectedFilters for mojFilter with category headings
-
+    //The  selected options displayed in grey boxes above the results, with an X to remove each one
     const allSelectedItems = [
-      ...typeOptions
-        .filter(option => selectedAuthorisedIn.includes(option.value))
+      ...certifiedInOptions
+        .filter(option => selectedCertifiedIn.includes(option.value))
         .map(option => ({
-          href: `?${buildQueryStringWithoutValue('authorisedIn', option.value, request.query)}`,
+          href: `?${buildQueryStringWithoutValue('certifiedIn', option.value, request.query)}`,
           text: option.text
         })),
       ...fuelsAllowedOptions
@@ -169,11 +176,8 @@ export const finderController = {
           text: option.text
         }))
     ];
-    
-    const selectedFilters = {
-      // heading: {
-      //   text: "for TODO"
-      // },
+
+     const selectedFilters = {
       clearLink: {
         text: "Clear filters",
         href: `/finder/${type}/${language}`
@@ -181,17 +185,17 @@ export const finderController = {
       categories: [
         {
           heading: { text: "For" },
-          items: allSelectedItems  }
+          items: allSelectedItems
+        }
       ]
     };
 
-
-    // Filter logic for 'Certified In' (authorisedIn) and 'Fuels Allowed'
+    // --- Filtering Logic ---
     let filteredResponse = totalResponse;
-    // Filter by Certified In
-    if (selectedAuthorisedIn.length > 0) {
+    // Filter by Authorised In
+    if (selectedCertifiedIn.length > 0) {
       filteredResponse = filteredResponse.filter(item =>
-        item.authorisedIn && selectedAuthorisedIn.some(val =>
+        item.authorisedIn && selectedCertifiedIn.some(val =>
           Array.isArray(item.authorisedIn)
             ? item.authorisedIn.includes(val)
             : String(item.authorisedIn).includes(val)
@@ -219,31 +223,30 @@ export const finderController = {
       );
     }
 
-    const searchAndFilteredResponse = filteredResponse;
-    console.log('Total records fetched:', totalResponse)
     // Calculate pagination
-    const totalRecords = searchAndFilteredResponse.length
+    const totalRecords = searchAndFilteredResponse.length;
     const totalPages =
-      totalRecords > 0 ? Math.ceil(totalRecords / ITEMS_PER_PAGE) : 0
+      totalRecords > 0 ? Math.ceil(totalRecords / ITEMS_PER_PAGE) : 0;
     const validPage =
-      totalPages > 0 ? Math.min(currentPage, Math.max(1, totalPages)) : 1
-    const startIndex = (validPage - 1) * ITEMS_PER_PAGE
+      totalPages > 0 ? Math.min(currentPage, Math.max(1, totalPages)) : 1;
+    const startIndex = (validPage - 1) * ITEMS_PER_PAGE;
     const pageSpecificRecords = searchAndFilteredResponse.slice(
       startIndex,
       startIndex + ITEMS_PER_PAGE
-    )
-    if (type === 'appliances') {
-      pageSpecificRecords.forEach((record) => {
-        record.fuels = fuelTranslation(record.fuels, language)
-      })
-    }
+    );
 
-    const paginationLinks = buildPaginationLinks(
-      validPage,
-      totalPages,
-      searchQuery
-    )
-    const pageEndRecord = Math.min(validPage * ITEMS_PER_PAGE, totalRecords)
+    // Build pagination links
+    const paginationLinks = [];
+    if (totalPages > 0) {
+      for (let i = 1; i <= totalPages; i++) {
+        paginationLinks.push({
+          text: i.toString(),
+          href: `?page=${i}&search=${encodeURIComponent(searchQuery)}`,
+          isCurrent: i === validPage
+        });
+      }
+    }
+    const pageEndRecord = Math.min(validPage * ITEMS_PER_PAGE, totalRecords);
 
     return h.view('finder/index', {
       ...finderContent[type][language],
@@ -260,9 +263,9 @@ export const finderController = {
       ITEMS_PER_PAGE,
       //backLinkHref: '#' //TODO: add correct back link once home page finalised
       selectedFilters,
-      typeOptions,
+      certifiedInOptions,
       fuelsAllowedOptions,
       applianceTypeOptions
-    })
+    });
   }
 }
