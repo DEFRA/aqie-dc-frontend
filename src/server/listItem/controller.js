@@ -22,27 +22,11 @@ export const listItemController = {
     }
     console.log('Fetched item:', item)
 
-    // Build the certified countries list from approval fields
-    const certifiedCountries = []
-    if (item.englandApproval === 'Approved') {
-      certifiedCountries.push('England')
-    }
-    if (item.scotlandApproval === 'Approved') {
-      certifiedCountries.push('Scotland')
-    }
-    if (item.walesApproval === 'Approved') {
-      certifiedCountries.push('Wales')
-    }
-    if (item.nIrelandApproval === 'Approved') {
-      certifiedCountries.push('Northern Ireland')
-    }
-    const certifiedIn = certifiedCountries.join(', ')
-
     // Build certification by country table
     const certification = [
       {
         name: 'England',
-        status: item.englandApproval === 'Approved' ? 'Yes' : 'No',
+        status: item.englandApproval === 'Cer' ? 'Yes' : 'No',
         firstCertified:
           item.englandApproval === 'Approved'
             ? item.englandFirstAuthorisedDate
@@ -90,7 +74,7 @@ export const listItemController = {
       applianceDetails: {
         name: item.modelName,
         manufacturer: item.manufacturerName,
-        certifiedIn,
+        certifiedIn: item.authorisedIn, //from the DB service
         fuelsAllowed: item.allowedFuels,
         type: item.applianceType,
         output: item.nominalOutput,
