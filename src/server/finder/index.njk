@@ -73,7 +73,6 @@
   },
   optionsHtml: filterOptionsHtml
 }) }}
-  <a href="/finder/{{ type }}/{{ language }}" class="govuk-link govuk-link--no-visited-state govuk-!-margin-left-2" style="margin-top: 1em; display: inline-block;">Clear filters</a>
 {# --- End filter options at the side --- #}
       </form>
     </div>
@@ -83,9 +82,11 @@
            <strong>{{showing}} {{ (currentPage - 1) * 2 + 1 }} {{to}} {{ pageEndRecord }} {{of}} {{ totalRecords }} {{records}}</strong>
         </p>
          {# --- Selected filters at the top --- #}
+{% if selectedFilters and selectedFilters.categories and selectedFilters.categories.length > 0 %}
 {{ mojFilter({
   selectedFilters: selectedFilters
 }) }}
+{% endif %}
 {# --- End selected filters at the top --- #}
   <div class="govuk-grid-row">
     <div class="govuk-grid-column-full">

@@ -54,7 +54,6 @@ export const finderController = {
     let totalResponse = [];
     totalResponse = await fetchAll(singularize(type));
 
-    const searchAndFilteredResponse = filteredResponse;
     console.log('Total records fetched:', totalResponse);
 
     //TODO is this elsewhere
@@ -222,6 +221,7 @@ export const finderController = {
         )
       );
     }
+    const searchAndFilteredResponse = filteredResponse;
 
     // Calculate pagination
     const totalRecords = searchAndFilteredResponse.length;
