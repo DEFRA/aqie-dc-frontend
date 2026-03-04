@@ -22,40 +22,18 @@ export const listItemController = {
     }
 
     // Build certification by country table
-    const certification = [
-      {
-        name: content.england,
-        status: item.englandApproval === 'Certified' ? content.yes : content.no,
-        firstCertified:
-          item.englandApproval === 'Certified'
-            ? item.englandDateFirstAuthorised
-            : null
-      },
-      {
-        name: content.scotland,
-        status: item.scotlandApproval === 'Certified' ? content.yes : content.no,
-        firstCertified:
-          item.scotlandApproval === 'Certified'
-            ? item.scotlandDateFirstAuthorised
-            : null
-      },
-      {
-        name: content.wales,
-        status: item.walesApproval === 'Certified' ? content.yes : content.no,
-        firstCertified:
-          item.walesApproval === 'Certified'
-            ? item.walesDateFirstAuthorised
-            : null
-      },
-      {
-        name: content.nIreland,
-        status: item.nIrelandApproval === 'Certified' ? content.yes : content.no,
-        firstCertified:
-          item.nIrelandApproval === 'Certified'
-            ? item.nIrelandDateFirstAuthorised
-            : null
-      }
-    ]
+    const countries = [
+  { key: 'england', approval: 'englandApproval', date: 'englandDateFirstAuthorised' },
+  { key: 'scotland', approval: 'scotlandApproval', date: 'scotlandDateFirstAuthorised' },
+  { key: 'wales', approval: 'walesApproval', date: 'walesDateFirstAuthorised' },
+  { key: 'nIreland', approval: 'nIrelandApproval', date: 'nIrelandDateFirstAuthorised' }
+]
+
+const certification = countries.map(({ key, approval, date }) => ({
+  name: content[key],
+  status: item[approval] === 'Certified' ? content.yes : content.no,
+  firstCertified: item[approval] === 'Certified' ? item[date] : null
+}))
 
     return h.view('listItem/index', {
       pageTitle: item.modelName,

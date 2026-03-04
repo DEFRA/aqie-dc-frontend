@@ -91,7 +91,7 @@ export const listItemContent = {
       dateFirstCertified: 'Date first Certified--CY'
     },
     notCertified: 'Not certified--CY',
-     yes: 'Yes--CY',
+    yes: 'Yes--CY',
     no: 'No--CY',
     england: 'England--CY',
     scotland: 'Scotland--CY',
