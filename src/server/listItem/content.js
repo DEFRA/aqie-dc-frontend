@@ -1,6 +1,9 @@
 /**
  * Content for the List Item (Appliance Details) page
  */
+
+import { config } from '../../config/config.js'
+
 export const listItemContent = {
   en: {
     publishedLabel: 'Published',
