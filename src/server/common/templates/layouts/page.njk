@@ -4,6 +4,8 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
 {% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/tag/macro.njk" import govukTag %}
 
 {# Import custom components globally #}
 {% from "heading/macro.njk" import appHeading %}
@@ -35,13 +37,12 @@
       items: breadcrumbs
     }) }} #} 
    {# not using breadcrumbs for now, but leaving the code incase we do want to add them in #}
-  
-  {% if backLinkHref %}
+   {% if backLinkHref %}
     {{ govukBackLink({
       text: backLinkText if backLinkText else "Back",
       href: backLinkHref
     }) }}
-  {% endif %}
+    {% endif %}
 {% endblock %}
 
 {% block content %}

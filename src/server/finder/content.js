@@ -151,3 +151,17 @@ export const finderContent = {
     }
   }
 }
+export const fuelMap = {
+  en: {
+    'Wood Logs': 'Wood Logs',
+    'Wood Pellets': 'Wood Pellets',
+    'Wood Chips': 'Wood Chips',
+    Other: 'Other'
+  },
+  cy: {
+    'Wood Logs': 'Wood Logs--cy',
+    'Wood Pellets': 'Wood Pellets--cy',
+    'Wood Chips': 'Wood Chips--cy',
+    Other: 'Other--cy'
+  }
+}

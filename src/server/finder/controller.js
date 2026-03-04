@@ -1,9 +1,47 @@
 import { fetchAll } from '../common/api/api.js'
 import { finderContent } from './content.js'
-import { singularize } from '../common/util.js'
+import { singularize, fuelTranslation } from '../common/util.js'
 
-const ITEMS_PER_PAGE = 2
+export const ITEMS_PER_PAGE = 25
+const ElllipsicalPageLimit = 3 // Number of pages to show before and after current page when using ellipses
 
+const buildPaginationLinks = (currentPage, totalPages, searchQuery) => {
+  const links = []
+  const add = (page, text = page) => {
+    links.push({
+      text,
+      href: `?page=${page}&search=${searchQuery}`,
+      isCurrent: page === currentPage
+    })
+  }
+
+  // Always show page 1
+  add(1)
+
+  // Left ellipsis
+  if (currentPage - 1 >= ElllipsicalPageLimit) {
+    links.push({ text: '…' }) // No link
+  }
+
+  // Middle range: current-1, current, current+1
+  for (let page = currentPage - 1; page <= currentPage + 1; page++) {
+    if (page > 1 && page < totalPages) {
+      add(page)
+    }
+  }
+
+  // Right ellipsis
+  if (currentPage + 1 < totalPages - 1) {
+    links.push({ text: '…' })
+  }
+
+  // Always show last page
+  if (totalPages > 1) {
+    add(totalPages)
+  }
+
+  return links
+}
 /**
  * Controller for the authorised appliances finder page
  */
@@ -29,18 +67,17 @@ export const finderController = {
       startIndex,
       startIndex + ITEMS_PER_PAGE
     )
-
-    // Build pagination links
-    const paginationLinks = []
-    if (totalPages > 0) {
-      for (let i = 1; i <= totalPages; i++) {
-        paginationLinks.push({
-          text: i.toString(),
-          href: `?page=${i}&search=${encodeURIComponent(searchQuery)}`,
-          isCurrent: i === validPage
-        })
-      }
+    if (type === 'appliances') {
+      pageSpecificRecords.forEach((record) => {
+        record.fuels = fuelTranslation(record.fuels, language)
+      })
     }
+
+    const paginationLinks = buildPaginationLinks(
+      validPage,
+      totalPages,
+      searchQuery
+    )
     const pageEndRecord = Math.min(validPage * ITEMS_PER_PAGE, totalRecords)
     return h.view('finder/index', {
       ...finderContent[type][language],
@@ -53,7 +90,9 @@ export const finderController = {
       currentPage: validPage,
       totalPages,
       paginationLinks,
-      pageEndRecord
+      pageEndRecord,
+      ITEMS_PER_PAGE
+      //backLinkHref: '#' //TODO: add correct back link once home page finalised
     })
   }
 }
