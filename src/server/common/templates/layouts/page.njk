@@ -37,11 +37,12 @@
       items: breadcrumbs
     }) }} #} 
    {# not using breadcrumbs for now, but leaving the code incase we do want to add them in #}
-  
+   {% if backLinkHref %}
     {{ govukBackLink({
       text: backLinkText if backLinkText else "Back",
       href: backLinkHref
     }) }}
+    {% endif %}
 {% endblock %}
 
 {% block content %}

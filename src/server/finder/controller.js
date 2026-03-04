@@ -67,9 +67,11 @@ export const finderController = {
       startIndex,
       startIndex + ITEMS_PER_PAGE
     )
-    pageSpecificRecords.forEach((record) => {
-      record.fuels = fuelTranslation(record.fuels, language)
-    })
+    if (type === 'appliances') {
+      pageSpecificRecords.forEach((record) => {
+        record.fuels = fuelTranslation(record.fuels, language)
+      })
+    }
 
     const paginationLinks = buildPaginationLinks(
       validPage,
@@ -89,8 +91,8 @@ export const finderController = {
       totalPages,
       paginationLinks,
       pageEndRecord,
-      ITEMS_PER_PAGE,
-      backLinkHref: '#' //TODO: add correct back link once home page finalised
+      ITEMS_PER_PAGE
+      //backLinkHref: '#' //TODO: add correct back link once home page finalised
     })
   }
 }
