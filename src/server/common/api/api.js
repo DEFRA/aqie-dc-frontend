@@ -60,8 +60,8 @@ export async function fetchById(type, applicationId) {
     try {
       const json = JSON.parse(text)
       return json.data || null
-    } catch (parseErr) {
-      logger.error('Failed to parse JSON response:', parseErr)
+    } catch (error) {
+      logger.error('Failed to parse JSON response:', error)
       return null
     }
   } catch (err) {
