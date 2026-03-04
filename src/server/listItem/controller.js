@@ -20,43 +20,41 @@ export const listItemController = {
     if (!item) {
       return h.response(`${appliance} not found`).code(404)
     }
-    console.log('Fetched item:', item)
 
     // Build certification by country table
     const certification = [
       {
-        name: 'England',
-        status: item.englandApproval === 'Certified' ? 'Yes' : 'No',
+        name: content.england,
+        status: item.englandApproval === 'Certified' ? content.yes : content.no,
         firstCertified:
           item.englandApproval === 'Certified'
             ? item.englandDateFirstAuthorised
             : null
       },
       {
-        name: 'Scotland',
-        status: item.scotlandApproval === 'Certified' ? 'Yes' : 'No',
+        name: content.scotland,
+        status: item.scotlandApproval === 'Certified' ? content.yes : content.no,
         firstCertified:
           item.scotlandApproval === 'Certified'
             ? item.scotlandDateFirstAuthorised
             : null
       },
       {
-        name: 'Wales',
-        status: item.walesApproval === 'Certified' ? 'Yes' : 'No',
+        name: content.wales,
+        status: item.walesApproval === 'Certified' ? content.yes : content.no,
         firstCertified:
           item.walesApproval === 'Certified'
             ? item.walesDateFirstAuthorised
             : null
       },
       {
-        name: 'Northern Ireland',
-        status: item.nIrelandApproval === 'Certified' ? 'Yes' : 'No',
+        name: content.nIreland,
+        status: item.nIrelandApproval === 'Certified' ? content.yes : content.no,
         firstCertified:
           item.nIrelandApproval === 'Certified'
             ? item.nIrelandDateFirstAuthorised
             : null
       }
-      // //TODO: xnFirstAuthorisedDate (e.g. nIrelandFirstAuthorisedDate) dont exisit, need more info on this
     ]
 
     return h.view('listItem/index', {

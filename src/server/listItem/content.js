@@ -42,6 +42,12 @@ export const listItemContent = {
       dateFirstCertified: 'Date first Certified'
     },
     notCertified: 'Not certified',
+    yes: 'Yes',
+    no: 'No',
+    england: 'England',
+    scotland: 'Scotland',
+    wales: 'Wales',
+    nIreland: 'Northern Ireland',
 
     legalBasisText: 'See the legal basis for certification in each UK country.',
     legalBasisHref: '/legal-basis-for-appliances'
@@ -86,6 +92,12 @@ export const listItemContent = {
       dateFirstCertified: 'Date first Certified--CY'
     },
     notCertified: 'Not certified--CY',
+     yes: 'Yes--CY',
+    no: 'No--CY',
+    england: 'England--CY',
+    scotland: 'Scotland--CY',
+    wales: 'Wales--CY',
+    nIreland: 'Northern Ireland--CY',
 
     legalBasisText:
       'See the legal basis for certification in each UK country.--CY',
