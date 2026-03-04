@@ -5,11 +5,10 @@ export const listItemContent = {
   en: {
     publishedLabel: 'Published',
     manufacturedByLabel: 'Manufactured by',
-
     departmentLabel: 'From:',
     departmentInfo: {
-      name: 'Department for Environment, Food and Rural Affairs',
-      url: 'https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs'
+      name: 'Department for Environment, Food and Rural Affairs--CY',
+      url: config.get('DefraUrl')
     },
 
     conditionsForUseHeading: 'Conditions for use',
