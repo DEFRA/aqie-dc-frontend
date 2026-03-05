@@ -21,12 +21,6 @@ vi.mock('../helpers/logging/logger.js', () => ({
   })
 }))
 
-const mockLogger = {
-  error: vi.fn(),
-  info: vi.fn(),
-  warn: vi.fn()
-}
-
 // ---------------------------
 // Mock config
 // ---------------------------
