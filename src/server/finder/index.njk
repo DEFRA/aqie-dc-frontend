@@ -83,7 +83,7 @@
            <strong>{{showing}} {{ (currentPage - 1) * 2 + 1 }} {{to}} {{ pageEndRecord }} {{of}} {{ totalRecords }} {{records}}</strong>
         </p>
          {# --- Selected filters at the top --- #}
-      {% if selectedFilters.categories[0].items.length > 0 %}
+        {% if selectedFilters.categories.items.length > 0 %}
           {{ appFilter({
             selectedFilters: selectedFilters
           }) }}
