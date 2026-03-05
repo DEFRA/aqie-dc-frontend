@@ -214,13 +214,20 @@ export const finderController = {
     }
     // Filter by Fuels Allowed
     if (selectedFuelsAllowed.length > 0) {
-      filteredResponse = filteredResponse.filter(item =>
-        item.fuels && selectedFuelsAllowed.some(val =>
-          Array.isArray(item.fuels)
-            ? item.fuels.includes(val)
-            : String(item.fuels) === val
-        )
-      );
+      filteredResponse = filteredResponse.filter(item => {
+        if (!item.fuels) return false;
+        // Handle array of fuels
+        if (Array.isArray(item.fuels)) {
+          return selectedFuelsAllowed.some(val =>
+            item.fuels.some(f => f.toLowerCase().trim() === val.toLowerCase().trim())
+          );
+        }
+        // Handle comma-separated string of fuels
+        const fuelsArray = String(item.fuels).split(',').map(f => f.trim().toLowerCase());
+        return selectedFuelsAllowed.some(val =>
+          fuelsArray.includes(val.toLowerCase().trim())
+        );
+      }); //TODO - will we capitalising the records in the dataset solve the issue of matching user input with dataset values? (e.g. "wood logs" vs "Wood logs") - if so, we can remove the toLowerCase() calls here
     }
     // Filter by Appliance Type
     if (selectedApplianceType.length > 0) {
