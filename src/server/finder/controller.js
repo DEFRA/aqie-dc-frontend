@@ -91,24 +91,17 @@ export const finderController = {
       selectedFuelsAllowed = [request.query.fuelsAllowed.trim()];
     }
 
-    //Checkbox Options - Fuels Allowed options are those present in the dataset
-      const fuelsAllowedSet = [];
-    for (const item of totalResponse) {
-      if (item.fuels) {
-        const values = Array.isArray(item.fuels) ? item.fuels : [item.fuels];
-        for (const val of values) {
-          const trimmedVal = val.trim();
-          if (!fuelsAllowedSet.includes(trimmedVal)) {
-            fuelsAllowedSet.push(trimmedVal);
-          }
-        }
-      }
-    }
-    const fuelsAllowedOptions = fuelsAllowedSet.map(val => ({
-      value: val,
-      text: capitalize(val),
-      checked: selectedFuelsAllowed.includes(val)
-    }));
+    //Checkbox Options
+    const fuelsAllowedOptions = [
+      { value: "Wood logs", text: "Wood logs", checked: selectedFuelsAllowed.includes("Wood logs") },
+      { value: "Wood chips", text: "Wood chips", checked: selectedFuelsAllowed.includes("Wood chips") },
+      { value: "Wood pellets", text: "Wood pellets", checked: selectedFuelsAllowed.includes("Wood pellets") },
+      { value: "Waste and scrap wood (including pallets)", text: "Waste and scrap wood (including pallets)", checked: selectedFuelsAllowed.includes("Waste and scrap wood (including pallets)") },
+      { value: "Compound wood (chipboard, plywood, MDF)", text: "Compound wood (chipboard, plywood, MDF)", checked: selectedFuelsAllowed.includes("Compound wood (chipboard, plywood, MDF)") },
+      { value: "Sawdust and wood shavings", text: "Sawdust and wood shavings", checked: selectedFuelsAllowed.includes("Sawdust and wood shavings") },
+      { value: "Wood briquettes", text: "Wood briquettes", checked: selectedFuelsAllowed.includes("Wood briquettes") },
+      { value: "Peat briquettes", text: "Peat briquettes", checked: selectedFuelsAllowed.includes("Peat briquettes") }
+    ];
 
     // Record of selected options that are params in URL
     let selectedApplianceType = [];
