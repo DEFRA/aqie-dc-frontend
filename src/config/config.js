@@ -255,7 +255,7 @@ export const config = convict({
 config.validate({ allowed: 'strict' })
 
 // Load local overrides (gitignored — safe for local secrets like API keys)
-const localConfigPath = path.resolve(dirname, '../../config/local.json')
+const localConfigPath = path.resolve(dirname, './local.json')
 if (existsSync(localConfigPath)) {
   config.loadFile(localConfigPath)
   config.validate({ allowed: 'strict' })

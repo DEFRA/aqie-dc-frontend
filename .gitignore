@@ -10,4 +10,4 @@ coverage
 .envrc
 tsconfig.tsbuildinfo
 .env
-config/local.json
+src/config/local.json
