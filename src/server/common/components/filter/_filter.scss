@@ -1,0 +1,74 @@
+@use "govuk-frontend" as *;
+
+.app-filter {
+  background-color: govuk-colour("light-grey");
+  margin-bottom: govuk-spacing(6);
+}
+
+.app-filter__header {
+  background-color: govuk-colour("blue");
+  color: govuk-colour("white");
+  padding: govuk-spacing(3) govuk-spacing(4);
+}
+
+.app-filter__header-title .govuk-heading-m {
+  color: govuk-colour("white");
+  margin-bottom: 0;
+}
+
+.app-filter__content {
+  padding: govuk-spacing(4);
+}
+
+.app-filter__selected {
+  border-bottom: 1px solid govuk-colour("mid-grey");
+  margin-bottom: govuk-spacing(4);
+  padding-bottom: govuk-spacing(4);
+}
+
+.app-filter__selected-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: govuk-spacing(2);
+}
+
+.app-filter__heading-title .govuk-heading-m,
+.app-filter__heading-action p {
+  margin-bottom: 0;
+}
+
+.app-filter-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: govuk-spacing(1);
+  list-style: none;
+  margin: govuk-spacing(2) 0 govuk-spacing(3);
+  padding: 0;
+}
+
+.app-filter__tag {
+  @include govuk-font($size: 16);
+  background-color: govuk-colour("mid-grey");
+  border-radius: 2px;
+  color: govuk-colour("black");
+  display: inline-block;
+  padding: govuk-spacing(1) govuk-spacing(2);
+  text-decoration: none;
+
+  &:hover {
+    background-color: govuk-colour("dark-grey");
+    color: govuk-colour("white");
+  }
+
+  &:focus {
+    @include govuk-focused-text;
+  }
+}
+
+.app-filter__options {
+  .govuk-button {
+    margin-bottom: govuk-spacing(4);
+  }
+}
