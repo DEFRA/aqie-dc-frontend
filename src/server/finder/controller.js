@@ -66,9 +66,9 @@ export const finderController = {
     //Record of selected options that are params in URL - (Note: After form is submitted, the selected options are added to the URL)
       let selectedCertifiedIn = [];
     if (Array.isArray(request.query.certifiedIn)) {
-      selectedCertifiedIn = request.query.certifiedIn;
+      selectedCertifiedIn = request.query.certifiedIn.map(v => v.trim());
     } else if (request.query.certifiedIn) {
-      selectedCertifiedIn = [request.query.certifiedIn];
+      selectedCertifiedIn = [request.query.certifiedIn.trim()];
     }
     
     //Checkbox Options
@@ -76,7 +76,7 @@ export const finderController = {
       { value: "England", text: "England", checked: selectedCertifiedIn.includes("England") },
       { value: "Scotland", text: "Scotland", checked: selectedCertifiedIn.includes("Scotland") },
       { value: "Wales", text: "Wales", checked: selectedCertifiedIn.includes("Wales") },
-      { value: "NorthernIreland", text: "Northern Ireland", checked: selectedCertifiedIn.includes("Northern Ireland") }
+      { value: "Northern Ireland", text: "Northern Ireland", checked: selectedCertifiedIn.includes("Northern Ireland") }
     ];
 
   
@@ -86,9 +86,9 @@ export const finderController = {
     //Record of selected options that are params in URL
     let selectedFuelsAllowed = [];
     if (Array.isArray(request.query.fuelsAllowed)) {
-      selectedFuelsAllowed = request.query.fuelsAllowed;
+      selectedFuelsAllowed = request.query.fuelsAllowed.map(v => v.trim());
     } else if (request.query.fuelsAllowed) {
-      selectedFuelsAllowed = [request.query.fuelsAllowed];
+      selectedFuelsAllowed = [request.query.fuelsAllowed.trim()];
     }
 
     //Checkbox Options - Fuels Allowed options are those present in the dataset
@@ -97,8 +97,9 @@ export const finderController = {
       if (item.fuels) {
         const values = Array.isArray(item.fuels) ? item.fuels : [item.fuels];
         for (const val of values) {
-          if (!fuelsAllowedSet.includes(val)) {
-            fuelsAllowedSet.push(val);
+          const trimmedVal = val.trim();
+          if (!fuelsAllowedSet.includes(trimmedVal)) {
+            fuelsAllowedSet.push(trimmedVal);
           }
         }
       }
@@ -112,9 +113,9 @@ export const finderController = {
     // Record of selected options that are params in URL
     let selectedApplianceType = [];
     if (Array.isArray(request.query.applianceType)) {
-      selectedApplianceType = request.query.applianceType;
+      selectedApplianceType = request.query.applianceType.map(v => v.trim());
     } else if (request.query.applianceType) {
-      selectedApplianceType = [request.query.applianceType];
+      selectedApplianceType = [request.query.applianceType.trim()];
     }
     // Checkbox Options - Appliance Typeoptions are those present in the dataset
     const applianceTypeSet = [];
@@ -122,8 +123,9 @@ export const finderController = {
       if (item.type) {
         const values = Array.isArray(item.type) ? item.type : [item.type];
         for (const val of values) {
-          if (!applianceTypeSet.includes(val)) {
-            applianceTypeSet.push(val);
+          const trimmedVal = val.trim();
+          if (!applianceTypeSet.includes(trimmedVal)) {
+            applianceTypeSet.push(trimmedVal);
           }
         }
       }
