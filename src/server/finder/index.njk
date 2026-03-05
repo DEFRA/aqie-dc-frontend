@@ -78,17 +78,17 @@
       </form>
     </div>
     <div class="govuk-grid-column-two-thirds">
+      {# --- Selected filters at the top --- #}
+      {% if selectedFilters.categories.length > 0 %}
+        {{ appFilter({
+          selectedFilters: selectedFilters
+        }) }}
+      {% endif %}
+      {# --- End selected filters at the top --- #}
       {% if pageSpecificRecords.length > 0 %}
         <p class="govuk-body">
            <strong>{{showing}} {{ (currentPage - 1) * 2 + 1 }} {{to}} {{ pageEndRecord }} {{of}} {{ totalRecords }} {{records}}</strong>
         </p>
-         {# --- Selected filters at the top --- #}
-        {% if selectedFilters.categories.length > 0 %}
-          {{ appFilter({
-            selectedFilters: selectedFilters
-          }) }}
-        {% endif %}
-        {# --- End selected filters at the top --- #}
         <hr class="govuk-section-break govuk-section-break--visible">
         {% if type === 'appliances' %}
           {% for pageSpecificRecord in pageSpecificRecords %}
