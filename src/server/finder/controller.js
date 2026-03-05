@@ -119,38 +119,54 @@ export const finderController = {
     }
 
     //The  selected options displayed in grey boxes above the results, with an X to remove each one
-    const allSelectedItems = [
-      ...certifiedInOptions
-        .filter(option => selectedCertifiedIn.includes(option.value))
-        .map(option => ({
-          href: `?${buildQueryStringWithoutValue('certifiedIn', option.value, request.query)}`,
-          text: option.text
-        })),
-      ...fuelsAllowedOptions
-        .filter(option => selectedFuelsAllowed.includes(option.value))
-        .map(option => ({
-          href: `?${buildQueryStringWithoutValue('fuelsAllowed', option.value, request.query)}`,
-          text: option.text
-        })),
-      ...applianceTypeOptions
-        .filter(option => selectedApplianceType.includes(option.value))
-        .map(option => ({
-          href: `?${buildQueryStringWithoutValue('applianceType', option.value, request.query)}`,
-          text: option.text
-        }))
-    ];
+    const certifiedInSelectedItems = certifiedInOptions
+      .filter(option => selectedCertifiedIn.includes(option.value))
+      .map(option => ({
+        href: `?${buildQueryStringWithoutValue('certifiedIn', option.value, request.query)}`,
+        text: option.text
+      }));
+
+    const fuelsAllowedSelectedItems = fuelsAllowedOptions
+      .filter(option => selectedFuelsAllowed.includes(option.value))
+      .map(option => ({
+        href: `?${buildQueryStringWithoutValue('fuelsAllowed', option.value, request.query)}`,
+        text: option.text
+      }));
+
+    const applianceTypeSelectedItems = applianceTypeOptions
+      .filter(option => selectedApplianceType.includes(option.value))
+      .map(option => ({
+        href: `?${buildQueryStringWithoutValue('applianceType', option.value, request.query)}`,
+        text: option.text
+      }));
+
+    // Build categories array, only including categories that have selected items
+    const categories = [];
+    if (certifiedInSelectedItems.length > 0) {
+      categories.push({
+        heading: { text: "Authorised In" },
+        items: certifiedInSelectedItems
+      });
+    }
+    if (fuelsAllowedSelectedItems.length > 0) {
+      categories.push({
+        heading: { text: "Fuels Allowed" },
+        items: fuelsAllowedSelectedItems
+      });
+    }
+    if (applianceTypeSelectedItems.length > 0) {
+      categories.push({
+        heading: { text: "Appliance Type" },
+        items: applianceTypeSelectedItems
+      });
+    }
 
      const selectedFilters = {
       clearLink: {
         text: "Clear filters",
         href: `/finder/${type}/${language}`
       },
-      categories: [
-        {
-          heading: { text: "For" },
-          items: allSelectedItems
-        }
-      ]
+      categories: categories
     };
 
     // --- Filtering Logic ---
