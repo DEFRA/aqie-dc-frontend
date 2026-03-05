@@ -1,6 +1,7 @@
 import convict from 'convict'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { existsSync } from 'node:fs'
 
 import convictFormatWithValidator from 'convict-format-with-validator'
 
@@ -252,3 +253,10 @@ export const config = convict({
 })
 
 config.validate({ allowed: 'strict' })
+
+// Load local overrides (gitignored — safe for local secrets like API keys)
+const localConfigPath = path.resolve(dirname, '../../config/local.json')
+if (existsSync(localConfigPath)) {
+  config.loadFile(localConfigPath)
+  config.validate({ allowed: 'strict' })
+}
