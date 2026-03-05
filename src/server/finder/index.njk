@@ -65,7 +65,7 @@
 }) }}
 {% endset -%}
 
-{{ mojFilter({
+{{ appFilter({
   submit: {
     attributes: {
         "data-test-id": "submit-button"
@@ -83,7 +83,7 @@
         </p>
          {# --- Selected filters at the top --- #}
 {% if selectedFilters and selectedFilters.categories and selectedFilters.categories.length > 0 %}
-{{ mojFilter({
+{{ appFilter({
   selectedFilters: selectedFilters
 }) }}
 {% endif %}
