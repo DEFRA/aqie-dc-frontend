@@ -9,206 +9,233 @@ const ITEMS_PER_PAGE = 25
  */
 export const finderController = {
   async handler(request, h) {
-    const { type, language = 'en' } = request.params;
-    const searchQuery = request.query.search || '';
-    const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1);
+    const { type, language = 'en' } = request.params
 
-    let totalResponse = [];
-    totalResponse = await fetchAll(singularize(type));
+    // Validate type and language against known content keys
+    const validTypes = Object.keys(finderContent).filter((k) => k !== 'search')
+    const validLanguages = ['en', 'cy']
+    if (!validTypes.includes(type) || !validLanguages.includes(language)) {
+      return h.response('Not Found').code(404)
+    }
 
-    console.log('Total records fetched:', totalResponse);
+    const searchQuery = request.query.search || ''
+    const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
+
+    let totalResponse = []
+    totalResponse = await fetchAll(singularize(type))
 
     //TODO is this elsewhere
-       function capitalize(str) {
-      if (!str) return str;
-      return str.charAt(0).toUpperCase() + str.slice(1);
+    function capitalize(str) {
+      if (!str) return str
+      return str.charAt(0).toUpperCase() + str.slice(1)
     }
 
     // --- Certified In ---
     //Record of selected options that are params in URL - (Note: After form is submitted, the selected options are added to the URL)
-      let selectedCertifiedIn = [];
+    let selectedCertifiedIn = []
     if (Array.isArray(request.query.certifiedIn)) {
-      selectedCertifiedIn = request.query.certifiedIn;
+      selectedCertifiedIn = request.query.certifiedIn
     } else if (request.query.certifiedIn) {
-      selectedCertifiedIn = [request.query.certifiedIn];
+      selectedCertifiedIn = [request.query.certifiedIn]
     }
-    
+
     //Checkbox Options
     const certifiedInOptions = [
-      { value: "England", text: "England", checked: selectedCertifiedIn.includes("England") },
-      { value: "Scotland", text: "Scotland", checked: selectedCertifiedIn.includes("Scotland") },
-      { value: "Wales", text: "Wales", checked: selectedCertifiedIn.includes("Wales") },
-      { value: "NorthernIreland", text: "Northern Ireland", checked: selectedCertifiedIn.includes("Northern Ireland") }
-    ];
-
-  
-    
+      {
+        value: 'England',
+        text: 'England',
+        checked: selectedCertifiedIn.includes('England')
+      },
+      {
+        value: 'Scotland',
+        text: 'Scotland',
+        checked: selectedCertifiedIn.includes('Scotland')
+      },
+      {
+        value: 'Wales',
+        text: 'Wales',
+        checked: selectedCertifiedIn.includes('Wales')
+      },
+      {
+        value: 'NorthernIreland',
+        text: 'Northern Ireland',
+        checked: selectedCertifiedIn.includes('Northern Ireland')
+      }
+    ]
 
     // --- Fuels Allowed ---
     //Record of selected options that are params in URL
-    let selectedFuelsAllowed = [];
+    let selectedFuelsAllowed = []
     if (Array.isArray(request.query.fuelsAllowed)) {
-      selectedFuelsAllowed = request.query.fuelsAllowed;
+      selectedFuelsAllowed = request.query.fuelsAllowed
     } else if (request.query.fuelsAllowed) {
-      selectedFuelsAllowed = [request.query.fuelsAllowed];
+      selectedFuelsAllowed = [request.query.fuelsAllowed]
     }
 
     //Checkbox Options - Fuels Allowed options are those present in the dataset
-      const fuelsAllowedSet = [];
+    const fuelsAllowedSet = []
     for (const item of totalResponse) {
       if (item.fuels) {
-        const values = Array.isArray(item.fuels) ? item.fuels : [item.fuels];
+        const values = Array.isArray(item.fuels) ? item.fuels : [item.fuels]
         for (const val of values) {
           if (!fuelsAllowedSet.includes(val)) {
-            fuelsAllowedSet.push(val);
+            fuelsAllowedSet.push(val)
           }
         }
       }
     }
-    const fuelsAllowedOptions = fuelsAllowedSet.map(val => ({
+    const fuelsAllowedOptions = fuelsAllowedSet.map((val) => ({
       value: val,
       text: capitalize(val),
       checked: selectedFuelsAllowed.includes(val)
-    }));
+    }))
 
     // Record of selected options that are params in URL
-    let selectedApplianceType = [];
+    let selectedApplianceType = []
     if (Array.isArray(request.query.applianceType)) {
-      selectedApplianceType = request.query.applianceType;
+      selectedApplianceType = request.query.applianceType
     } else if (request.query.applianceType) {
-      selectedApplianceType = [request.query.applianceType];
+      selectedApplianceType = [request.query.applianceType]
     }
     // Checkbox Options - Appliance Typeoptions are those present in the dataset
-    const applianceTypeSet = [];
+    const applianceTypeSet = []
     for (const item of totalResponse) {
       if (item.type) {
-        const values = Array.isArray(item.type) ? item.type : [item.type];
+        const values = Array.isArray(item.type) ? item.type : [item.type]
         for (const val of values) {
           if (!applianceTypeSet.includes(val)) {
-            applianceTypeSet.push(val);
+            applianceTypeSet.push(val)
           }
         }
       }
     }
-    const applianceTypeOptions = applianceTypeSet.map(val => ({
+    const applianceTypeOptions = applianceTypeSet.map((val) => ({
       value: val,
       text: capitalize(val),
       checked: selectedApplianceType.includes(val)
-    }));
+    }))
 
     // --- Selected Filters (all categories) ---
     // X remove button, Helper to build query string without a specific value (selected option to be removed)
     function buildQueryStringWithoutValue(keyToRemove, removeValue, query) {
-      const params = [];
+      const params = []
       for (const [key, value] of Object.entries(query)) {
         if (key === keyToRemove) {
           // Remove the value to be removed
-          const values = Array.isArray(value) ? value : [value];
-          values.filter(v => v !== removeValue).forEach(v => params.push(`${key}=${encodeURIComponent(v)}`));
+          const values = Array.isArray(value) ? value : [value]
+          values
+            .filter((v) => v !== removeValue)
+            .forEach((v) => params.push(`${key}=${encodeURIComponent(v)}`))
         } else {
           if (Array.isArray(value)) {
-            value.forEach(v => params.push(`${key}=${encodeURIComponent(v)}`));
+            value.forEach((v) => params.push(`${key}=${encodeURIComponent(v)}`))
           } else {
-            params.push(`${key}=${encodeURIComponent(value)}`);
+            params.push(`${key}=${encodeURIComponent(value)}`)
           }
         }
       }
-      return params.join('&');
+      return params.join('&')
     }
 
     //The  selected options displayed in grey boxes above the results, with an X to remove each one
     const allSelectedItems = [
       ...certifiedInOptions
-        .filter(option => selectedCertifiedIn.includes(option.value))
-        .map(option => ({
+        .filter((option) => selectedCertifiedIn.includes(option.value))
+        .map((option) => ({
           href: `?${buildQueryStringWithoutValue('certifiedIn', option.value, request.query)}`,
           text: option.text
         })),
       ...fuelsAllowedOptions
-        .filter(option => selectedFuelsAllowed.includes(option.value))
-        .map(option => ({
+        .filter((option) => selectedFuelsAllowed.includes(option.value))
+        .map((option) => ({
           href: `?${buildQueryStringWithoutValue('fuelsAllowed', option.value, request.query)}`,
           text: option.text
         })),
       ...applianceTypeOptions
-        .filter(option => selectedApplianceType.includes(option.value))
-        .map(option => ({
+        .filter((option) => selectedApplianceType.includes(option.value))
+        .map((option) => ({
           href: `?${buildQueryStringWithoutValue('applianceType', option.value, request.query)}`,
           text: option.text
         }))
-    ];
+    ]
 
-     const selectedFilters = {
+    const selectedFilters = {
       clearLink: {
-        text: "Clear filters",
+        text: 'Clear filters',
         href: `/finder/${type}/${language}`
       },
       categories: [
         {
-          heading: { text: "For" },
+          heading: { text: 'For' },
           items: allSelectedItems
         }
       ]
-    };
+    }
 
     // --- Filtering Logic ---
-    let filteredResponse = totalResponse;
+    let filteredResponse = totalResponse
     // Filter by Authorised In
     if (selectedCertifiedIn.length > 0) {
-      filteredResponse = filteredResponse.filter(item =>
-        item.authorisedIn && selectedCertifiedIn.some(val =>
-          Array.isArray(item.authorisedIn)
-            ? item.authorisedIn.includes(val)
-            : String(item.authorisedIn).includes(val)
-        )
-      );
+      filteredResponse = filteredResponse.filter(
+        (item) =>
+          item.authorisedIn &&
+          selectedCertifiedIn.some((val) =>
+            Array.isArray(item.authorisedIn)
+              ? item.authorisedIn.includes(val)
+              : String(item.authorisedIn).includes(val)
+          )
+      )
     }
     // Filter by Fuels Allowed
     if (selectedFuelsAllowed.length > 0) {
-      filteredResponse = filteredResponse.filter(item =>
-        item.fuels && selectedFuelsAllowed.some(val =>
-          Array.isArray(item.fuels)
-            ? item.fuels.includes(val)
-            : String(item.fuels) === val
-        )
-      );
+      filteredResponse = filteredResponse.filter(
+        (item) =>
+          item.fuels &&
+          selectedFuelsAllowed.some((val) =>
+            Array.isArray(item.fuels)
+              ? item.fuels.includes(val)
+              : String(item.fuels) === val
+          )
+      )
     }
     // Filter by Appliance Type
     if (selectedApplianceType.length > 0) {
-      filteredResponse = filteredResponse.filter(item =>
-        item.type && selectedApplianceType.some(val =>
-          Array.isArray(item.type)
-            ? item.type.includes(val)
-            : String(item.type) === val
-        )
-      );
+      filteredResponse = filteredResponse.filter(
+        (item) =>
+          item.type &&
+          selectedApplianceType.some((val) =>
+            Array.isArray(item.type)
+              ? item.type.includes(val)
+              : String(item.type) === val
+          )
+      )
     }
-    const searchAndFilteredResponse = filteredResponse;
 
     // Calculate pagination
-    const totalRecords = searchAndFilteredResponse.length;
+    const searchAndFilteredResponse = filteredResponse
+    const totalRecords = searchAndFilteredResponse.length
     const totalPages =
-      totalRecords > 0 ? Math.ceil(totalRecords / ITEMS_PER_PAGE) : 0;
+      totalRecords > 0 ? Math.ceil(totalRecords / ITEMS_PER_PAGE) : 0
     const validPage =
-      totalPages > 0 ? Math.min(currentPage, Math.max(1, totalPages)) : 1;
-    const startIndex = (validPage - 1) * ITEMS_PER_PAGE;
+      totalPages > 0 ? Math.min(currentPage, Math.max(1, totalPages)) : 1
+    const startIndex = (validPage - 1) * ITEMS_PER_PAGE
     const pageSpecificRecords = searchAndFilteredResponse.slice(
       startIndex,
       startIndex + ITEMS_PER_PAGE
-    );
+    )
 
     // Build pagination links
-    const paginationLinks = [];
+    const paginationLinks = []
     if (totalPages > 0) {
       for (let i = 1; i <= totalPages; i++) {
         paginationLinks.push({
           text: i.toString(),
           href: `?page=${i}&search=${encodeURIComponent(searchQuery)}`,
           isCurrent: i === validPage
-        });
+        })
       }
     }
-    const pageEndRecord = Math.min(validPage * ITEMS_PER_PAGE, totalRecords);
+    const pageEndRecord = Math.min(validPage * ITEMS_PER_PAGE, totalRecords)
 
     return h.view('finder/index', {
       ...finderContent[type][language],
@@ -226,6 +253,6 @@ export const finderController = {
       certifiedInOptions,
       fuelsAllowedOptions,
       applianceTypeOptions
-    });
+    })
   }
 }

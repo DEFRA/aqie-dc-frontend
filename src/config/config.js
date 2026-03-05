@@ -224,14 +224,15 @@ export const config = convict({
     url: {
       doc: 'Backend URL',
       format: 'url',
-      default: 'http://localhost:3001',
+      default:
+        'https://ephemeral-protected.api.test.cdp-int.defra.cloud/aqie-dc-backend',
       env: 'BACKEND_URL'
     }
   },
   cdpXApiKey: {
     doc: 'CDP X API Key',
     format: '*',
-    default: '',
+    default: 'mLl5RSGS4pAhkjWxsNmIWZlHk351Tvqj',
     sensitive: true,
     env: 'CDP_X_API_KEY'
   },

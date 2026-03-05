@@ -16,9 +16,11 @@ export async function fetchAll(type) {
   try {
     const res = await fetch(url, {
       method: 'GET',
+      compress: false,
       headers: {
         'x-api-key': config.get('cdpXApiKey'),
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept-Encoding': 'identity'
       }
     })
     const text = await res.text()
@@ -47,9 +49,11 @@ export async function fetchById(type, applicationId) {
   try {
     const res = await fetch(url, {
       method: 'GET',
+      compress: false,
       headers: {
         'x-api-key': config.get('cdpXApiKey'),
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept-Encoding': 'identity'
       }
     })
     const text = await res.text()
