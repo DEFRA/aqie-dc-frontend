@@ -13,7 +13,6 @@
 {% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}
 
 
-
 {# Import custom components globally #}
 {% from "heading/macro.njk" import appHeading %}
 {%- from "filter/macro.njk" import appFilter -%}
@@ -45,13 +44,12 @@
       items: breadcrumbs
     }) }} #} 
    {# not using breadcrumbs for now, but leaving the code incase we do want to add them in #}
-  
-  {% if backLinkHref %}
+   {% if backLinkHref %}
     {{ govukBackLink({
       text: backLinkText if backLinkText else "Back",
       href: backLinkHref
     }) }}
-  {% endif %}
+    {% endif %}
 {% endblock %}
 
 {% block content %}

@@ -1,12 +1,5 @@
 {% extends 'layouts/page.njk' %}
 
-{% block beforeContent  %}
-{{ govukBackLink({
-      text: backLinkText if backLinkText else "Back",
-      href: backLinkHref
-    }) }}
-{% endblock %}
-
 
 {% block content %}
 
@@ -79,7 +72,7 @@
     <div class="govuk-grid-column-two-thirds">
       {% if pageSpecificRecords.length > 0 %}
         <p class="govuk-body">
-           <strong>{{showing}} {{ (currentPage - 1) * 2 + 1 }} {{to}} {{ pageEndRecord }} {{of}} {{ totalRecords }} {{records}}</strong>
+           <strong>{{showing}} {{ (currentPage - 1) * ITEMS_PER_PAGE + 1 }} {{to}} {{ pageEndRecord }} {{of}} {{ totalRecords }} {{records}}</strong>
         </p>
          {# --- Selected filters at the top --- #}
 {% if selectedFilters and selectedFilters.categories and selectedFilters.categories.length > 0 %}
@@ -96,7 +89,7 @@
                 <a href="/details/appliances/{{pageSpecificRecord.id}}/{{language}}" class="govuk-link">{{ pageSpecificRecord.name }}</a>
               </h3>
               <p class="govuk-body"><strong>{{manufacturedBy}} {{ pageSpecificRecord.manufacturer }}</strong></p>
-              <p class="govuk-body">{{fuelsAllowed}} {{ pageSpecificRecord.fuels }}</p>
+              <p class="govuk-body">{{fuelsAllowed}} {{ pageSpecificRecord.fuels }} </p>
               <p class="govuk-body">{{applianceType}} {{ pageSpecificRecord.type }}</p>
               <p class="govuk-body">{{authorisedIn}} {{ pageSpecificRecord.authorisedIn }}</p>
             </div>
@@ -137,12 +130,15 @@
                   <a class="govuk-link govuk-pagination__link" href="#" aria-label={{ link.text }}>
                       {{ link.text }}
                     </a>
-                    </li>
                   {% else %}
-                  <li class="govuk-pagination__item">
-                    <a class="govuk-link govuk-pagination__link" href="{{ link.href }}" aria-label={{ link.text }}>
-                      {{ link.text }}
-                    </a>
+                    {% if link.href %}
+                      <li class="govuk-pagination__item">
+                        <a class="govuk-link govuk-pagination__link" href="{{ link.href }}" aria-label={{ link.text }}>
+                          {{ link.text }}
+                        </a>
+                    {% else %}
+                      <li class="govuk-pagination__item govuk-pagination__item--ellipsis"> {{ link.text }}
+                    {%endif%}
                     </li>
                   {% endif %}
               {% endfor %}
