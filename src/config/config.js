@@ -232,7 +232,7 @@ export const config = convict({
   cdpXApiKey: {
     doc: 'CDP X API Key',
     format: '*',
-    default: 'mLl5RSGS4pAhkjWxsNmIWZlHk351Tvqj',
+    default: '',
     sensitive: true,
     env: 'CDP_X_API_KEY'
   },
