@@ -96,7 +96,9 @@
     "vitest-fetch-mock": "0.4.5",
     "webpack": "5.104.0",
     "webpack-assets-manifest": "6.5.0",
-    "webpack-cli": "6.0.1"
+    "webpack-cli": "6.0.1",
+    "joi": "17.13.3",
+    "sanitize-html": "2.17.1"
   },
   "overrides": {
     "tmp": "0.2.5"
