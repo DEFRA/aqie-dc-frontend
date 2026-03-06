@@ -151,7 +151,7 @@ export const finderController = {
         checked: selectedFuelsAllowed.includes('Peat briquettes')
       }
     ]
-
+    // --- Appliance Type ---
     // Record of selected options that are params in URL
     let selectedApplianceType = []
     if (Array.isArray(request.query.applianceType)) {
@@ -176,6 +176,35 @@ export const finderController = {
       value: val,
       text: capitalize(val),
       checked: selectedApplianceType.includes(val)
+    }))
+
+    // --- Manufacturer ---
+    // Record of selected options that are params in URL
+    let selectedManufacturer = []
+    if (Array.isArray(request.query.manufacturer)) {
+      selectedManufacturer = request.query.manufacturer.map((v) => v.trim())
+    } else if (request.query.manufacturer) {
+      selectedManufacturer = [request.query.manufacturer.trim()]
+    }
+    // Checkbox Options - Manufacturer options are those present in the dataset
+    const manufacturerSet = []
+    for (const item of totalResponse) {
+      if (item.manufacturer) {
+        const values = Array.isArray(item.manufacturer)
+          ? item.manufacturer
+          : [item.manufacturer]
+        for (const val of values) {
+          const trimmedVal = val.trim()
+          if (!manufacturerSet.includes(trimmedVal)) {
+            manufacturerSet.push(trimmedVal)
+          }
+        }
+      }
+    }
+    const manufacturerOptions = manufacturerSet.map((val) => ({
+      value: val,
+      text: capitalize(val),
+      checked: selectedManufacturer.includes(val)
     }))
 
     // --- Selected Filters (all categories) ---
@@ -222,6 +251,13 @@ export const finderController = {
         text: option.text
       }))
 
+    const manufacturerSelectedItems = manufacturerOptions
+      .filter((option) => selectedManufacturer.includes(option.value))
+      .map((option) => ({
+        href: `?${buildQueryStringWithoutValue('manufacturer', option.value, request.query)}`,
+        text: option.text
+      }))
+
     // Build categories array, only including categories that have selected items
     const categories = []
     if (certifiedInSelectedItems.length > 0) {
@@ -242,7 +278,12 @@ export const finderController = {
         items: applianceTypeSelectedItems
       })
     }
-
+    if (manufacturerSelectedItems.length > 0) {
+      categories.push({
+        heading: { text: 'Manufacturer' },
+        items: manufacturerSelectedItems
+      })
+    }
     const selectedFilters = {
       clearLink: {
         text: 'Clear filters',
@@ -298,6 +339,18 @@ export const finderController = {
           )
       )
     }
+    // Filter by Manufacturer
+    if (selectedManufacturer.length > 0) {
+      filteredResponse = filteredResponse.filter(
+        (item) =>
+          item.manufacturer &&
+          selectedManufacturer.some((val) =>
+            Array.isArray(item.manufacturer)
+              ? item.manufacturer.includes(val)
+              : String(item.manufacturer) === val
+          )
+      )
+    }
     const searchAndFilteredResponse = filteredResponse
 
     // Calculate pagination
@@ -339,6 +392,7 @@ export const finderController = {
       certifiedInOptions,
       fuelsAllowedOptions,
       applianceTypeOptions,
+      manufacturerOptions,
       ITEMS_PER_PAGE
       //backLinkHref: '#' //TODO: add correct back link once home page finalised
     })

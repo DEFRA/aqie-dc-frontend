@@ -35,27 +35,42 @@
             })
           }) }}
 
-          {{ govukDetails({
-            summaryText: "Fuels Allowed",
-            open: true,
-            html: govukCheckboxes({
-              idPrefix: "fuelsAllowed",
-              name: "fuelsAllowed",
-              classes: "govuk-checkboxes--small",
-              items: fuelsAllowedOptions
-            })
-          }) }}
+          {% if type === 'appliances' %}
+            {{ govukDetails({
+              summaryText: "Fuels Allowed",
+              open: true,
+              html: govukCheckboxes({
+                idPrefix: "fuelsAllowed",
+                name: "fuelsAllowed",
+                classes: "govuk-checkboxes--small",
+                items: fuelsAllowedOptions
+              })
+            }) }}
 
-          {{ govukDetails({
-            summaryText: "Appliance Type",
-            open: true,
-            html: govukCheckboxes({
-              idPrefix: "applianceType",
-              name: "applianceType",
-              classes: "govuk-checkboxes--small",
-              items: applianceTypeOptions
-            })
-          }) }}
+            {{ govukDetails({
+              summaryText: "Appliance Type",
+              open: true,
+              html: govukCheckboxes({
+                idPrefix: "applianceType",
+                name: "applianceType",
+                classes: "govuk-checkboxes--small",
+                items: applianceTypeOptions
+              })
+            }) }}
+          {% endif %}
+
+          {% if type === 'fuels' %}
+            {{ govukDetails({
+              summaryText: "Manufacturer",
+              open: true,
+              html: govukCheckboxes({
+                idPrefix: "manufacturer",
+                name: "manufacturer",
+                classes: "govuk-checkboxes--small",
+                items: manufacturerOptions
+              })
+            }) }}
+          {% endif %}
         {% endset -%}
 
         {{ appFilter({
