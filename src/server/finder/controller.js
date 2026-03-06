@@ -337,12 +337,20 @@ export const finderController = {
     const pageSpecificRecords = searchAndFilteredResponse.slice(
       startIndex,
       startIndex + ITEMS_PER_PAGE
-    )
-    if (type === 'appliances') {
-      pageSpecificRecords.forEach((record) => {
-        record.fuels = fuelTranslation(record.fuels, language)
-      })
+    );
+
+    // Build pagination links
+    const paginationLinks = [];
+    if (totalPages > 0) {
+      for (let i = 1; i <= totalPages; i++) {
+        paginationLinks.push({
+          text: i.toString(),
+          href: `?page=${i}&search=${encodeURIComponent(searchQuery)}`,
+          isCurrent: i === validPage
+        });
+      }
     }
+    const pageEndRecord = Math.min(validPage * ITEMS_PER_PAGE, totalRecords);
 
     const paginationLinks = buildPaginationLinks(
       validPage,
@@ -368,12 +376,12 @@ export const finderController = {
       totalPages,
       paginationLinks,
       pageEndRecord,
+      ITEMS_PER_PAGE,
+      //backLinkHref: '#' //TODO: add correct back link once home page finalised
       selectedFilters,
       certifiedInOptions,
       fuelsAllowedOptions,
-      applianceTypeOptions,
-      ITEMS_PER_PAGE
-      //backLinkHref: '#' //TODO: add correct back link once home page finalised
-    })
+      applianceTypeOptions
+    });
   }
 }

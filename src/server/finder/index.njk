@@ -1,5 +1,13 @@
 {% extends 'layouts/page.njk' %}
 
+{% block beforeContent  %}
+  {{ govukBackLink({
+        text: backLinkText if backLinkText else "Back",
+        href: backLinkHref
+      }) }}
+  {% endblock %}
+
+
 {% block content %}
 
   <div class="govuk-grid-row">
@@ -89,7 +97,7 @@
       {# --- End selected filters at the top --- #}
       {% if pageSpecificRecords.length > 0 %}
         <p class="govuk-body">
-           <strong>{{showing}} {{ (currentPage - 1) * ITEMS_PER_PAGE + 1 }} {{to}} {{ pageEndRecord }} {{of}} {{ totalRecords }} {{records}}</strong>
+           <strong>{{showing}} {{ (currentPage - 1) * 2 + 1 }} {{to}} {{ pageEndRecord }} {{of}} {{ totalRecords }} {{records}}</strong>
         </p>
         <hr class="govuk-section-break govuk-section-break--visible">
         {% if type === 'appliances' %}
@@ -152,7 +160,6 @@
                     {%endif%}
                     </li>
                   {% endif %}
-                
               {% endfor %}
             </ul>
             {% if currentPage < totalPages %}
