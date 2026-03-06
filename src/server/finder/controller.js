@@ -337,27 +337,15 @@ export const finderController = {
     const pageSpecificRecords = searchAndFilteredResponse.slice(
       startIndex,
       startIndex + ITEMS_PER_PAGE
-    );
+    )
 
-    // Build pagination links
-    const paginationLinks = [];
-    if (totalPages > 0) {
-      for (let i = 1; i <= totalPages; i++) {
-        paginationLinks.push({
-          text: i.toString(),
-          href: `?page=${i}&search=${encodeURIComponent(searchQuery)}`,
-          isCurrent: i === validPage
-        });
-      }
-    }
-    const pageEndRecord = Math.min(validPage * ITEMS_PER_PAGE, totalRecords);
+    const pageEndRecord = Math.min(validPage * ITEMS_PER_PAGE, totalRecords)
 
     const paginationLinks = buildPaginationLinks(
       validPage,
       totalPages,
       sanitizedSearchQuery
     )
-    const pageEndRecord = Math.min(validPage * ITEMS_PER_PAGE, totalRecords)
     return h.view('finder/index', {
       ...finderContent[type][language],
       type,
@@ -382,6 +370,6 @@ export const finderController = {
       certifiedInOptions,
       fuelsAllowedOptions,
       applianceTypeOptions
-    });
+    })
   }
 }
