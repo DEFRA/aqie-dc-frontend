@@ -56,42 +56,50 @@ export const finderController = {
 
     console.log('Total records fetched:', totalResponse)
 
-    //TODO is this elsewhere
+    // Capitalize first letter, rest lowercase
     function capitalize(str) {
       if (!str) return str
-      return str.charAt(0).toUpperCase() + str.slice(1)
+      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+    }
+
+    // Proper case for display: first letter of each word capitalized
+    function toProperCase(str) {
+      if (!str) return str
+      return str.split(' ').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+      ).join(' ')
     }
 
     // --- Certified In ---
     //Record of selected options that are params in URL - (Note: After form is submitted, the selected options are added to the URL)
     let selectedCertifiedIn = []
     if (Array.isArray(request.query.certifiedIn)) {
-      selectedCertifiedIn = request.query.certifiedIn.map((v) => v.trim())
+      selectedCertifiedIn = request.query.certifiedIn.map((v) => v.trim().toLowerCase())
     } else if (request.query.certifiedIn) {
-      selectedCertifiedIn = [request.query.certifiedIn.trim()]
+      selectedCertifiedIn = [request.query.certifiedIn.trim().toLowerCase()]
     }
 
     //Checkbox Options
     const certifiedInOptions = [
       {
-        value: 'England',
+        value: 'england',
         text: 'England',
-        checked: selectedCertifiedIn.includes('England')
+        checked: selectedCertifiedIn.includes('england')
       },
       {
-        value: 'Scotland',
+        value: 'scotland',
         text: 'Scotland',
-        checked: selectedCertifiedIn.includes('Scotland')
+        checked: selectedCertifiedIn.includes('scotland')
       },
       {
-        value: 'Wales',
+        value: 'wales',
         text: 'Wales',
-        checked: selectedCertifiedIn.includes('Wales')
+        checked: selectedCertifiedIn.includes('wales')
       },
       {
-        value: 'Northern Ireland',
+        value: 'northern ireland',
         text: 'Northern Ireland',
-        checked: selectedCertifiedIn.includes('Northern Ireland')
+        checked: selectedCertifiedIn.includes('northern ireland')
       }
     ]
 
@@ -99,65 +107,65 @@ export const finderController = {
     //Record of selected options that are params in URL
     let selectedFuelsAllowed = []
     if (Array.isArray(request.query.fuelsAllowed)) {
-      selectedFuelsAllowed = request.query.fuelsAllowed.map((v) => v.trim())
+      selectedFuelsAllowed = request.query.fuelsAllowed.map((v) => v.trim().toLowerCase())
     } else if (request.query.fuelsAllowed) {
-      selectedFuelsAllowed = [request.query.fuelsAllowed.trim()]
+      selectedFuelsAllowed = [request.query.fuelsAllowed.trim().toLowerCase()]
     }
 
     //Checkbox Options
     const fuelsAllowedOptions = [
       {
-        value: 'Wood logs',
+        value: 'wood logs',
         text: 'Wood logs',
-        checked: selectedFuelsAllowed.includes('Wood logs')
+        checked: selectedFuelsAllowed.includes('wood logs')
       },
       {
-        value: 'Wood chips',
+        value: 'wood chips',
         text: 'Wood chips',
-        checked: selectedFuelsAllowed.includes('Wood chips')
+        checked: selectedFuelsAllowed.includes('wood chips')
       },
       {
-        value: 'Wood pellets',
+        value: 'wood pellets',
         text: 'Wood pellets',
-        checked: selectedFuelsAllowed.includes('Wood pellets')
+        checked: selectedFuelsAllowed.includes('wood pellets')
       },
       {
-        value: 'Waste and scrap wood (including pallets)',
+        value: 'waste and scrap wood (including pallets)',
         text: 'Waste and scrap wood (including pallets)',
         checked: selectedFuelsAllowed.includes(
-          'Waste and scrap wood (including pallets)'
+          'waste and scrap wood (including pallets)'
         )
       },
       {
-        value: 'Compound wood (chipboard, plywood, MDF)',
+        value: 'compound wood (chipboard, plywood, mdf)',
         text: 'Compound wood (chipboard, plywood, MDF)',
         checked: selectedFuelsAllowed.includes(
-          'Compound wood (chipboard, plywood, MDF)'
+          'compound wood (chipboard, plywood, mdf)'
         )
       },
       {
-        value: 'Sawdust and wood shavings',
+        value: 'sawdust and wood shavings',
         text: 'Sawdust and wood shavings',
-        checked: selectedFuelsAllowed.includes('Sawdust and wood shavings')
+        checked: selectedFuelsAllowed.includes('sawdust and wood shavings')
       },
       {
-        value: 'Wood briquettes',
+        value: 'wood briquettes',
         text: 'Wood briquettes',
-        checked: selectedFuelsAllowed.includes('Wood briquettes')
+        checked: selectedFuelsAllowed.includes('wood briquettes')
       },
       {
-        value: 'Peat briquettes',
+        value: 'peat briquettes',
         text: 'Peat briquettes',
-        checked: selectedFuelsAllowed.includes('Peat briquettes')
+        checked: selectedFuelsAllowed.includes('peat briquettes')
       }
     ]
 
     // Record of selected options that are params in URL
     let selectedApplianceType = []
     if (Array.isArray(request.query.applianceType)) {
-      selectedApplianceType = request.query.applianceType.map((v) => v.trim())
+      selectedApplianceType = request.query.applianceType.map((v) => v.trim().toLowerCase())
     } else if (request.query.applianceType) {
-      selectedApplianceType = [request.query.applianceType.trim()]
+      selectedApplianceType = [request.query.applianceType.trim().toLowerCase()]
     }
     // Checkbox Options - Appliance Typeoptions are those present in the dataset
     const applianceTypeSet = []
@@ -165,7 +173,7 @@ export const finderController = {
       if (item.type) {
         const values = Array.isArray(item.type) ? item.type : [item.type]
         for (const val of values) {
-          const trimmedVal = val.trim()
+          const trimmedVal = val.trim().toLowerCase()
           if (!applianceTypeSet.includes(trimmedVal)) {
             applianceTypeSet.push(trimmedVal)
           }
@@ -174,7 +182,7 @@ export const finderController = {
     }
     const applianceTypeOptions = applianceTypeSet.map((val) => ({
       value: val,
-      text: capitalize(val),
+      text: toProperCase(val),
       checked: selectedApplianceType.includes(val)
     }))
 
@@ -260,8 +268,8 @@ export const finderController = {
           item.authorisedIn &&
           selectedCertifiedIn.some((val) =>
             Array.isArray(item.authorisedIn)
-              ? item.authorisedIn.includes(val)
-              : String(item.authorisedIn).includes(val)
+              ? item.authorisedIn.some(auth => auth.toLowerCase().trim() === val)
+              : String(item.authorisedIn).toLowerCase().trim() === val
           )
       )
     }
@@ -282,9 +290,9 @@ export const finderController = {
           .split(',')
           .map((f) => f.trim().toLowerCase())
         return selectedFuelsAllowed.some((val) =>
-          fuelsArray.includes(val.toLowerCase().trim())
+          fuelsArray.includes(val)
         )
-      }) //TODO - will we capitalising the records in the dataset solve the issue of matching user input with dataset values? (e.g. "wood logs" vs "Wood logs") - if so, we can remove the toLowerCase() calls here
+      })
     }
     // Filter by Appliance Type
     if (selectedApplianceType.length > 0) {
@@ -293,8 +301,8 @@ export const finderController = {
           item.type &&
           selectedApplianceType.some((val) =>
             Array.isArray(item.type)
-              ? item.type.includes(val)
-              : String(item.type) === val
+              ? item.type.some(type => type.toLowerCase().trim() === val)
+              : String(item.type).toLowerCase().trim() === val
           )
       )
     }
@@ -312,9 +320,24 @@ export const finderController = {
       startIndex + ITEMS_PER_PAGE
     );
 
+    // Apply proper case formatting for display
     if (type === 'appliances') {
       pageSpecificRecords.forEach((record) => {
         record.fuels = fuelTranslation(record.fuels, language)
+        record.manufacturer = toProperCase(record.manufacturer)
+        record.type = Array.isArray(record.type) 
+          ? record.type.map(t => toProperCase(t)).join(', ')
+          : toProperCase(record.type)
+        record.authorisedIn = Array.isArray(record.authorisedIn)
+          ? record.authorisedIn.map(a => toProperCase(a)).join(', ')
+          : toProperCase(record.authorisedIn)
+      })
+    } else {
+      pageSpecificRecords.forEach((record) => {
+        record.manufacturer = toProperCase(record.manufacturer)
+        record.authorisedIn = Array.isArray(record.authorisedIn)
+          ? record.authorisedIn.map(a => toProperCase(a)).join(', ')
+          : toProperCase(record.authorisedIn)
       })
     }
     const paginationLinks = buildPaginationLinks(
