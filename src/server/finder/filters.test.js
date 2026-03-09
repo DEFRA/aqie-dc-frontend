@@ -116,3 +116,64 @@ describe('finder filters', async () => {
     expect(filtered).toEqual(data)
   })
 })
+
+describe('applyFinderFilters – appliance type filtering', async () => {
+  const { applyFinderFilters } = await import('./filters.js')
+
+  const baseData = [
+    { id: 1, type: 'boiler' },
+    { id: 2, type: ['pizza oven', 'stove'] },
+    { id: 3, type: null },
+    { id: 4, type: 'heat' },
+    { id: 5, type: ['boiler'] }
+  ]
+
+  it('filters correctly when item.type is a string', () => {
+    const result = applyFinderFilters(baseData, {
+      selectedCertifiedIn: [],
+      selectedFuelsAllowed: [],
+      selectedApplianceType: ['boiler']
+    })
+    expect(result.map((i) => i.id)).toEqual([1, 5])
+  })
+
+  it('filters correctly when item.type is an array', () => {
+    const result = applyFinderFilters(baseData, {
+      selectedCertifiedIn: [],
+      selectedFuelsAllowed: [],
+      selectedApplianceType: ['pizza oven']
+    })
+    expect(result.map((i) => i.id)).toEqual([2])
+  })
+
+  it('excludes items with no type value', () => {
+    const result = applyFinderFilters(baseData, {
+      selectedCertifiedIn: [],
+      selectedFuelsAllowed: [],
+      selectedApplianceType: ['heat']
+    })
+    expect(result.map((i) => i.id)).toEqual([4])
+  })
+
+  it('returns an empty array when no items match the type', () => {
+    const result = applyFinderFilters(baseData, {
+      selectedCertifiedIn: [],
+      selectedFuelsAllowed: [],
+      selectedApplianceType: ['nonexistent-type']
+    })
+    expect(result).toEqual([])
+  })
+
+  it('executes the appliance type filter when selectedApplianceType has items', () => {
+    const spy = vi.spyOn(Array.prototype, 'filter')
+
+    applyFinderFilters(baseData, {
+      selectedCertifiedIn: [],
+      selectedFuelsAllowed: [],
+      selectedApplianceType: ['boiler']
+    })
+
+    expect(spy).toHaveBeenCalled()
+    spy.mockRestore()
+  })
+})

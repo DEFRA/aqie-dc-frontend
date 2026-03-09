@@ -112,93 +112,35 @@ export const buildFinderFilterState = ({ query, type, language }) => {
   const selectedFuelsAllowed = getSelectedValues(query.fuelsAllowed)
   const selectedApplianceType = getSelectedValues(query.applianceType)
 
-  const certifiedInOptions = [
-    {
-      value: 'england',
-      text: 'England',
-      checked: selectedCertifiedIn.includes('england')
-    },
-    {
-      value: 'scotland',
-      text: 'Scotland',
-      checked: selectedCertifiedIn.includes('scotland')
-    },
-    {
-      value: 'wales',
-      text: 'Wales',
-      checked: selectedCertifiedIn.includes('wales')
-    },
-    {
-      value: 'northern ireland',
-      text: 'Northern Ireland',
-      checked: selectedCertifiedIn.includes('northern ireland')
-    }
-  ]
+  const COUNTRIES = ['england', 'scotland', 'wales', 'northern ireland']
+  const certifiedInOptions = COUNTRIES.map((country) => ({
+    value: country,
+    text: toProperCase(country),
+    checked: selectedCertifiedIn.includes(country)
+  }))
 
-  const fuelsAllowedOptions = [
-    {
-      value: 'wood logs',
-      text: 'Wood logs',
-      checked: selectedFuelsAllowed.includes('wood logs')
-    },
-    {
-      value: 'wood chips',
-      text: 'Wood chips',
-      checked: selectedFuelsAllowed.includes('wood chips')
-    },
-    {
-      value: 'wood pellets',
-      text: 'Wood pellets',
-      checked: selectedFuelsAllowed.includes('wood pellets')
-    },
-    {
-      value: 'waste and scrap wood (including pallets)',
-      text: 'Waste and scrap wood (including pallets)',
-      checked: selectedFuelsAllowed.includes(
-        'waste and scrap wood (including pallets)'
-      )
-    },
-    {
-      value: 'compound wood (chipboard, plywood, mdf)',
-      text: 'Compound wood (chipboard, plywood, MDF)',
-      checked: selectedFuelsAllowed.includes(
-        'compound wood (chipboard, plywood, mdf)'
-      )
-    },
-    {
-      value: 'sawdust and wood shavings',
-      text: 'Sawdust and wood shavings',
-      checked: selectedFuelsAllowed.includes('sawdust and wood shavings')
-    },
-    {
-      value: 'wood briquettes',
-      text: 'Wood briquettes',
-      checked: selectedFuelsAllowed.includes('wood briquettes')
-    },
-    {
-      value: 'peat briquettes',
-      text: 'Peat briquettes',
-      checked: selectedFuelsAllowed.includes('peat briquettes')
-    }
+  const FUELS_ALLOWED = [
+    'wood logs',
+    'wood chips',
+    'wood pellets',
+    'waste and scrap wood (including pallets)',
+    'compound wood (chipboard, plywood, mdf)',
+    'sawdust and wood shavings',
+    'wood briquettes',
+    'peat briquettes'
   ]
+  const fuelsAllowedOptions = FUELS_ALLOWED.map((fuel) => ({
+    value: fuel,
+    text: toProperCase(fuel),
+    checked: selectedFuelsAllowed.includes(fuel)
+  }))
 
-  const applianceTypeOptions = [
-    {
-      value: 'pizza oven',
-      text: toProperCase('pizza oven'),
-      checked: selectedApplianceType.includes('pizza oven')
-    },
-    {
-      value: 'boiler',
-      text: toProperCase('boiler'),
-      checked: selectedApplianceType.includes('boiler')
-    },
-    {
-      value: 'heat',
-      text: toProperCase('heat'),
-      checked: selectedApplianceType.includes('heat')
-    }
-  ]
+  const APPLIANCE_TYPES = ['pizza oven', 'boiler', 'heat']
+  const applianceTypeOptions = APPLIANCE_TYPES.map((type) => ({
+    value: type,
+    text: toProperCase(type),
+    checked: selectedApplianceType.includes(type)
+  }))
 
   const selectedFilters = buildSelectedFilters({
     type,
@@ -235,7 +177,7 @@ export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
         item.authorisedIn &&
         selectedCertifiedIn.some((value) =>
           Array.isArray(item.authorisedIn)
-            ? item.authorisedIn.some((authorisedIn) => authorisedIn === value)
+            ? item.authorisedIn.includes(value)
             : String(item.authorisedIn) === value
         )
     )
@@ -243,9 +185,7 @@ export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
 
   if (selectedFuelsAllowed.length > 0) {
     filteredResponse = filteredResponse.filter((item) => {
-      if (!item.fuels) {
-        return false
-      }
+      if (!item.fuels) return false
 
       const fuels = String(item.fuels)
         .split(',')
@@ -256,15 +196,17 @@ export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
   }
 
   if (selectedApplianceType.length > 0) {
-    filteredResponse = filteredResponse.filter(
-      (item) =>
-        item.type &&
-        selectedApplianceType.some((value) =>
-          Array.isArray(item.type)
-            ? item.type.includes((type) => type === value)
-            : String(item.type) === value
+    filteredResponse = filteredResponse.filter((item) => {
+      if (!item.type) return false
+
+      if (Array.isArray(item.type)) {
+        return selectedApplianceType.some((value) =>
+          item.type.some((t) => t === value)
         )
-    )
+      }
+
+      return selectedApplianceType.includes(String(item.type))
+    })
   }
 
   return filteredResponse
