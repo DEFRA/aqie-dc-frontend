@@ -1,6 +1,12 @@
 import { fetchAll } from '../common/api/api.js'
 import { finderContent } from './content.js'
-import { singularize, fuelTranslation } from '../common/util.js'
+import {
+  singularize,
+  fuelTranslation,
+  toProperCase,
+  typeTranslation,
+  countryTranslation
+} from '../common/util.js'
 
 export const ITEMS_PER_PAGE = 25
 const ElllipsicalPageLimit = 3 // Number of pages to show before and after current page when using ellipses
@@ -56,25 +62,13 @@ export const finderController = {
 
     console.log('Total records fetched:', totalResponse)
 
-    // Capitalize first letter, rest lowercase
-    function capitalize(str) {
-      if (!str) return str
-      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
-    }
-
-    // Proper case for display: first letter of each word capitalized
-    function toProperCase(str) {
-      if (!str) return str
-      return str.split(' ').map(word => 
-        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-      ).join(' ')
-    }
-
     // --- Certified In ---
     //Record of selected options that are params in URL - (Note: After form is submitted, the selected options are added to the URL)
     let selectedCertifiedIn = []
     if (Array.isArray(request.query.certifiedIn)) {
-      selectedCertifiedIn = request.query.certifiedIn.map((v) => v.trim().toLowerCase())
+      selectedCertifiedIn = request.query.certifiedIn.map((v) =>
+        v.trim().toLowerCase()
+      )
     } else if (request.query.certifiedIn) {
       selectedCertifiedIn = [request.query.certifiedIn.trim().toLowerCase()]
     }
@@ -107,7 +101,9 @@ export const finderController = {
     //Record of selected options that are params in URL
     let selectedFuelsAllowed = []
     if (Array.isArray(request.query.fuelsAllowed)) {
-      selectedFuelsAllowed = request.query.fuelsAllowed.map((v) => v.trim().toLowerCase())
+      selectedFuelsAllowed = request.query.fuelsAllowed.map((v) =>
+        v.trim().toLowerCase()
+      )
     } else if (request.query.fuelsAllowed) {
       selectedFuelsAllowed = [request.query.fuelsAllowed.trim().toLowerCase()]
     }
@@ -163,28 +159,31 @@ export const finderController = {
     // Record of selected options that are params in URL
     let selectedApplianceType = []
     if (Array.isArray(request.query.applianceType)) {
-      selectedApplianceType = request.query.applianceType.map((v) => v.trim().toLowerCase())
+      selectedApplianceType = request.query.applianceType.map((v) =>
+        v.trim().toLowerCase()
+      )
     } else if (request.query.applianceType) {
       selectedApplianceType = [request.query.applianceType.trim().toLowerCase()]
     }
-    // Checkbox Options - Appliance Typeoptions are those present in the dataset
-    const applianceTypeSet = []
-    for (const item of totalResponse) {
-      if (item.type) {
-        const values = Array.isArray(item.type) ? item.type : [item.type]
-        for (const val of values) {
-          const trimmedVal = val.trim().toLowerCase()
-          if (!applianceTypeSet.includes(trimmedVal)) {
-            applianceTypeSet.push(trimmedVal)
-          }
-        }
+    // Checkbox Options - Appliance Type
+    //TODO waiting for finalised List
+    const applianceTypeOptions = [
+      {
+        value: 'pizza oven',
+        text: toProperCase('pizza oven'),
+        checked: selectedApplianceType.includes('pizza oven')
+      },
+      {
+        value: 'boiler',
+        text: toProperCase('boiler'),
+        checked: selectedApplianceType.includes('boiler')
+      },
+      {
+        value: 'heat',
+        text: toProperCase('heat'),
+        checked: selectedApplianceType.includes('heat')
       }
-    }
-    const applianceTypeOptions = applianceTypeSet.map((val) => ({
-      value: val,
-      text: toProperCase(val),
-      checked: selectedApplianceType.includes(val)
-    }))
+    ]
 
     // --- Selected Filters (all categories) ---
     // X remove button, Helper to build query string without a specific value (selected option to be removed)
@@ -262,47 +261,42 @@ export const finderController = {
     // --- Filtering Logic ---
     let filteredResponse = totalResponse
     // Filter by Authorised In
+    //Authorised in is an array of strings or string
     if (selectedCertifiedIn.length > 0) {
       filteredResponse = filteredResponse.filter(
         (item) =>
           item.authorisedIn &&
           selectedCertifiedIn.some((val) =>
             Array.isArray(item.authorisedIn)
-              ? item.authorisedIn.some(auth => auth.toLowerCase().trim() === val)
-              : String(item.authorisedIn).toLowerCase().trim() === val
+              ? item.authorisedIn.some((auth) => auth === val)
+              : String(item.authorisedIn) === val
           )
       )
     }
     // Filter by Fuels Allowed
+    //Fuels is a comma separated string
     if (selectedFuelsAllowed.length > 0) {
       filteredResponse = filteredResponse.filter((item) => {
-        if (!item.fuels) return false
-        // Handle array of fuels
-        if (Array.isArray(item.fuels)) {
-          return selectedFuelsAllowed.some((val) =>
-            item.fuels.some(
-              (f) => f.toLowerCase().trim() === val.toLowerCase().trim()
-            )
-          )
+        if (!item.fuels) {
+          return false
         }
-        // Handle comma-separated string of fuels
-        const fuelsArray = String(item.fuels)
+
+        const fuels = String(item.fuels)
           .split(',')
-          .map((f) => f.trim().toLowerCase())
-        return selectedFuelsAllowed.some((val) =>
-          fuelsArray.includes(val)
-        )
+          .map((str) => str.trim())
+        return selectedFuelsAllowed.some((val) => fuels.includes(val))
       })
     }
     // Filter by Appliance Type
+    //Appliance type is a string
     if (selectedApplianceType.length > 0) {
       filteredResponse = filteredResponse.filter(
         (item) =>
           item.type &&
           selectedApplianceType.some((val) =>
             Array.isArray(item.type)
-              ? item.type.some(type => type.toLowerCase().trim() === val)
-              : String(item.type).toLowerCase().trim() === val
+              ? item.type.includes((type) => type === val)
+              : String(item.type) === val
           )
       )
     }
@@ -318,25 +312,25 @@ export const finderController = {
     const pageSpecificRecords = searchAndFilteredResponse.slice(
       startIndex,
       startIndex + ITEMS_PER_PAGE
-    );
+    )
 
     // Apply proper case formatting for display
     if (type === 'appliances') {
       pageSpecificRecords.forEach((record) => {
-        record.fuels = fuelTranslation(record.fuels, language)
+        console.log('Original fuels:', record.fuels) // Debug log to check original values
+        record.fuels = toProperCase(fuelTranslation(record.fuels, language))
+        console.log('Translated fuels:', record.fuels) // Debug log to check translated values
         record.manufacturer = toProperCase(record.manufacturer)
-        record.type = Array.isArray(record.type) 
-          ? record.type.map(t => toProperCase(t)).join(', ')
-          : toProperCase(record.type)
-        record.authorisedIn = Array.isArray(record.authorisedIn)
-          ? record.authorisedIn.map(a => toProperCase(a)).join(', ')
-          : toProperCase(record.authorisedIn)
+        record.type = toProperCase(typeTranslation(record.type, language))
+        record.authorisedIn = toProperCase(
+          countryTranslation(record.authorisedIn, language)
+        )
       })
     } else {
       pageSpecificRecords.forEach((record) => {
         record.manufacturer = toProperCase(record.manufacturer)
         record.authorisedIn = Array.isArray(record.authorisedIn)
-          ? record.authorisedIn.map(a => toProperCase(a)).join(', ')
+          ? record.authorisedIn.map((a) => toProperCase(a)).join(', ')
           : toProperCase(record.authorisedIn)
       })
     }
@@ -364,6 +358,6 @@ export const finderController = {
       certifiedInOptions,
       fuelsAllowedOptions,
       applianceTypeOptions
-    });
+    })
   }
 }
