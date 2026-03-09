@@ -136,10 +136,10 @@ export const buildFinderFilterState = ({ query, type, language }) => {
   }))
 
   const APPLIANCE_TYPES = ['pizza oven', 'boiler', 'heat']
-  const applianceTypeOptions = APPLIANCE_TYPES.map((type) => ({
-    value: type,
-    text: toProperCase(type),
-    checked: selectedApplianceType.includes(type)
+  const applianceTypeOptions = APPLIANCE_TYPES.map((appType) => ({
+    value: appType,
+    text: toProperCase(appType),
+    checked: selectedApplianceType.includes(appType)
   }))
 
   const selectedFilters = buildSelectedFilters({
@@ -185,7 +185,9 @@ export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
 
   if (selectedFuelsAllowed.length > 0) {
     filteredResponse = filteredResponse.filter((item) => {
-      if (!item.fuels) return false
+      if (!item.fuels) {
+        return false
+      }
 
       const fuels = String(item.fuels)
         .split(',')
@@ -197,7 +199,9 @@ export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
 
   if (selectedApplianceType.length > 0) {
     filteredResponse = filteredResponse.filter((item) => {
-      if (!item.type) return false
+      if (!item.type) {
+        return false
+      }
 
       if (Array.isArray(item.type)) {
         return selectedApplianceType.some((value) =>
