@@ -78,7 +78,11 @@ export const finderController = {
     const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
     let totalResponse = []
     totalResponse = await fetchAll(singularize(type))
-    let searchResonse = searchFuntionlity(totalResponse, sanitizedSearchQuery)
+    let searchResonse = searchFuntionlity(
+      type,
+      totalResponse,
+      sanitizedSearchQuery
+    )
     let filteredResponse = searchResonse
     // const searchAndFilteredResponse = filteredResponse
     console.log('Total records fetched:', totalResponse)
