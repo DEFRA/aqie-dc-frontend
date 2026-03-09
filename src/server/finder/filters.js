@@ -1,0 +1,217 @@
+import { toProperCase } from '../common/util.js'
+
+const getSelectedValues = (queryValue) => {
+  if (Array.isArray(queryValue)) {
+    return queryValue.map((value) => value.trim().toLowerCase())
+  }
+
+  if (queryValue) {
+    return [queryValue.trim().toLowerCase()]
+  }
+
+  return []
+}
+
+const buildQueryStringWithoutValue = (keyToRemove, removeValue, query) => {
+  const params = []
+
+  for (const [key, value] of Object.entries(query)) {
+    if (key === keyToRemove) {
+      const values = Array.isArray(value) ? value : [value]
+      values
+        .filter((queryValue) => queryValue !== removeValue)
+        .forEach((queryValue) =>
+          params.push(`${key}=${encodeURIComponent(queryValue)}`)
+        )
+    } else if (Array.isArray(value)) {
+      value.forEach((queryValue) =>
+        params.push(`${key}=${encodeURIComponent(queryValue)}`)
+      )
+    } else {
+      params.push(`${key}=${encodeURIComponent(value)}`)
+    }
+  }
+
+  return params.join('&')
+}
+
+const buildSelectedItems = (options, selectedValues, query, queryKey) =>
+  options
+    .filter((option) => selectedValues.includes(option.value))
+    .map((option) => ({
+      href: `?${buildQueryStringWithoutValue(queryKey, option.value, query)}`,
+      text: option.text
+    }))
+
+const buildSelectedFilters = ({
+  type,
+  language,
+  query,
+  certifiedInOptions,
+  fuelsAllowedOptions,
+  applianceTypeOptions,
+  selectedCertifiedIn,
+  selectedFuelsAllowed,
+  selectedApplianceType
+}) => {
+  const certifiedInSelectedItems = buildSelectedItems(
+    certifiedInOptions,
+    selectedCertifiedIn,
+    query,
+    'certifiedIn'
+  )
+
+  const fuelsAllowedSelectedItems = buildSelectedItems(
+    fuelsAllowedOptions,
+    selectedFuelsAllowed,
+    query,
+    'fuelsAllowed'
+  )
+
+  const applianceTypeSelectedItems = buildSelectedItems(
+    applianceTypeOptions,
+    selectedApplianceType,
+    query,
+    'applianceType'
+  )
+
+  const categories = []
+
+  if (certifiedInSelectedItems.length > 0) {
+    categories.push({
+      heading: { text: 'Authorised In' },
+      items: certifiedInSelectedItems
+    })
+  }
+
+  if (fuelsAllowedSelectedItems.length > 0) {
+    categories.push({
+      heading: { text: 'Fuels Allowed' },
+      items: fuelsAllowedSelectedItems
+    })
+  }
+
+  if (applianceTypeSelectedItems.length > 0) {
+    categories.push({
+      heading: { text: 'Appliance Type' },
+      items: applianceTypeSelectedItems
+    })
+  }
+
+  return {
+    clearLink: {
+      text: 'Clear filters',
+      href: `/finder/${type}/${language}`
+    },
+    categories
+  }
+}
+
+export const buildFinderFilterState = ({ query, type, language }) => {
+  const selectedCertifiedIn = getSelectedValues(query.certifiedIn)
+  const selectedFuelsAllowed = getSelectedValues(query.fuelsAllowed)
+  const selectedApplianceType = getSelectedValues(query.applianceType)
+
+  const COUNTRIES = ['england', 'scotland', 'wales', 'northern ireland']
+  const certifiedInOptions = COUNTRIES.map((country) => ({
+    value: country,
+    text: toProperCase(country),
+    checked: selectedCertifiedIn.includes(country)
+  }))
+
+  const FUELS_ALLOWED = [
+    'wood logs',
+    'wood chips',
+    'wood pellets',
+    'waste and scrap wood (including pallets)',
+    'compound wood (chipboard, plywood, mdf)',
+    'sawdust and wood shavings',
+    'wood briquettes',
+    'peat briquettes'
+  ]
+  const fuelsAllowedOptions = FUELS_ALLOWED.map((fuel) => ({
+    value: fuel,
+    text: toProperCase(fuel),
+    checked: selectedFuelsAllowed.includes(fuel)
+  }))
+
+  const APPLIANCE_TYPES = ['pizza oven', 'boiler', 'heat']
+  const applianceTypeOptions = APPLIANCE_TYPES.map((appType) => ({
+    value: appType,
+    text: toProperCase(appType),
+    checked: selectedApplianceType.includes(appType)
+  }))
+
+  const selectedFilters = buildSelectedFilters({
+    type,
+    language,
+    query,
+    certifiedInOptions,
+    fuelsAllowedOptions,
+    applianceTypeOptions,
+    selectedCertifiedIn,
+    selectedFuelsAllowed,
+    selectedApplianceType
+  })
+
+  return {
+    selectedCertifiedIn,
+    selectedFuelsAllowed,
+    selectedApplianceType,
+    selectedFilters,
+    certifiedInOptions,
+    fuelsAllowedOptions,
+    applianceTypeOptions
+  }
+}
+
+export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
+  const { selectedCertifiedIn, selectedFuelsAllowed, selectedApplianceType } =
+    selectedFilterValues
+
+  let filteredResponse = totalResponse
+
+  if (selectedCertifiedIn.length > 0) {
+    filteredResponse = filteredResponse.filter(
+      (item) =>
+        item.authorisedIn &&
+        selectedCertifiedIn.some((value) =>
+          Array.isArray(item.authorisedIn)
+            ? item.authorisedIn.includes(value)
+            : String(item.authorisedIn) === value
+        )
+    )
+  }
+
+  if (selectedFuelsAllowed.length > 0) {
+    filteredResponse = filteredResponse.filter((item) => {
+      if (!item.fuels) {
+        return false
+      }
+
+      const fuels = String(item.fuels)
+        .split(',')
+        .map((fuel) => fuel.trim())
+
+      return selectedFuelsAllowed.some((value) => fuels.includes(value))
+    })
+  }
+
+  if (selectedApplianceType.length > 0) {
+    filteredResponse = filteredResponse.filter((item) => {
+      if (!item.type) {
+        return false
+      }
+
+      if (Array.isArray(item.type)) {
+        return selectedApplianceType.some((value) =>
+          item.type.some((t) => t === value)
+        )
+      }
+
+      return selectedApplianceType.includes(String(item.type))
+    })
+  }
+
+  return filteredResponse
+}

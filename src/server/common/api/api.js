@@ -23,21 +23,32 @@ export async function fetchAll(type) {
         'Content-Type': 'application/json'
       }
     })
-    const text = await res.text()
 
     if (!res.ok) {
-      throw new Error(`Failed to fetch ${url} (${res.status}): ${text}`)
-    }
-
-    try {
-      const json = JSON.parse(text)
-      return Array.isArray(json.data) ? json.data : []
-    } catch (error) {
-      logger.error('Failed to parse JSON response:', error)
+      const text = await res.text()
+      logger.error(`Failed to fetch ${url} (${res.status}): ${text}`)
       return []
     }
+
+    const json = await res.json()
+    if (!Array.isArray(json.data)) {
+      logger.warn(
+        `Expected array in response data for type "${type}", got:`,
+        json.data
+      )
+      return []
+    }
+    return json.data.map((item) => ({
+      ...item, //Ensure all are lowercase and trimmed for consistent searching and filtering
+      manufacturer: item.manufacturer.toLowerCase().trim(),
+      fuels: item.fuels.toLowerCase().trim(),
+      type: item.type.trim(),
+      authorisedIn: Array.isArray(item.authorisedIn)
+        ? item.authorisedIn.map((country) => country.toLowerCase().trim())
+        : []
+    }))
   } catch (err) {
-    logger.error('Error fetching data from backend:', err.message)
+    logger.error('Error fetching data from backend:', err)
     return []
   }
 }

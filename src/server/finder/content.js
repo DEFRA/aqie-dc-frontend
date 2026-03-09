@@ -165,3 +165,33 @@ export const fuelMap = {
     Other: 'Other--cy'
   }
 }
+
+export const typeMap = {
+  en: {
+    Heat: 'Heat',
+    'Pizza Oven': 'Pizza Oven',
+    Boiler: 'Boiler',
+    Other: 'Other'
+  },
+  cy: {
+    Heat: 'Heat--cy',
+    'Pizza Oven': 'Pizza Oven--cy',
+    Boiler: 'Boiler--cy',
+    Other: 'Other--cy'
+  }
+}
+
+export const countryMap = {
+  en: {
+    England: 'England',
+    Scotland: 'Scotland',
+    Wales: 'Wales',
+    'Northern Ireland': 'Northern Ireland'
+  },
+  cy: {
+    England: 'England--cy',
+    Scotland: 'Scotland--cy',
+    Wales: 'Wales--cy',
+    'Northern Ireland': 'Northern Ireland--cy'
+  }
+}

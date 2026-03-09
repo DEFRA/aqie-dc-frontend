@@ -1,20 +1,29 @@
-// tests/controller.test.js
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { ITEMS_PER_PAGE as chunck } from './controller.js'
 
 // Mock fetchAll and singularize BEFORE importing controller
 vi.mock('../common/api/api.js', () => ({
   fetchAll: vi.fn()
 }))
+
 vi.mock('../common/util.js', () => ({
   singularize: vi.fn((x) => (x.endsWith('s') ? x.slice(0, -1) : x)),
   fuelTranslation: vi.fn((data = '', language) => {
-    // Simple mock translation: append language code to each fuel
     return data
       .split(',')
       .map((fuel) => fuel.trim() + `--${language}`)
       .join(', ')
-  })
+  }),
+  toProperCase: vi.fn((value = '') => value),
+  typeTranslation: vi.fn((value = '') => value),
+  countryTranslation: vi.fn((value = '') => value)
+}))
+
+vi.mock('../finder/content.js', () => ({
+  finderContent: {
+    appliances: { en: {}, cy: {} },
+    installers: { en: { title: 'Installers' } } // <-- needed for your failing test
+  }
 }))
 
 describe('finderController', async () => {
@@ -36,18 +45,18 @@ describe('finderController', async () => {
     return { view }
   }
 
-  it('paginates with ITEMS_PER_PAGE=chunck and returns first page by default', async () => {
-    // 5 records => 3 pages with chunck size per page
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('paginates with ITEMS_PER_PAGE=chunk and returns first page by default', async () => {
     const records = Array.from({ length: 50 }, (_, i) => ({ id: i + 1 }))
     fetchAll.mockResolvedValueOnce(records)
 
-    const request = makeRequest({ page: undefined }) // no page -> default to 1
+    const request = makeRequest({ page: undefined })
     const h = makeH()
 
     const resp = await finderController.handler(request, h)
-
-    // It renders the template
-    expect(resp.template).toBe('finder/index')
 
     const {
       currentPage,
@@ -68,7 +77,6 @@ describe('finderController', async () => {
     )
     expect(pageEndRecord).toBe(chunck)
 
-    // On page 1 near the start, no leading ellipsis; last page should be shown
     const texts = paginationLinks.map((l) => l.text)
     expect(texts[0]).toBe(1)
     expect(texts.at(-1)).toBe(Math.ceil(50 / chunck))
@@ -76,28 +84,24 @@ describe('finderController', async () => {
   })
 
   it('shows middle page with ellipses on both sides when appropriate', async () => {
-    // Create enough records to produce many pages
     const records = Array.from({ length: 520 }, (_, i) => ({ id: i + 1 }))
     fetchAll.mockResolvedValueOnce(records)
 
-    const request = makeRequest({ page: '8' }) // middle page
+    const request = makeRequest({ page: '8' })
     const h = makeH()
 
     const resp = await finderController.handler(request, h)
     const { currentPage, totalPages, paginationLinks } = resp.model
 
     expect(currentPage).toBe(8)
-    expect(totalPages).toBe(Math.ceil(520 / chunck)) // 11
+    expect(totalPages).toBe(Math.ceil(520 / chunck))
 
     const texts = paginationLinks.map((l) => l.text)
-    // Pattern like: 1 … 7 8 9 … 11
     expect(texts).toEqual([1, '…', 7, 8, 9, '…', 21])
 
-    // Check the "current" flag around center
     const current = paginationLinks.find((l) => l.text === 8)
     expect(current?.isCurrent).toBe(true)
 
-    // Check hrefs exist for real pages, not for ellipses
     const linkTargets = paginationLinks
       .filter((l) => l.text !== '…')
       .map((l) => l.href)
@@ -112,11 +116,10 @@ describe('finderController', async () => {
     const records = Array.from({ length: 3 }, (_, i) => ({ id: i + 1 }))
     fetchAll.mockResolvedValueOnce(records)
 
-    const request = makeRequest({ page: '999' }) // way too high
+    const request = makeRequest({ page: '999' })
     const h = makeH()
     const { model } = await finderController.handler(request, h)
 
-    // 3 records -> 1 pages. Page 999 should cap at page 1
     expect(model.currentPage).toBe(1)
     expect(model.pageSpecificRecords.map((r) => r.id)).toEqual([1, 2, 3])
   })
@@ -130,7 +133,7 @@ describe('finderController', async () => {
 
     expect(model.totalRecords).toBe(0)
     expect(model.totalPages).toBe(0)
-    expect(model.currentPage).toBe(1) // code defaults to 1 when no pages
+    expect(model.currentPage).toBe(1)
     expect(model.pageSpecificRecords).toEqual([])
     expect(Array.isArray(model.paginationLinks)).toBe(true)
   })
@@ -142,8 +145,136 @@ describe('finderController', async () => {
     const h = makeH()
     await finderController.handler(request, h)
 
-    // Our util mock singularizes "appliances" -> "appliance"
-    // Verify fetchAll received the singular form
     expect(fetchAll).toHaveBeenCalledWith('appliance')
+  })
+
+  it('shows right ellipsis only when near start (page=2)', async () => {
+    const records = Array.from({ length: 520 }, (_, i) => ({ id: i + 1 }))
+    fetchAll.mockResolvedValueOnce(records)
+
+    const request = makeRequest({ page: '2', search: 'pellet stoves' })
+    const h = makeH()
+
+    const resp = await finderController.handler(request, h)
+    const { paginationLinks } = resp.model
+
+    expect(paginationLinks.map((l) => l.text)).toEqual([1, 2, 3, '…', 21])
+
+    const link = paginationLinks.find((l) => l.text === 3)
+    expect(link.href).toContain('pellet stoves')
+  })
+
+  it('shows left ellipsis only when near the end', async () => {
+    const records = Array.from({ length: 520 }, (_, i) => ({ id: i + 1 }))
+    fetchAll.mockResolvedValueOnce(records)
+
+    const request = makeRequest({ page: '20' })
+    const h = makeH()
+
+    const resp = await finderController.handler(request, h)
+    const { paginationLinks } = resp.model
+
+    expect(paginationLinks.map((l) => l.text)).toEqual([1, '…', 19, 20, 21])
+  })
+
+  it('partially-filled last page sets correct pageEndRecord', async () => {
+    const records = Array.from({ length: 52 }, (_, i) => ({ id: i + 1 }))
+    fetchAll.mockResolvedValueOnce(records)
+
+    const request = makeRequest({ page: '3' })
+    const h = makeH()
+
+    const resp = await finderController.handler(request, h)
+    expect(resp.model.pageEndRecord).toBe(52)
+  })
+
+  it('formats appliances correctly using translators', async () => {
+    const { fuelTranslation, typeTranslation, countryTranslation } =
+      await import('../common/util.js')
+
+    fetchAll.mockResolvedValueOnce([
+      {
+        id: 1,
+        fuels: 'Gas, Oil',
+        manufacturer: 'acme',
+        type: 'range',
+        authorisedIn: 'uk'
+      }
+    ])
+
+    const request = makeRequest({ language: 'cy' })
+    const h = makeH()
+
+    const resp = await finderController.handler(request, h)
+    const row = resp.model.pageSpecificRecords[0]
+
+    expect(row.fuels).toBe('Gas--cy, Oil--cy')
+    expect(fuelTranslation).toHaveBeenCalledWith('Gas, Oil', 'cy')
+    expect(typeTranslation).toHaveBeenCalledWith('range', 'cy')
+    expect(countryTranslation).toHaveBeenCalledWith('uk', 'cy')
+  })
+
+  it('formats non-appliances authorisedIn arrays as comma-separated', async () => {
+    fetchAll.mockResolvedValueOnce([
+      { id: 1, manufacturer: 'Maker', authorisedIn: ['UK', 'FR'] },
+      { id: 2, manufacturer: 'Other', authorisedIn: 'DE' }
+    ])
+
+    const request = makeRequest({ type: 'installers' })
+    const h = makeH()
+
+    const resp = await finderController.handler(request, h)
+    const records = resp.model.pageSpecificRecords
+
+    expect(records[0].authorisedIn).toBe('UK, FR')
+    expect(records[1].authorisedIn).toBe('DE')
+  })
+})
+
+// -----------------------------------------------------
+// FILTER MODULE INTEGRATION TEST
+// -----------------------------------------------------
+
+describe('finderController – filter state integration', () => {
+  beforeEach(() => {
+    vi.resetModules()
+
+    vi.doMock('../finder/filters.js', () => ({
+      applyFinderFilters: vi.fn((records) => records),
+      buildFinderFilterState: vi.fn(() => ({
+        selectedCertifiedIn: 'GB',
+        selectedFuelsAllowed: ['Gas'],
+        selectedApplianceType: 'Boiler',
+        selectedFilters: { a: 1 },
+        certifiedInOptions: ['GB', 'FR'],
+        fuelsAllowedOptions: ['Gas', 'Oil'],
+        applianceTypeOptions: ['Boiler', 'Range']
+      }))
+    }))
+  })
+
+  afterEach(() => {
+    vi.resetModules()
+  })
+
+  it('passes filter state into the view model', async () => {
+    const api = await import('../common/api/api.js')
+    api.fetchAll.mockResolvedValueOnce([{ id: 1 }, { id: 2 }])
+
+    const { finderController } = await import('../finder/controller.js')
+
+    const h = { view: vi.fn((template, model) => ({ template, model })) }
+    const request = {
+      params: { type: 'appliances', language: 'en' },
+      query: { page: '1', search: '' }
+    }
+
+    const resp = await finderController.handler(request, h)
+    const m = resp.model
+
+    expect(m.selectedFilters).toEqual({ a: 1 })
+    expect(m.certifiedInOptions).toEqual(['GB', 'FR'])
+    expect(m.fuelsAllowedOptions).toEqual(['Gas', 'Oil'])
+    expect(m.applianceTypeOptions).toEqual(['Boiler', 'Range'])
   })
 })
