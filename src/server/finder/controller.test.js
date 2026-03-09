@@ -14,7 +14,10 @@ vi.mock('../common/util.js', () => ({
       .split(',')
       .map((fuel) => fuel.trim() + `--${language}`)
       .join(', ')
-  })
+  }),
+  toProperCase: vi.fn((value = '') => value),
+  typeTranslation: vi.fn((value = '') => value),
+  countryTranslation: vi.fn((value = '') => value)
 }))
 
 describe('finderController', async () => {
