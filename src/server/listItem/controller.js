@@ -16,53 +16,43 @@ export const listItemController = {
 
     // Fetch the specific appliance by ID
     const item = await fetchById(appliance, id)
+    console.log(`Fetched item for ${appliance} with ID ${id}:`, item)
 
     if (!item) {
       return h.response(`${appliance} not found`).code(404)
     }
 
     // Build certification by country table
-    const countries = [
-      {
-        key: 'england',
-        approval: 'englandApproval',
-        date: 'englandDateFirstAuthorised'
-      },
-      {
-        key: 'scotland',
-        approval: 'scotlandApproval',
-        date: 'scotlandDateFirstAuthorised'
-      },
-      {
-        key: 'wales',
-        approval: 'walesApproval',
-        date: 'walesDateFirstAuthorised'
-      },
-      {
-        key: 'nIreland',
-        approval: 'nIrelandApproval',
-        date: 'nIrelandDateFirstAuthorised'
-      }
-    ]
+    const countryKeys = ['england', 'scotland', 'wales', 'nIreland']
+    //get these from content?
 
-    const certification = countries.map(({ key, approval, date }) => ({
-      name: content[key],
-      status: item[approval] === 'Certified' ? content.yes : content.no,
-      firstCertified: item[approval] === 'Certified' ? item[date] : null
-    }))
+    const certification = countryKeys.map((key) => {
+      const statusMap = {
+        Revoked: { label: content.status.revoked, colour: 'govuk-tag--red' },
+        Uncertified: {
+          label: content.status.unCertified,
+          colour: 'govuk-tag--grey'
+        },
+        Certified: {
+          label: content.status.certified,
+          colour: 'govuk-tag--green'
+        }
+      }
+
+      return {
+        name: content[key],
+        status: statusMap[item[`${key}Approval`]] || statusMap.Uncertified,
+        firstCertified:
+          item[`${key}Approval`] === 'Certified'
+            ? item[`${key}DateFirstAuthorised`]
+            : null
+      }
+    })
 
     return h.view('listItem/index', {
+      ...content,
       pageTitle: item.modelName,
-      publishedLabel: content.publishedLabel,
       publishedDate: item.publishedDate,
-      manufacturedByLabel: content.manufacturedByLabel,
-      departmentInfo: content.departmentInfo,
-      departmentLabel: content.departmentLabel,
-      conditionsForUseHeading: content.conditionsForUseHeading,
-      conditionsForUseDescription: content.conditionsForUseDescription,
-      instructionManualLabels: content.instructionManualLabels,
-      applianceDetailsHeading: content.applianceDetailsHeading,
-      applianceDetailsLabels: content.applianceDetailsLabels,
       applianceDetails: {
         name: item.modelName,
         manufacturer: item.manufacturerName,
@@ -84,9 +74,7 @@ export const listItemController = {
       certificationDescription: content.certificationDescription,
       certificationTableHeaders: content.certificationTableHeaders,
       notCertified: content.notCertified,
-      certification,
-      legalBasisText: content.legalBasisText,
-      legalBasisHref: content.legalBasisHref
+      certification
     })
   }
 }

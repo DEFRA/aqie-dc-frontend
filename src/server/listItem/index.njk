@@ -1,7 +1,7 @@
 {% extends 'layouts/page.njk' %}
 
 {% set pageHeading = applianceDetails.name %}
-{% set backLinkText = "Back to list" %}
+{% set backLinkText = backLinkText %}
 
 {% block content %}
 
@@ -18,58 +18,36 @@
   <p class="govuk-body-s govuk-!-margin-bottom-8">
     {{ publishedLabel }} {{ publishedDate | formatDate('d MMMM yyyy') }}
   </p>
+  {# TODO Add updated date #}
 
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
-      
-      <h2 class="govuk-heading-m">{{ conditionsForUseHeading }}</h2>
-      <p class="govuk-!-margin-bottom-2">{{ conditionsForUseDescription }}</p>
-
-      {{ govukSummaryList({
-        rows: [
-          { key: { text: instructionManualLabels.title }, value: { html: conditionsForUse.instructionManual.title } },
-          { key: { text: instructionManualLabels.date }, value: { html: conditionsForUse.instructionManual.date } },
-          { key: { text: instructionManualLabels.version }, value: { html: conditionsForUse.instructionManual.version } },
-          { key: { text: instructionManualLabels.additionalConditions }, value: { html: conditionsForUse.additionalConditions} }
-      ]
-      }) }}
-
-
-
-      
-      <h2 class="govuk-heading-m govuk-!-margin-top-6">{{ applianceDetailsHeading }}</h2>
-      
-      {{ govukSummaryList({
-        rows: [
-          { key: { text: applianceDetailsLabels.certifiedIn }, value: { html: applianceDetails.certifiedIn } },
-          { key: { text: applianceDetailsLabels.fuelsAllowed }, value: { html: applianceDetails.fuelsAllowed } },
-          { key: { text: applianceDetailsLabels.type }, value: { html: applianceDetails.type } },
-          { key: { text: applianceDetailsLabels.output }, value: { html: applianceDetails.output } },
-          { key: { text: applianceDetailsLabels.manufacturer }, value: { html: applianceDetails.manufacturer } },
-          { key: { text: applianceDetailsLabels.manufacturerAddress }, value: { html: applianceDetails.manufacturerAddress } }
-        ]
-      }) }}
-      
+      {# Certification Section #}
       <h2 class="govuk-heading-m govuk-!-margin-top-6">{{ certificationHeading }}</h2>
+      {%- set statusHtml %}
       
-      <p class="govuk-body">{{ certificationDescription }}</p>
+        
+      {%- endset %}
       
       {% set countryRows = [] %}
       {% for country in certification %}
         {% set countryRows = (countryRows.push([
           { text: country.name },
-          { html: country.status },
-          { html: (country.firstCertified | formatDate('d MMMM yyyy')) if country.firstCertified else notCertified }
+          { html: govukTag({
+              text: country.status.label,
+              classes: country.status.colour
+              })
+          },
+          { html: (country.firstCertified | formatDate('d MMMM yyyy')) if country.firstCertified else notApplicable }
         ]), countryRows) %}
       {% endfor %}
       
       {{ govukTable({
+        firstCellIsHeader: true,
         head: [
           {
             text: certificationTableHeaders.country
           },
           {
-            text: certificationTableHeaders.certified
+            text: certificationTableHeaders.status
           },
           {
             text: certificationTableHeaders.dateFirstCertified
@@ -79,10 +57,44 @@
       }) }}
       
       <p class="govuk-body govuk-!-margin-top-6">
+          {{ legalBasisPrefix }}
         <a href="{{ legalBasisHref }}" class="govuk-link">{{ legalBasisText }}</a>
       </p>
-      
-    </div>
-  </div>
+
+      {# Conditions for Use Section #}
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-two-thirds">
+          
+          <h2 class="govuk-heading-m">{{ conditionsForUseHeading }}</h2>
+          <p class="govuk-!-margin-bottom-2">{{ conditionsForUseDescription }}</p>
+
+          {{ govukSummaryList({
+            rows: [
+              { key: { text: instructionManualLabels.title }, value: { html: conditionsForUse.instructionManual.title } },
+              { key: { text: instructionManualLabels.date }, value: { html: conditionsForUse.instructionManual.date } },
+              { key: { text: instructionManualLabels.version }, value: { html: conditionsForUse.instructionManual.version } },
+              { key: { text: instructionManualLabels.additionalConditions }, value: { html: conditionsForUse.additionalConditions} }
+          ]
+          }) }}
+
+
+
+          
+          <h2 class="govuk-heading-m govuk-!-margin-top-6">{{ applianceDetailsHeading }}</h2>
+          
+          {{ govukSummaryList({
+            rows: [
+              { key: { text: applianceDetailsLabels.certifiedIn }, value: { html: applianceDetails.certifiedIn } },
+              { key: { text: applianceDetailsLabels.fuelsAllowed }, value: { html: applianceDetails.fuelsAllowed } },
+              { key: { text: applianceDetailsLabels.type }, value: { html: applianceDetails.type } },
+              { key: { text: applianceDetailsLabels.output }, value: { html: applianceDetails.output } },
+              { key: { text: applianceDetailsLabels.manufacturer }, value: { html: applianceDetails.manufacturer } },
+              { key: { text: applianceDetailsLabels.manufacturerAddress }, value: { html: applianceDetails.manufacturerAddress } }
+            ]
+          }) }}
+          
+          
+        </div>
+      </div>
 
 {% endblock %}

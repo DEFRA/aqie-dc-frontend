@@ -6,11 +6,15 @@ import { config } from '../../config/config.js'
 
 export const listItemContent = {
   en: {
+    backLinkText: {
+      appliances: 'Back to appliances list',
+      fuels: 'Back to fuels list'
+    },
     publishedLabel: 'Published',
     manufacturedByLabel: 'Manufactured by',
     departmentLabel: 'From:',
     departmentInfo: {
-      name: 'Department for Environment, Food and Rural Affairs--CY',
+      name: 'Department for Environment, Food and Rural Affairs',
       url: config.get('DefraUrl')
     },
 
@@ -36,25 +40,32 @@ export const listItemContent = {
     },
 
     certificationHeading: 'Certification by country',
-    certificationDescription:
-      'The appliance is certified for use in smoke control areas.',
     certificationTableHeaders: {
       country: 'Country',
-      certified: 'Certified',
-      dateFirstCertified: 'Date first Certified'
+      status: 'Status',
+      dateFirstCertified: 'Date Certified'
     },
-    notCertified: 'Not certified',
-    yes: 'Yes',
-    no: 'No',
+    status: {
+      certified: 'Certified',
+      unCertified: 'Uncertified',
+      revoked: 'Revoked'
+    },
+    notApplicable: 'Not applicable',
+    //can i remove these and use other finder? adn CY:
     england: 'England',
     scotland: 'Scotland',
     wales: 'Wales',
     nIreland: 'Northern Ireland',
 
-    legalBasisText: 'See the legal basis for certification in each UK country.',
+    legalBasisPrefix: 'See the ',
+    legalBasisText: 'legal basis for certification in each UK country.',
     legalBasisHref: '/legal-basis-for-appliances'
   },
   cy: {
+    backLinkText: {
+      appliances: 'Back to appliances list--CY',
+      fuels: 'Back to fuels list--CY'
+    },
     publishedLabel: 'Published--CY',
     manufacturedByLabel: 'Manufactured by--CY',
 
@@ -86,16 +97,17 @@ export const listItemContent = {
     },
 
     certificationHeading: 'Certification by country--CY',
-    certificationDescription:
-      'The appliance is certified for use in smoke control areas.--CY',
     certificationTableHeaders: {
       country: 'Country--CY',
-      certified: 'Certified--CY',
-      dateFirstCertified: 'Date first Certified--CY'
+      status: 'Status--CY',
+      dateFirstCertified: 'Date Certified--CY'
     },
-    notCertified: 'Not certified--CY',
-    yes: 'Yes--CY',
-    no: 'No--CY',
+    status: {
+      certified: 'Certified--CY',
+      unCertified: 'Not certified--CY',
+      revoked: 'Revoked--CY'
+    },
+    notApplicable: 'Not applicable--CY',
     england: 'England--CY',
     scotland: 'Scotland--CY',
     wales: 'Wales--CY',
