@@ -1,6 +1,5 @@
 import sanitizeHtml from 'sanitize-html'
 import Joi from 'joi'
-import { fuelMap, typeMap, countryMap } from '../finder/content.js'
 import { filterOptions } from '../finder/content.js'
 
 export const singularize = (word) =>
