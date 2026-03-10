@@ -2,9 +2,9 @@ import { finderContent, filterOptions } from './content.js'
 
 /**
  * Build checkbox options for filters
- * @param {string} category - 'countries', 'fuels', or 'applianceTypes'
- * @param {string} language - 'en' or 'cy'
- * @param {string[]} selectedValues - lowercase values that are selected
+// category - 'countries', 'fuels', or 'applianceTypes'
+// language - 'en' or 'cy'
+// selectedValues - selected values (in lowercase) to determine which options should be checked
  */
 const getFilterOptions = (category, language, selectedValues = []) =>
   filterOptions[category].map((item) => ({
@@ -200,6 +200,10 @@ export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
 
   if (selectedApplianceType.length > 0) {
     filteredResponse = filteredResponse.filter((item) => {
+      if (Array.isArray(item.type)) {
+        throw new Error('appliance type must be a string')
+      }
+
       if (!item.type) {
         return false
       }
