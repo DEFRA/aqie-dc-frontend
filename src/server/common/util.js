@@ -10,7 +10,9 @@ export const singularize = (word) =>
 
 //Translates a single value, comma-separated list of values or array of values (as each category stored differently)
 export const translate = (category, dbValue, language) => {
-  if (!dbValue) return dbValue
+  if (!dbValue) {
+    return dbValue
+  }
 
   let values = []
 

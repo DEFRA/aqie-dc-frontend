@@ -201,7 +201,7 @@ export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
   if (selectedApplianceType.length > 0) {
     filteredResponse = filteredResponse.filter((item) => {
       if (Array.isArray(item.type)) {
-        throw new Error('appliance type must be a string')
+        throw new TypeError('appliance type must be a string')
       }
 
       if (!item.type) {
