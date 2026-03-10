@@ -188,11 +188,13 @@ export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
         return false
       }
 
-      const fuels = String(item.fuels)
-        .split(',')
-        .map((fuel) => fuel.trim())
+      const fuels = new Set(
+        String(item.fuels)
+          .split(',')
+          .map((fuel) => fuel.trim())
+      )
 
-      return selectedFuelsAllowed.some((value) => fuels.includes(value))
+      return selectedFuelsAllowed.some((value) => fuels.has(value))
     })
   }
 
@@ -204,7 +206,7 @@ export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
 
       if (Array.isArray(item.type)) {
         return selectedApplianceType.some((value) =>
-          item.type.some((t) => t === value)
+          item.type.includes((t) => t === value)
         )
       }
 
