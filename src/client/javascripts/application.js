@@ -5,8 +5,7 @@ import {
   ErrorSummary,
   Header,
   Radios,
-  SkipLink,
-  Accordion
+  SkipLink
 } from 'govuk-frontend'
 
 // Import MOJ Frontend - initializes all components
@@ -20,4 +19,3 @@ createAll(ErrorSummary)
 createAll(Header)
 createAll(Radios)
 createAll(SkipLink)
-createAll(Accordion)

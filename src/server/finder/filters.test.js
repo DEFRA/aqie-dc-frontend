@@ -42,7 +42,7 @@ describe('finder filters', async () => {
     expect(
       state.applianceTypeOptions.find((option) => option.value === 'pizza oven')
         ?.text
-    ).toBe('Pizza Oven')
+    ).toBe('Pizza oven')
 
     expect(state.selectedFilters.clearLink.href).toBe('/finder/appliances/en')
     expect(state.selectedFilters.categories).toHaveLength(3)
@@ -61,7 +61,7 @@ describe('finder filters', async () => {
     })
 
     const authorisedCategory = state.selectedFilters.categories.find(
-      (category) => category.heading.text === 'Authorised In'
+      (category) => category.heading.text === 'Certified in'
     )
 
     expect(authorisedCategory?.items).toHaveLength(2)
@@ -122,11 +122,26 @@ describe('applyFinderFilters – appliance type filtering', async () => {
 
   const baseData = [
     { id: 1, type: 'boiler' },
-    { id: 2, type: ['pizza oven', 'stove'] },
+    { id: 2, type: 'pizza oven' },
     { id: 3, type: null },
     { id: 4, type: 'heat' },
-    { id: 5, type: ['boiler'] }
+    { id: 5, type: 'boiler' }
   ]
+
+  it('throws if item.type is an array (appliance type must be a string)', () => {
+    const badData = [
+      ...baseData,
+      { id: 6, type: ['pizza oven'] } // invalid
+    ]
+
+    expect(() =>
+      applyFinderFilters(badData, {
+        selectedCertifiedIn: [],
+        selectedFuelsAllowed: [],
+        selectedApplianceType: ['pizza oven']
+      })
+    ).toThrow('appliance type must be a string')
+  })
 
   it('filters correctly when item.type is a string', () => {
     const result = applyFinderFilters(baseData, {
@@ -137,20 +152,11 @@ describe('applyFinderFilters – appliance type filtering', async () => {
     expect(result.map((i) => i.id)).toEqual([1, 5])
   })
 
-  it('filters correctly when item.type is an array', () => {
-    const result = applyFinderFilters(baseData, {
-      selectedCertifiedIn: [],
-      selectedFuelsAllowed: [],
-      selectedApplianceType: ['pizza oven']
-    })
-    expect(result.map((i) => i.id)).toEqual([2])
-  })
-
   it('excludes items with no type value', () => {
     const result = applyFinderFilters(baseData, {
       selectedCertifiedIn: [],
       selectedFuelsAllowed: [],
-      selectedApplianceType: ['heat']
+      selectedApplianceType: 'heat'
     })
     expect(result.map((i) => i.id)).toEqual([4])
   })

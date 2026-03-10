@@ -32,14 +32,15 @@ export const finderContent = {
         }
       ],
       manufacturedBy: 'Manufactured by',
-      fuelsAllowed: 'Fuels allowed:',
-      applianceType: 'Appliance type:',
-      authorisedIn: 'Certified in:',
+      fuelsAllowed: 'Fuels allowed',
+      applianceType: 'Appliance type',
+      authorisedIn: 'Certified in',
       noResults: 'No item found matching your criteria.',
       showing: 'Showing ',
       to: 'to',
       of: 'of',
-      records: 'records'
+      records: 'records',
+      clearFilters: 'Clear filters'
     },
     cy: {
       pageTitle: 'Find certified appliances for use in smoke control areas--CY',
@@ -68,14 +69,15 @@ export const finderContent = {
         }
       ],
       manufacturedBy: 'Manufactured by--CY',
-      fuelsAllowed: 'Fuels allowed:--CY',
-      applianceType: 'Appliance type:--CY',
-      authorisedIn: 'certified in:--CY',
+      fuelsAllowed: 'Fuels allowed--CY',
+      applianceType: 'Appliance type--CY',
+      authorisedIn: 'Certified in--CY',
       noResults: 'No item found matching your criteria.--CY',
       showing: 'Showing--CY',
       to: 'to--CY',
       of: 'of--CY',
-      records: 'records--CY'
+      records: 'records--CY',
+      clearFilters: 'Clear filters--CY'
     }
   },
   fuels: {
@@ -106,13 +108,14 @@ export const finderContent = {
         }
       ],
       manufacturedBy: 'Manufactured by',
-      fuelID: 'Fuels ID: ',
-      authorisedIn: 'Certified in:',
+      fuelID: 'Fuels ID',
+      authorisedIn: 'Certified in',
       noResults: 'No item found matching your criteria.',
       showing: 'Showing',
       to: 'to',
       of: 'of',
-      records: 'records'
+      records: 'records',
+      clearFilters: 'Clear filters'
     },
     cy: {
       pageTitle: 'Find certified fuels for use in smoke control areas--CY',
@@ -141,57 +144,69 @@ export const finderContent = {
         }
       ],
       manufacturedBy: 'Manufactured by--CY',
-      fuelID: 'Fuels ID:--CY',
-      authorisedIn: 'Certified in:--CY',
+      fuelID: 'Fuels ID--CY',
+      authorisedIn: 'Certified in--CY',
       noResults: 'No item found matching your criteria.--CY',
       showing: 'Showing--CY',
       to: 'to--CY',
       of: 'of--CY',
-      records: 'records--CY'
+      records: 'records--CY',
+      clearFilters: 'Clear filters--CY'
     }
   }
 }
-export const fuelMap = {
-  en: {
-    'Wood Logs': 'Wood Logs',
-    'Wood Pellets': 'Wood Pellets',
-    'Wood Chips': 'Wood Chips',
-    Other: 'Other'
-  },
-  cy: {
-    'Wood Logs': 'Wood Logs--cy',
-    'Wood Pellets': 'Wood Pellets--cy',
-    'Wood Chips': 'Wood Chips--cy',
-    Other: 'Other--cy'
-  }
-}
 
-export const typeMap = {
-  en: {
-    Heat: 'Heat',
-    'Pizza Oven': 'Pizza Oven',
-    Boiler: 'Boiler',
-    Other: 'Other'
-  },
-  cy: {
-    Heat: 'Heat--cy',
-    'Pizza Oven': 'Pizza Oven--cy',
-    Boiler: 'Boiler--cy',
-    Other: 'Other--cy'
-  }
-}
-
-export const countryMap = {
-  en: {
-    England: 'England',
-    Scotland: 'Scotland',
-    Wales: 'Wales',
-    'Northern Ireland': 'Northern Ireland'
-  },
-  cy: {
-    England: 'England--cy',
-    Scotland: 'Scotland--cy',
-    Wales: 'Wales--cy',
-    'Northern Ireland': 'Northern Ireland--cy'
-  }
+/**
+ * Single source of truth for filter options
+ * - key: lowercase value used for filtering/DB matching but propercase for display
+ * - en/cy: display text per language
+ */
+export const filterOptions = {
+  countries: [
+    { key: 'england', en: 'England', cy: 'England--CY' },
+    { key: 'scotland', en: 'Scotland', cy: 'Scotland--CY' },
+    { key: 'wales', en: 'Wales', cy: 'Wales--CY' },
+    {
+      key: 'northern ireland',
+      en: 'Northern Ireland',
+      cy: 'Northern Ireland--CY'
+    }
+  ],
+  fuels: [
+    { key: 'wood logs', en: 'Wood logs', cy: 'Wood logs--CY' },
+    { key: 'wood chips', en: 'Wood chips', cy: 'Wood chips--CY' },
+    { key: 'wood pellets', en: 'Wood pellets', cy: 'Wood pellets--CY' },
+    {
+      key: 'waste and scrap wood',
+      en: 'Waste and scrap wood (including pallets)',
+      cy: 'Waste and scrap wood (including pallets)--CY'
+    },
+    {
+      key: 'compound wood',
+      en: 'Compound wood (chipboard, plywood, MDF)',
+      cy: 'Compound wood (chipboard, plywood, MDF)--CY'
+    },
+    {
+      key: 'sawdust and wood shavings',
+      en: 'Sawdust and wood shavings',
+      cy: 'Sawdust and wood shavings--CY'
+    },
+    {
+      key: 'wood briquettes',
+      en: 'Wood briquettes',
+      cy: 'Wood briquettes--CY'
+    },
+    {
+      key: 'peat briquettes',
+      en: 'Peat briquettes',
+      cy: 'Peat briquettes--CY'
+    },
+    { key: 'other', en: 'Other', cy: 'Other--CY' }
+  ],
+  applianceTypes: [
+    { key: 'pizza oven', en: 'Pizza oven', cy: 'Pizza oven--CY' },
+    { key: 'boiler', en: 'Boiler', cy: 'Boiler--CY' },
+    { key: 'heat', en: 'Heat', cy: 'Heat--CY' },
+    { key: 'other', en: 'Other', cy: 'Other--CY' }
+  ]
 }
