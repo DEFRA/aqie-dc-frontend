@@ -9,11 +9,11 @@ import {
   typeTranslation,
   countryTranslation
 } from '../common/util.js'
-import { searchFuntionlity } from './search.js'
+import { searchFuntionality } from './search.js'
 import { applyFinderFilters, buildFinderFilterState } from './filters.js'
 
 export const ITEMS_PER_PAGE = 25
-const ElllipsicalPageLimit = 3 // Number of pages to show before and after current page when using ellipses
+const EllipsicalPageLimit = 3 // Number of pages to show before and after current page when using ellipses
 
 const buildPaginationLinks = (currentPage, totalPages, searchQuery) => {
   const links = []
@@ -29,7 +29,7 @@ const buildPaginationLinks = (currentPage, totalPages, searchQuery) => {
   add(1)
 
   // Left ellipsis
-  if (currentPage - 1 >= ElllipsicalPageLimit) {
+  if (currentPage - 1 >= EllipsicalPageLimit) {
     links.push({ text: '…' }) // No link
   }
 
@@ -81,7 +81,7 @@ export const finderController = {
 
     const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
     const totalResponse = await fetchAll(singularize(type))
-    let searchResonse = searchFuntionlity(
+    const searchResponse = searchFuntionality(
       type,
       totalResponse,
       sanitizedSearchQuery
@@ -100,7 +100,7 @@ export const finderController = {
       language
     })
 
-    const searchAndFilteredResponse = applyFinderFilters(searchResonse, {
+    const searchAndFilteredResponse = applyFinderFilters(searchResponse, {
       selectedCertifiedIn,
       selectedFuelsAllowed,
       selectedApplianceType
@@ -143,13 +143,7 @@ export const finderController = {
       type,
       language,
       search: finderContent.search, //need to update while handling search options
-      sanitizedSearchQuery: sanitizedSearchQuery
-        ? sanitizedSearchQuery
-            .split(',')
-            .map((s) => s.trim())
-            .filter((s) => s.length > 0)
-            .join(',')
-        : '',
+      sanitizedSearchQuery,
       pageSpecificRecords,
       totalRecords,
       currentPage: validPage,

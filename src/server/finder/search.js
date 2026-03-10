@@ -1,17 +1,19 @@
-export const searchFuntionlity = (
+export const searchFuntionality = (
   type,
   totalResponse,
   sanitizedSearchQuery
 ) => {
   let searchResonse = totalResponse
+  let lowerSearchQuery = []
   if (sanitizedSearchQuery) {
     // Split search query by commas and trim whitespace, then filter out empty strings
-    const lowerSearchQuery = sanitizedSearchQuery
+    lowerSearchQuery = sanitizedSearchQuery
       .trim()
       .split(',')
       .map((q) => q.trim())
       .filter((item) => item.length > 0)
       .map((q) => q.toLowerCase())
+
     if (type === 'appliances') {
       searchResonse = totalResponse.filter((item) => {
         // Check if any of the relevant fields contain the search query
@@ -30,22 +32,22 @@ export const searchFuntionlity = (
           )
         )
       })
-    }
-  } else {
-    searchResonse = totalResponse.filter((item) => {
-      // Check if any of the relevant fields contain the search query
-      return (
-        lowerSearchQuery.some((name) =>
-          item.name.toLowerCase().includes(name)
-        ) ||
-        lowerSearchQuery.some((manufacturer) =>
-          item.manufacturer.toLowerCase().includes(manufacturer)
-        ) ||
-        lowerSearchQuery.some((id) =>
-          item.id.toString().toLowerCase().includes(id)
+    } else {
+      searchResonse = totalResponse.filter((item) => {
+        // Check if any of the relevant fields contain the search query
+        return (
+          lowerSearchQuery.some((name) =>
+            item.name.toLowerCase().includes(name)
+          ) ||
+          lowerSearchQuery.some((manufacturer) =>
+            item.manufacturer.toLowerCase().includes(manufacturer)
+          ) ||
+          lowerSearchQuery.some((id) =>
+            item.id.toString().toLowerCase().includes(id)
+          )
         )
-      )
-    })
+      })
+    }
   }
 
   return searchResonse

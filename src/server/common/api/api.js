@@ -52,34 +52,3 @@ export async function fetchAll(type) {
     return []
   }
 }
-
-export async function fetchById(type, applicationId) {
-  const base = config.get('backend.url').replace(/\/$/, '')
-  const url = `${base}/get/${encodeURIComponent(type)}/${encodeURIComponent(applicationId)}`
-
-  try {
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'x-api-key': config.get('cdpXApiKey'),
-        'Content-Type': 'application/json'
-      }
-    })
-    const text = await res.text()
-
-    if (!res.ok) {
-      throw new Error(`Failed to fetch ${url} (${res.status}): ${text}`)
-    }
-
-    try {
-      const json = JSON.parse(text)
-      return json.data || null
-    } catch (error) {
-      logger.error('Failed to parse JSON response:', error)
-      return null
-    }
-  } catch (err) {
-    logger.error('Error fetching single item from backend:', err.message)
-    return null
-  }
-}

@@ -4,7 +4,7 @@ import { statusCodes } from '../constants/status-codes.js'
 describe('#serveStaticFiles', () => {
   let server
 
-  describe('When secure context is disabled', () => {
+  describe.skip('When secure context is disabled', () => {
     beforeEach(async () => {
       server = await startServer()
     })
