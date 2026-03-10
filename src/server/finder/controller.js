@@ -1,6 +1,13 @@
 import { fetchAll } from '../common/api/api.js'
 import { finderContent } from './content.js'
-import { singularize, fuelTranslation } from '../common/util.js'
+import {
+  singularize,
+  fuelTranslation,
+  toProperCase,
+  typeTranslation,
+  countryTranslation
+} from '../common/util.js'
+import { applyFinderFilters, buildFinderFilterState } from './filters.js'
 
 export const ITEMS_PER_PAGE = 25
 const ElllipsicalPageLimit = 3 // Number of pages to show before and after current page when using ellipses
@@ -51,11 +58,28 @@ export const finderController = {
     const searchQuery = request.query.search || ''
     const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
 
-    let totalResponse = []
-    totalResponse = await fetchAll(singularize(type))
-    // Add search and filter logic here if needed, for now we will just use the total response as the search and filtered response
-    const searchAndFilteredResponse = totalResponse
-    console.log('Total records fetched:', totalResponse)
+    const totalResponse = await fetchAll(singularize(type))
+
+    const {
+      selectedCertifiedIn,
+      selectedFuelsAllowed,
+      selectedApplianceType,
+      selectedFilters,
+      certifiedInOptions,
+      fuelsAllowedOptions,
+      applianceTypeOptions
+    } = buildFinderFilterState({
+      query: request.query,
+      type,
+      language
+    })
+
+    const searchAndFilteredResponse = applyFinderFilters(totalResponse, {
+      selectedCertifiedIn,
+      selectedFuelsAllowed,
+      selectedApplianceType
+    })
+
     // Calculate pagination
     const totalRecords = searchAndFilteredResponse.length
     const totalPages =
@@ -67,12 +91,21 @@ export const finderController = {
       startIndex,
       startIndex + ITEMS_PER_PAGE
     )
+
+    // Apply proper case formatting for display
     if (type === 'appliances') {
-      pageSpecificRecords.forEach((record) => {
-        record.fuels = fuelTranslation(record.fuels, language)
+      pageSpecificRecords.forEach((item) => {
+        item.fuels = fuelTranslation(item.fuels, language)
+        item.manufacturer = toProperCase(item.manufacturer)
+        item.type = typeTranslation(item.type, language)
+        item.authorisedIn = countryTranslation(item.authorisedIn, language)
+      })
+    } else {
+      pageSpecificRecords.forEach((item) => {
+        item.manufacturer = toProperCase(item.manufacturer)
+        item.authorisedIn = countryTranslation(item.authorisedIn, language)
       })
     }
-
     const paginationLinks = buildPaginationLinks(
       validPage,
       totalPages,
@@ -91,8 +124,13 @@ export const finderController = {
       totalPages,
       paginationLinks,
       pageEndRecord,
-      ITEMS_PER_PAGE
+      ITEMS_PER_PAGE,
       //backLinkHref: '#' //TODO: add correct back link once home page finalised
+      // certifiedIn: finderContent.certifiedIn,
+      selectedFilters,
+      certifiedInOptions,
+      fuelsAllowedOptions,
+      applianceTypeOptions
     })
   }
 }

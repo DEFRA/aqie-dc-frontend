@@ -4,11 +4,17 @@
 {% from "govuk/components/back-link/macro.njk" import govukBackLink %}
 {% from "govuk/components/breadcrumbs/macro.njk" import govukBreadcrumbs %}
 {% from "govuk/components/service-navigation/macro.njk" import govukServiceNavigation %}
+{% from "govuk/components/input/macro.njk" import govukInput %}
+{% from "govuk/components/checkboxes/macro.njk" import govukCheckboxes %}
 {% from "govuk/components/button/macro.njk" import govukButton %}
 {% from "govuk/components/tag/macro.njk" import govukTag %}
+{% from "govuk/components/details/macro.njk" import govukDetails %}
+
+
 
 {# Import custom components globally #}
 {% from "heading/macro.njk" import appHeading %}
+{% from "filter/macro.njk" import appFilter %}
 
 {% set mainClasses = "app-main-wrapper" %}
 
