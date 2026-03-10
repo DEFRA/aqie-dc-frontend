@@ -24,10 +24,10 @@
 
         {%- set filterOptionsHtml %}
           {{ govukDetails({
-            summaryText: "Certified In",
+            summaryText: authorisedIn,
             open: true,
             html: govukCheckboxes({
-              idPrefix: "TODO",
+              idPrefix: "certifiedIn",
               name: "certifiedIn",
               classes: "govuk-checkboxes--small",
               items: certifiedInOptions
@@ -35,7 +35,7 @@
           }) }}
 
           {{ govukDetails({
-            summaryText: "Fuels Allowed",
+            summaryText: fuelsAllowed,
             open: true,
             html: govukCheckboxes({
               idPrefix: "fuelsAllowed",
@@ -46,7 +46,7 @@
           }) }}
 
           {{ govukDetails({
-            summaryText: "Appliance Type",
+            summaryText: applianceType,
             open: true,
             html: govukCheckboxes({
               idPrefix: "applianceType",
@@ -88,9 +88,9 @@
                 <a href="/details/appliances/{{pageSpecificRecord.id}}/{{language}}" class="govuk-link">{{ pageSpecificRecord.name }}</a>
               </h3>
               <p class="govuk-body"><strong>{{manufacturedBy}} {{ pageSpecificRecord.manufacturer }}</strong></p>
-              <p class="govuk-body">{{fuelsAllowed}} {{ pageSpecificRecord.fuels }} </p>
-              <p class="govuk-body">{{applianceType}} {{ pageSpecificRecord.type }}</p>
-              <p class="govuk-body">{{authorisedIn}} {{ pageSpecificRecord.authorisedIn }}</p>
+              <p class="govuk-body">{{fuelsAllowed}}: {{ pageSpecificRecord.fuels }} </p>
+              <p class="govuk-body">{{applianceType}}: {{ pageSpecificRecord.type }}</p>
+              <p class="govuk-body">{{authorisedIn}}: {{ pageSpecificRecord.authorisedIn }}</p>
             </div>
             <hr class="govuk-section-break govuk-section-break--visible">
           {% endfor %}

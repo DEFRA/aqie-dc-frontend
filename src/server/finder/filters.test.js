@@ -61,7 +61,7 @@ describe('finder filters', async () => {
     })
 
     const authorisedCategory = state.selectedFilters.categories.find(
-      (category) => category.heading.text === 'Authorised In'
+      (category) => category.heading.text === 'Certified in'
     )
 
     expect(authorisedCategory?.items).toHaveLength(2)

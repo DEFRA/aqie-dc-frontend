@@ -9,49 +9,26 @@ import {
   toProperCase
 } from './util.js'
 
-// Mock the content module used by util.js before importing util.js
-vi.mock('../finder/content.js', () => {
-  const fuelMap = {
-    en: {
-      'Wood Logs': 'Wood Logs',
-      'Wood Pellets': 'Wood Pellets',
-      'Wood Chips': 'Wood Chips',
-      Other: 'Other'
-    },
-    cy: {
-      'Wood Logs': 'Wood Logs--cy',
-      'Wood Pellets': 'Wood Pellets--cy',
-      'Wood Chips': 'Wood Chips--cy',
-      Other: 'Other--cy'
-    }
+// Mock the content module - only filterOptions is needed since translate functions are in util.js
+vi.mock('../finder/content.js', () => ({
+  filterOptions: {
+    countries: [
+      { key: 'wales', en: 'Wales', cy: 'Wales--cy' },
+      { key: 'england', en: 'England', cy: 'England--cy' },
+      { key: 'scotland', en: 'Scotland', cy: 'Scotland' } // intentionally same for cy to test fallback
+    ],
+    fuels: [
+      { key: 'wood logs', en: 'Wood Logs', cy: 'Wood Logs--cy' },
+      { key: 'wood pellets', en: 'Wood Pellets', cy: 'Wood Pellets--cy' },
+      { key: 'wood chips', en: 'Wood Chips', cy: 'Wood Chips--cy' },
+      { key: 'other', en: 'Other', cy: 'Other--cy' }
+    ],
+    applianceTypes: [
+      { key: 'boiler', en: 'Boiler', cy: 'Boiler--cy' },
+      { key: 'stove', en: 'Stove', cy: 'Stove--cy' }
+    ]
   }
-
-  const typeMap = {
-    en: {
-      Boiler: 'Boiler',
-      Stove: 'Stove'
-    },
-    cy: {
-      Boiler: 'Boiler--cy',
-      Stove: 'Stove--cy'
-    }
-  }
-
-  const countryMap = {
-    en: {
-      Wales: 'Wales',
-      England: 'England',
-      Scotland: 'Scotland'
-    },
-    cy: {
-      Wales: 'Wales--cy',
-      England: 'England--cy'
-      // intentionally omit Scotland in cy to test fallback
-    }
-  }
-
-  return { fuelMap, typeMap, countryMap }
-})
+}))
 
 // ------------------------
 // singularize

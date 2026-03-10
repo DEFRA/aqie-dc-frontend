@@ -16,15 +16,50 @@ vi.mock('../common/util.js', () => ({
   }),
   toProperCase: vi.fn((value = '') => value),
   typeTranslation: vi.fn((value = '') => value),
-  countryTranslation: vi.fn((value = '') => value)
+  countryTranslation: vi.fn((value = '') => {
+    if (Array.isArray(value)) return value.join(', ')
+    return value
+  })
 }))
 
-vi.mock('../finder/content.js', () => ({
-  finderContent: {
-    appliances: { en: {}, cy: {} },
-    installers: { en: { title: 'Installers' } } // <-- needed for your failing test
+vi.mock('../finder/content.js', () => {
+  const filterOptions = {
+    countries: [
+      { key: 'england', en: 'England', cy: 'Lloegr' },
+      { key: 'scotland', en: 'Scotland', cy: 'Yr Alban' },
+      { key: 'wales', en: 'Wales', cy: 'Cymru' },
+      {
+        key: 'northern ireland',
+        en: 'Northern Ireland',
+        cy: 'Gogledd Iwerddon'
+      }
+    ],
+    fuels: [
+      { key: 'wood logs', en: 'Wood Logs', cy: 'Logiau Pren' },
+      { key: 'wood chips', en: 'Wood Chips', cy: 'Sglodion Pren' }
+    ],
+    applianceTypes: [
+      { key: 'boiler', en: 'Boiler', cy: 'Boeler' },
+      { key: 'heat', en: 'Heat', cy: 'Gwres' }
+    ]
   }
-}))
+
+  const getFilterOptions = (category, language, selectedValues = []) =>
+    filterOptions[category].map((item) => ({
+      value: item.key,
+      text: item[language],
+      checked: selectedValues.includes(item.key)
+    }))
+
+  return {
+    finderContent: {
+      appliances: { en: {}, cy: {} },
+      installers: { en: { title: 'Installers' } }
+    },
+    filterOptions,
+    getFilterOptions
+  }
+})
 
 describe('finderController', async () => {
   const { fetchAll } = await import('../common/api/api.js')
@@ -195,7 +230,7 @@ describe('finderController', async () => {
     fetchAll.mockResolvedValueOnce([
       {
         id: 1,
-        fuels: 'Gas, Oil',
+        fuels: 'Wood, Peat',
         manufacturer: 'acme',
         type: 'range',
         authorisedIn: 'uk'
@@ -208,16 +243,16 @@ describe('finderController', async () => {
     const resp = await finderController.handler(request, h)
     const row = resp.model.pageSpecificRecords[0]
 
-    expect(row.fuels).toBe('Gas--cy, Oil--cy')
-    expect(fuelTranslation).toHaveBeenCalledWith('Gas, Oil', 'cy')
+    expect(row.fuels).toBe('Wood--cy, Peat--cy')
+    expect(fuelTranslation).toHaveBeenCalledWith('Wood, Peat', 'cy')
     expect(typeTranslation).toHaveBeenCalledWith('range', 'cy')
     expect(countryTranslation).toHaveBeenCalledWith('uk', 'cy')
   })
 
   it('formats non-appliances authorisedIn arrays as comma-separated', async () => {
     fetchAll.mockResolvedValueOnce([
-      { id: 1, manufacturer: 'Maker', authorisedIn: ['UK', 'FR'] },
-      { id: 2, manufacturer: 'Other', authorisedIn: 'DE' }
+      { id: 1, manufacturer: 'Maker', authorisedIn: ['England', 'Wales'] },
+      { id: 2, manufacturer: 'Other', authorisedIn: 'Scotland' }
     ])
 
     const request = makeRequest({ type: 'installers' })
@@ -226,8 +261,8 @@ describe('finderController', async () => {
     const resp = await finderController.handler(request, h)
     const records = resp.model.pageSpecificRecords
 
-    expect(records[0].authorisedIn).toBe('UK, FR')
-    expect(records[1].authorisedIn).toBe('DE')
+    expect(records[0].authorisedIn).toBe('England, Wales')
+    expect(records[1].authorisedIn).toBe('Scotland')
   })
 })
 
@@ -243,12 +278,12 @@ describe('finderController – filter state integration', () => {
       applyFinderFilters: vi.fn((records) => records),
       buildFinderFilterState: vi.fn(() => ({
         selectedCertifiedIn: 'GB',
-        selectedFuelsAllowed: ['Gas'],
+        selectedFuelsAllowed: ['Wood'],
         selectedApplianceType: 'Boiler',
         selectedFilters: { a: 1 },
-        certifiedInOptions: ['GB', 'FR'],
-        fuelsAllowedOptions: ['Gas', 'Oil'],
-        applianceTypeOptions: ['Boiler', 'Range']
+        certifiedInOptions: ['GB', 'Wales'],
+        fuelsAllowedOptions: ['Wood', 'Peat'],
+        applianceTypeOptions: ['Boiler', 'Oven']
       }))
     }))
   })
@@ -273,8 +308,8 @@ describe('finderController – filter state integration', () => {
     const m = resp.model
 
     expect(m.selectedFilters).toEqual({ a: 1 })
-    expect(m.certifiedInOptions).toEqual(['GB', 'FR'])
-    expect(m.fuelsAllowedOptions).toEqual(['Gas', 'Oil'])
-    expect(m.applianceTypeOptions).toEqual(['Boiler', 'Range'])
+    expect(m.certifiedInOptions).toEqual(['GB', 'Wales'])
+    expect(m.fuelsAllowedOptions).toEqual(['Wood', 'Peat'])
+    expect(m.applianceTypeOptions).toEqual(['Boiler', 'Oven'])
   })
 })

@@ -1,30 +1,65 @@
-import { fuelMap, typeMap, countryMap } from '../finder/content.js'
+import { filterOptions } from '../finder/content.js'
 
 export const singularize = (word) =>
   word.endsWith('s') ? word.slice(0, -1) : word
 
-export const fuelTranslation = (data, language = 'en') => {
-  return data
+/**
+ * Translate a DB value for display
+ * @param {string} category - 'countries', 'fuels', or 'applianceTypes'
+ * @param {string} dbValue - the raw value from DB (will be lowercased for matching)
+ * @param {string} language - 'en' or 'cy'
+ */
+
+export const translateValue = (category, dbValue, language) => {
+  if (!dbValue) {
+    return dbValue
+  }
+  const trimmed = dbValue.trim()
+  const item = filterOptions[category].find(
+    (opt) => opt.key === trimmed.toLowerCase()
+  )
+  return item ? item[language] : trimmed
+}
+
+/**
+ * Translate multiple comma-separated values (e.g., fuels)
+ */
+export const translateValues = (category, dbValues, language) => {
+  if (!dbValues) {
+    return dbValues
+  }
+  return dbValues
     .split(',')
-    .map((fuel) => {
-      const trimmed = fuel.trim()
-      return fuelMap[language][trimmed] || trimmed
-    })
+    .map((val) => translateValue(category, val.trim(), language))
     .join(', ')
+}
+
+/**
+ * Translate an array of values (e.g., authorisedIn countries)
+ */
+export const translateArray = (category, dbArray, language) => {
+  if (!dbArray) {
+    return dbArray
+  }
+  if (!Array.isArray(dbArray)) {
+    return translateValue(category, dbArray, language)
+  }
+  return dbArray
+    .map((val) => translateValue(category, val, language))
+    .join(', ')
+}
+
+// Convenience wrappers for specific categories
+export const fuelTranslation = (data, language = 'en') => {
+  return translateValues('fuels', data, language)
 }
 
 export const typeTranslation = (data, language = 'en') => {
-  const trimmed = data.trim()
-  return typeMap[language][trimmed] || trimmed
+  return translateValue('applianceTypes', data, language)
 }
 
 export const countryTranslation = (data, language = 'en') => {
-  return data
-    .map((country) => {
-      const trimmed = country.trim()
-      return countryMap[language][trimmed] || trimmed
-    })
-    .join(', ')
+  return translateArray('countries', data, language)
 }
 
 export const toProperCase = (value) => {

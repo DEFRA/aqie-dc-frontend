@@ -94,20 +94,16 @@ export const finderController = {
 
     // Apply proper case formatting for display
     if (type === 'appliances') {
-      pageSpecificRecords.forEach((record) => {
-        record.fuels = toProperCase(fuelTranslation(record.fuels, language))
-        record.manufacturer = toProperCase(record.manufacturer)
-        record.type = toProperCase(typeTranslation(record.type, language))
-        record.authorisedIn = toProperCase(
-          countryTranslation(record.authorisedIn, language)
-        )
+      pageSpecificRecords.forEach((item) => {
+        item.fuels = fuelTranslation(item.fuels, language)
+        item.manufacturer = toProperCase(item.manufacturer)
+        item.type = typeTranslation(item.type, language)
+        item.authorisedIn = countryTranslation(item.authorisedIn, language)
       })
     } else {
-      pageSpecificRecords.forEach((record) => {
-        record.manufacturer = toProperCase(record.manufacturer)
-        record.authorisedIn = Array.isArray(record.authorisedIn)
-          ? record.authorisedIn.map((a) => toProperCase(a)).join(', ')
-          : toProperCase(record.authorisedIn)
+      pageSpecificRecords.forEach((item) => {
+        item.manufacturer = toProperCase(item.manufacturer)
+        item.authorisedIn = countryTranslation(item.authorisedIn, language)
       })
     }
     const paginationLinks = buildPaginationLinks(
@@ -130,6 +126,7 @@ export const finderController = {
       pageEndRecord,
       ITEMS_PER_PAGE,
       //backLinkHref: '#' //TODO: add correct back link once home page finalised
+      // certifiedIn: finderContent.certifiedIn,
       selectedFilters,
       certifiedInOptions,
       fuelsAllowedOptions,

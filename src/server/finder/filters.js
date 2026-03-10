@@ -1,4 +1,17 @@
-import { toProperCase } from '../common/util.js'
+import { finderContent, filterOptions } from './content.js'
+
+/**
+ * Build checkbox options for filters
+ * @param {string} category - 'countries', 'fuels', or 'applianceTypes'
+ * @param {string} language - 'en' or 'cy'
+ * @param {string[]} selectedValues - lowercase values that are selected
+ */
+const getFilterOptions = (category, language, selectedValues = []) =>
+  filterOptions[category].map((item) => ({
+    value: item.key,
+    text: item[language],
+    checked: selectedValues.includes(item.key)
+  }))
 
 const getSelectedValues = (queryValue) => {
   if (Array.isArray(queryValue)) {
@@ -79,28 +92,28 @@ const buildSelectedFilters = ({
 
   if (certifiedInSelectedItems.length > 0) {
     categories.push({
-      heading: { text: 'Authorised In' },
+      heading: { text: finderContent[type][language].authorisedIn },
       items: certifiedInSelectedItems
     })
   }
 
   if (fuelsAllowedSelectedItems.length > 0) {
     categories.push({
-      heading: { text: 'Fuels Allowed' },
+      heading: { text: finderContent[type][language].fuelsAllowed },
       items: fuelsAllowedSelectedItems
     })
   }
 
   if (applianceTypeSelectedItems.length > 0) {
     categories.push({
-      heading: { text: 'Appliance Type' },
+      heading: { text: finderContent[type][language].applianceType },
       items: applianceTypeSelectedItems
     })
   }
 
   return {
     clearLink: {
-      text: 'Clear filters',
+      text: finderContent[type][language].clearFilters,
       href: `/finder/${type}/${language}`
     },
     categories
@@ -112,35 +125,21 @@ export const buildFinderFilterState = ({ query, type, language }) => {
   const selectedFuelsAllowed = getSelectedValues(query.fuelsAllowed)
   const selectedApplianceType = getSelectedValues(query.applianceType)
 
-  const COUNTRIES = ['england', 'scotland', 'wales', 'northern ireland']
-  const certifiedInOptions = COUNTRIES.map((country) => ({
-    value: country,
-    text: toProperCase(country),
-    checked: selectedCertifiedIn.includes(country)
-  }))
-
-  const FUELS_ALLOWED = [
-    'wood logs',
-    'wood chips',
-    'wood pellets',
-    'waste and scrap wood (including pallets)',
-    'compound wood (chipboard, plywood, mdf)',
-    'sawdust and wood shavings',
-    'wood briquettes',
-    'peat briquettes'
-  ]
-  const fuelsAllowedOptions = FUELS_ALLOWED.map((fuel) => ({
-    value: fuel,
-    text: toProperCase(fuel),
-    checked: selectedFuelsAllowed.includes(fuel)
-  }))
-
-  const APPLIANCE_TYPES = ['pizza oven', 'boiler', 'heat']
-  const applianceTypeOptions = APPLIANCE_TYPES.map((appType) => ({
-    value: appType,
-    text: toProperCase(appType),
-    checked: selectedApplianceType.includes(appType)
-  }))
+  const certifiedInOptions = getFilterOptions(
+    'countries',
+    language,
+    selectedCertifiedIn
+  )
+  const fuelsAllowedOptions = getFilterOptions(
+    'fuels',
+    language,
+    selectedFuelsAllowed
+  )
+  const applianceTypeOptions = getFilterOptions(
+    'applianceTypes',
+    language,
+    selectedApplianceType
+  )
 
   const selectedFilters = buildSelectedFilters({
     type,
