@@ -158,7 +158,7 @@ export const finderContent = {
 
 /**
  * Single source of truth for filter options
- * - key: lowercase value used for filtering/DB matching
+ * - key: lowercase value used for filtering/DB matching but propercase for display
  * - en/cy: display text per language
  */
 export const filterOptions = {
@@ -173,38 +173,38 @@ export const filterOptions = {
     }
   ],
   fuels: [
-    { key: 'wood logs', en: 'Wood Logs', cy: 'Wood Logs--CY' },
-    { key: 'wood chips', en: 'Wood Chips', cy: 'Wood Chips--CY' },
-    { key: 'wood pellets', en: 'Wood Pellets', cy: 'Wood Pellets--CY' },
+    { key: 'wood logs', en: 'Wood logs', cy: 'Wood logs--CY' },
+    { key: 'wood chips', en: 'Wood chips', cy: 'Wood chips--CY' },
+    { key: 'wood pellets', en: 'Wood pellets', cy: 'Wood pellets--CY' },
     {
       key: 'waste and scrap wood',
-      en: 'Waste and Scrap Wood (including pallets)',
-      cy: 'Waste and Scrap Wood (including pallets)--CY'
+      en: 'Waste and scrap wood (including pallets)',
+      cy: 'Waste and scrap wood (including pallets)--CY'
     },
     {
       key: 'compound wood',
-      en: 'Compound Wood (chipboard, plywood, mdf)',
-      cy: 'Compound Wood (chipboard, plywood, mdf)--CY'
+      en: 'Compound wood (chipboard, plywood, MDF)',
+      cy: 'Compound wood (chipboard, plywood, MDF)--CY'
     },
     {
       key: 'sawdust and wood shavings',
-      en: 'Sawdust and Wood Shavings',
-      cy: 'Sawdust and Wood Shavings--CY'
+      en: 'Sawdust and wood shavings',
+      cy: 'Sawdust and wood shavings--CY'
     },
     {
       key: 'wood briquettes',
-      en: 'Wood Briquettes',
-      cy: 'Wood Briquettes--CY'
+      en: 'Wood briquettes',
+      cy: 'Wood briquettes--CY'
     },
     {
       key: 'peat briquettes',
-      en: 'Peat Briquettes',
-      cy: 'Peat Briquettes--CY'
+      en: 'Peat briquettes',
+      cy: 'Peat briquettes--CY'
     },
     { key: 'other', en: 'Other', cy: 'Other--CY' }
   ],
   applianceTypes: [
-    { key: 'pizza oven', en: 'Pizza Oven', cy: 'Pizza Oven--CY' },
+    { key: 'pizza oven', en: 'Pizza oven', cy: 'Pizza oven--CY' },
     { key: 'boiler', en: 'Boiler', cy: 'Boiler--CY' },
     { key: 'heat', en: 'Heat', cy: 'Heat--CY' },
     { key: 'other', en: 'Other', cy: 'Other--CY' }
