@@ -14,6 +14,9 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 const govukFrontendPath = path.dirname(
   require.resolve('govuk-frontend/package.json')
 )
+const mojFrontendPath = path.dirname(
+  require.resolve('@ministryofjustice/frontend/package.json')
+)
 
 const ruleTypeAssetResource = 'asset/resource'
 
@@ -92,6 +95,8 @@ export default {
             options: {
               sassOptions: {
                 loadPaths: [
+                  dirname,
+                  path.join(dirname, 'node_modules'),
                   path.join(dirname, 'src/client/stylesheets'),
                   path.join(dirname, 'src/server/common/components'),
                   path.join(dirname, 'src/server/common/templates/partials')
@@ -174,6 +179,10 @@ export default {
         {
           from: path.join(govukFrontendPath, 'dist/govuk/assets/rebrand'),
           to: 'assets'
+        },
+        {
+          from: path.join(mojFrontendPath, 'moj/assets/images'),
+          to: 'assets/images'
         }
       ]
     })

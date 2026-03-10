@@ -1,0 +1,153 @@
+@use "govuk-frontend" as *;
+
+//  ==========================================================================
+//  #FILTER
+//  ========================================================================== 
+
+.app-filter {
+  background-color: govuk-colour("white");
+  box-shadow: none;
+}
+
+.app-filter__header {
+  border: none;
+  font-size: 0; // Hide whitespace between elements
+  text-align: justify; // Trick to remove the need for floats
+}
+
+.app-filter__header-title .govuk-heading-m {
+  color: govuk-colour("white");
+  margin-bottom: 0;
+}
+
+.app-filter__content {
+  padding: govuk-spacing(0);
+}
+
+
+.app-filter__header-title,
+.app-filter__header-action {
+  display: inline-block;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.app-filter__close {
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  color: govuk-colour("black");
+  background-color: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  @include govuk-font(19);
+
+  &:focus {
+    outline: none;
+    color: $govuk-focus-text-colour;
+    background-color: $govuk-focus-colour;
+    box-shadow:
+      0 -2px $govuk-focus-colour,
+      0 4px $govuk-focus-text-colour;
+  }
+
+  // Fix unwanted button padding in Firefox
+  &::-moz-focus-inner {
+    padding: 0;
+    border: 0;
+  }
+}
+
+.app-filter__selected {
+  padding: 20px;
+  background-color: govuk-colour("light-grey");
+  box-shadow: none;
+
+
+  ul:last-of-type {
+    margin-bottom: 0; // IE9 +
+  }
+}
+
+.app-filter__selected-heading {
+  font-size: 0; // Hide whitespace between elements
+  text-align: justify; // Trick to remove the need for floats
+
+  &::after {
+    content: "";
+    display: inline-block;
+    width: 100%;
+  }
+}
+
+.app-filter__heading-title,
+.app-filter__heading-action {
+  display: inline-block;
+  text-align: left;
+  vertical-align: middle;
+  @include govuk-font(16);
+}
+
+.app-filter-tags {
+  margin-bottom: govuk-spacing(4); // Needs to adjust to 15px on mobile
+  padding-left: 0;
+  font-size: 0;
+
+  li {
+    display: inline-block;
+    margin-right: govuk-spacing(2);
+  }
+}
+
+.app-filter__tag {
+  display: inline-block;
+  margin-top: govuk-spacing(1);
+  padding: govuk-spacing(1);
+  border: 1px solid govuk-colour("black");
+  color: govuk-colour("black");
+  background-color: govuk-colour("white");
+  text-decoration: none;
+  @include govuk-font(16);
+
+  &:link,
+  &:visited {
+    color: govuk-colour("black");
+  }
+
+  &:focus {
+    color: $govuk-focus-text-colour;
+    background-color: $govuk-focus-colour;
+  }
+
+  &:hover {
+    color: govuk-colour("white");
+    background-color: govuk-colour("black");
+  }
+
+  &::after {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-left: govuk-spacing(1);
+    background-image: url('/assets/images/icon-tag-remove-cross.svg');
+    font-weight: bold;
+    vertical-align: middle;
+  }
+
+  &:hover::after {
+    background-image: url('/assets/images/icon-tag-remove-cross-white.svg');
+  }
+}
+
+.app-filter__options {
+  margin-top: -1px;
+  padding: govuk-spacing(0);
+  box-shadow: none;
+
+  div:last-of-type {
+    margin-bottom: 0; // IE9 +
+  }
+}
