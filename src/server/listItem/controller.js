@@ -63,18 +63,17 @@ export const listItemController = {
         manufacturerAddress: item.manufacturerAddress
       },
       conditionsForUse: {
+        airControlModifications: item.airControlModifications,
         instructionManual: {
           title: item.instructionManualTitle,
           date: item.instructionManualDate,
-          version: item.instructionManualVersion
-        },
-        additionalConditions: item.instructionManualAdditionalInfo
+          version: item.instructionManualVersion,
+          additionalConditions: item.instructionManualAdditionalInfo
+        }
       },
-      certificationHeading: content.certificationHeading,
-      certificationDescription: content.certificationDescription,
-      certificationTableHeaders: content.certificationTableHeaders,
-      notCertified: content.notCertified,
-      certification
+      certification,
+      backLinkText: content.backLinkText[`${type}`],
+      backLinkHref: `/finder/${type}/${language}`
     })
   }
 }

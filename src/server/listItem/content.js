@@ -19,15 +19,8 @@ export const listItemContent = {
     },
 
     conditionsForUseHeading: 'Conditions for use',
-    conditionsForUseDescription:
-      'This appliance must be installed, maintained and operated as instructed:',
-
-    instructionManualLabels: {
-      title: 'Instruction manual title:',
-      date: 'Instruction manual date:',
-      version: 'Instruction manual version:',
-      additionalConditions: 'Additional conditions for use:'
-    },
+    instructionManualLabel: 'Instruction manual details',
+    additionalConditionsLabel: 'Additional conditions for use',
 
     applianceDetailsHeading: 'Appliance details',
     applianceDetailsLabels: {
@@ -76,15 +69,8 @@ export const listItemContent = {
     },
 
     conditionsForUseHeading: 'Conditions for use--CY',
-    conditionsForUseDescription:
-      'This appliance must be installed, maintained and operated as instructed:--CY',
-
-    instructionManualLabels: {
-      title: 'Instruction manual title:--CY',
-      date: 'Instruction manual date:--CY',
-      version: 'Instruction manual version:--CY',
-      additionalConditions: 'Additional conditions for use:--CY'
-    },
+    instructionManualLabel: 'Instruction manual details--CY',
+    additionalConditionsLabel: 'Additional conditions for use--CY',
 
     applianceDetailsHeading: 'Appliance details--CY',
     applianceDetailsLabels: {
