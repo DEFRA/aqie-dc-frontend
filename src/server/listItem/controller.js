@@ -51,16 +51,14 @@ export const listItemController = {
 
     return h.view('listItem/index', {
       ...content,
-      pageTitle: item.modelName,
+      name: item.modelName,
       publishedDate: item.publishedDate,
+      manufacturer: item.manufacturerName, //company name - check?
+      certification,
       applianceDetails: {
-        name: item.modelName,
-        manufacturer: item.manufacturerName,
-        certifiedIn: item.authorisedIn, //from the DB service
         fuelsAllowed: item.allowedFuels,
         type: item.applianceType,
         output: item.nominalOutput,
-        manufacturerAddress: item.manufacturerAddress
       },
       conditionsForUse: {
         airControlModifications: item.airControlModifications,
@@ -71,7 +69,8 @@ export const listItemController = {
           additionalConditions: item.instructionManualAdditionalInfo
         }
       },
-      certification,
+      
+       manufacturerAddress: item.manufacturerAddress,
       backLinkText: content.backLinkText[`${type}`],
       backLinkHref: `/finder/${type}/${language}`
     })

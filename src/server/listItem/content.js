@@ -24,13 +24,13 @@ export const listItemContent = {
 
     applianceDetailsHeading: 'Appliance details',
     applianceDetailsLabels: {
-      certifiedIn: 'Certified in:',
-      fuelsAllowed: 'Fuels allowed:',
-      type: 'Appliance type:',
-      output: 'Output (kW):',
-      manufacturer: 'Manufacturer:',
-      manufacturerAddress: 'Manufacturer address:'
+      fuelsAllowed: 'Fuels allowed',
+      type: 'Appliance type',
+      output: 'Nominal (thermal) output',
     },
+
+    manufacturerDetailsHeading: 'Manufacturer details',
+    manufacturerLabel: 'This appliance is manufactured by',
 
     certificationHeading: 'Certification by country',
     certificationTableHeaders: {
@@ -74,13 +74,13 @@ export const listItemContent = {
 
     applianceDetailsHeading: 'Appliance details--CY',
     applianceDetailsLabels: {
-      certifiedIn: 'Certified in:--CY',
-      fuelsAllowed: 'Fuels allowed:--CY',
-      type: 'Appliance type:--CY',
-      output: 'Output (kW):--CY',
-      manufacturer: 'Manufacturer:--CY',
-      manufacturerAddress: 'Manufacturer address:--CY'
+      fuelsAllowed: 'Fuels allowed--CY',
+      type: 'Appliance type--CY',
+      output: 'Nominal (thermal) output--CY',
     },
+
+    manufacturerDetailsHeading: 'Manufacturer details--CY',
+    manufacturerLabel: 'This appliance is manufactured by--CY',
 
     certificationHeading: 'Certification by country--CY',
     certificationTableHeaders: {

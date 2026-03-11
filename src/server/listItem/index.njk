@@ -1,13 +1,13 @@
 {% extends 'layouts/page.njk' %}
 
-{% set pageHeading = applianceDetails.name %}
+{% set pageHeading = name %}
 {% set backLinkText = backLinkText %}
 
 {% block content %}
 
-  <h1 class="govuk-heading-xl">{{ applianceDetails.name }}</h1>
+  <h1 class="govuk-heading-xl">{{ name }}</h1>
   
-  <p class="govuk-body">{{ manufacturedByLabel }} {{ applianceDetails.manufacturer }}</p>
+  <p class="govuk-body">{{ manufacturedByLabel }} {{ manufacturer }}</p>
 
   <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
@@ -75,20 +75,22 @@
           <p class="govuk-!-margin-bottom-9"> {{ conditionsForUse.instructionManual.additionalConditions }}</p>
 
           {# Appliance Details Section #}
-          <h2 class="govuk-heading-m govuk-!-margin-top-6">{{ applianceDetailsHeading }}</h2>
+          <h2 class="govuk-heading-m">{{ applianceDetailsHeading }}</h2>
           
           {{ govukSummaryList({
             rows: [
-              { key: { text: applianceDetailsLabels.certifiedIn }, value: { html: applianceDetails.certifiedIn } },
               { key: { text: applianceDetailsLabels.fuelsAllowed }, value: { html: applianceDetails.fuelsAllowed } },
               { key: { text: applianceDetailsLabels.type }, value: { html: applianceDetails.type } },
-              { key: { text: applianceDetailsLabels.output }, value: { html: applianceDetails.output } },
-              { key: { text: applianceDetailsLabels.manufacturer }, value: { html: applianceDetails.manufacturer } },
-              { key: { text: applianceDetailsLabels.manufacturerAddress }, value: { html: applianceDetails.manufacturerAddress } }
+              { key: { text: applianceDetailsLabels.output }, value: { html: applianceDetails.output + ' kW' } }
             ]
           }) }}
-          
-          
+
+          {# Manufacturer Section #}
+          <h2 class="govuk-heading-m govuk-!-margin-top-9">{{ manufacturerDetailsHeading }}</h2>
+          <p class="govuk-body">{{ manufacturerLabel }} {{ manufacturer }}.</p>
+          <p class="govuk-body">{{ manufacturerAddress }}</p>
+
+          {#  #}
         </div>
       </div>
 
