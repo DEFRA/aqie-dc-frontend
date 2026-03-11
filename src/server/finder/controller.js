@@ -9,7 +9,7 @@ import {
   typeTranslation,
   countryTranslation
 } from '../common/util.js'
-import { searchFuntionality } from './search.js'
+import { searchFunctionality } from './search.js'
 import { applyFinderFilters, buildFinderFilterState } from './filters.js'
 
 export const ITEMS_PER_PAGE = 25
@@ -69,12 +69,12 @@ export const finderController = {
     }
     // Sanitize text from XSS
     const clean = sanitizeText(searchQuery)
-    // Remove any characters that are not letters, numbers, spaces, commas, dots, apostrophes or hyphens
+    // Remove any characters that are not letters, numbers, spaces, commas, dots or hyphens
     const sanitizedSearchQuery = clean.replaceAll(/[^a-zA-Z0-9\s.,-]/g, '')
 
     const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
     const totalResponse = await fetchAll(singularize(type))
-    const searchResponse = searchFuntionality(
+    const searchResponse = searchFunctionality(
       type,
       totalResponse,
       sanitizedSearchQuery

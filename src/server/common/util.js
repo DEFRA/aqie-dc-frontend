@@ -54,7 +54,7 @@ export const textFieldSchema = Joi.string()
   .pattern(/^[a-zA-Z0-9\s.,-]*$/) // Allow only safe characters
   .messages({
     'string.pattern.base':
-      'Enter only letters, numbers, spaces, commas, dots, apostrophes and hyphens.'
+      'Enter only letters, numbers, spaces, commas, dots and hyphens.'
   })
 export const typeTranslation = (data, language = 'en') => {
   return translate('applianceTypes', data, language)

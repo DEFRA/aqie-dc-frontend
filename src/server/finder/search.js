@@ -1,4 +1,4 @@
-export const searchFuntionality = (
+export const searchFunctionality = (
   datatype,
   totalResponse,
   sanitizedSearchQuery

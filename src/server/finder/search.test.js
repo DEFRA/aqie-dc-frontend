@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { searchFuntionality } from './search.js'
+import { searchFunctionality } from './search.js'
 
-describe('searchFuntionality', () => {
+describe('searchFunctionality', () => {
   const appliancesData = [
     {
       name: 'Washing Machine',
@@ -27,14 +27,14 @@ describe('searchFuntionality', () => {
   // ------------------------------
 
   it('should return matching appliances by name', () => {
-    const result = searchFuntionality('appliances', appliancesData, 'washing')
+    const result = searchFunctionality('appliances', appliancesData, 'washing')
 
     expect(result.length).toBe(1)
     expect(result[0].name).toBe('Washing Machine')
   })
 
   it('should match multiple comma-separated appliance queries', () => {
-    const result = searchFuntionality(
+    const result = searchFunctionality(
       'appliances',
       appliancesData,
       'bosch, kitchen'
@@ -45,7 +45,7 @@ describe('searchFuntionality', () => {
   })
 
   it('should trim spaces and lowercase search queries', () => {
-    const result = searchFuntionality(
+    const result = searchFunctionality(
       'appliances',
       appliancesData,
       '   SAMSUNG   '
@@ -56,7 +56,7 @@ describe('searchFuntionality', () => {
   })
 
   it('should return empty array if no appliance matches', () => {
-    const result = searchFuntionality('appliances', appliancesData, 'notfound')
+    const result = searchFunctionality('appliances', appliancesData, 'notfound')
 
     expect(result.length).toBe(0)
   })
@@ -66,27 +66,27 @@ describe('searchFuntionality', () => {
   // ------------------------------
 
   it('should match default search type by name', () => {
-    const result = searchFuntionality('other', defaultData, 'alpha')
+    const result = searchFunctionality('other', defaultData, 'alpha')
 
     expect(result.length).toBe(1)
     expect(result[0].name).toBe('Alpha')
   })
 
   it('should match by manufacturer or id (default type)', () => {
-    const result = searchFuntionality('other', defaultData, '202')
+    const result = searchFunctionality('other', defaultData, '202')
 
     expect(result.length).toBe(1)
     expect(result[0].id).toBe(202)
   })
 
   it('should split and search multiple values for default type', () => {
-    const result = searchFuntionality('other', defaultData, 'brandA, beta')
+    const result = searchFunctionality('other', defaultData, 'brandA, beta')
 
     expect(result.length).toBe(2)
   })
 
   it('should return full list when sanitizedSearchQuery is empty', () => {
-    const result = searchFuntionality('other', defaultData, '')
+    const result = searchFunctionality('other', defaultData, '')
 
     expect(result.length).toBe(2)
   })
