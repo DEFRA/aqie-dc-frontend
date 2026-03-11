@@ -51,7 +51,6 @@ export const sanitizeText = (value) => {
 
 export const textFieldSchema = Joi.string()
   .trim()
-  .max(200)
   .pattern(/^[a-zA-Z0-9\s.,-]*$/) // Allow only safe characters
   .messages({
     'string.pattern.base':

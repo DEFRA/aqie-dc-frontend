@@ -216,7 +216,7 @@ describe('finderController', async () => {
     expect(paginationLinks.map((l) => l.text)).toEqual([1, '…', 19, 20, 21])
   })
 
-  it.skip('partially-filled last page sets correct pageEndRecord', async () => {
+  it('partially-filled last page sets correct pageEndRecord', async () => {
     const records = Array.from({ length: 52 }, (_, i) => ({ id: i + 1 }))
     fetchAll.mockResolvedValueOnce(records)
 
@@ -227,7 +227,7 @@ describe('finderController', async () => {
     expect(resp.model.pageEndRecord).toBe(52)
   })
 
-  it.skip('formats appliances correctly using translators', async () => {
+  it('formats appliances correctly using translators', async () => {
     const { fuelTranslation, typeTranslation, countryTranslation } =
       await import('../common/util.js')
 
@@ -253,7 +253,7 @@ describe('finderController', async () => {
     expect(countryTranslation).toHaveBeenCalledWith('uk', 'cy')
   })
 
-  it.skip('formats non-appliances authorisedIn arrays as comma-separated', async () => {
+  it('formats non-appliances authorisedIn arrays as comma-separated', async () => {
     fetchAll.mockResolvedValueOnce([
       { id: 1, manufacturer: 'Maker', authorisedIn: ['England', 'Wales'] },
       { id: 2, manufacturer: 'Other', authorisedIn: 'Scotland' }

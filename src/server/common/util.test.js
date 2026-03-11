@@ -6,8 +6,13 @@ import {
   fuelTranslation,
   typeTranslation,
   countryTranslation,
-  toProperCase
+  toProperCase,
+  sanitizeText
 } from './util.js'
+import sanitizeHtml from 'sanitize-html'
+
+// Mock sanitize-html behaviour
+vi.mock('sanitize-html')
 
 // Mock the content module - only filterOptions is needed since translate functions are in util.js
 vi.mock('../finder/content.js', () => ({
@@ -200,5 +205,32 @@ describe('toProperCase', () => {
 
   it('preserves spacing while converting each word to Proper Case)', () => {
     expect(toProperCase(' HELLO   woRLD ')).toBe(' Hello   World ')
+  })
+})
+describe('sanitizeText', () => {
+  it('removes all HTML tags', () => {
+    sanitizeHtml.mockReturnValue('Hello world')
+
+    const result = sanitizeText('<script>Hello world</script>')
+    expect(result).toBe('Hello world')
+
+    expect(sanitizeHtml).toHaveBeenCalledWith('<script>Hello world</script>', {
+      allowedTags: [],
+      allowedAttributes: {}
+    })
+  })
+
+  it('returns plain text unchanged', () => {
+    sanitizeHtml.mockReturnValue('Hello world')
+
+    const result = sanitizeText('Hello world')
+    expect(result).toBe('Hello world')
+  })
+
+  it('removes attributes and tags completely', () => {
+    sanitizeHtml.mockReturnValue('alert')
+
+    const result = sanitizeText('<img src=x onerror=alert(1)>alert')
+    expect(result).toBe('alert')
   })
 })

@@ -77,7 +77,7 @@ export const finderController = {
     // Sanitize text from XSS
     const clean = sanitizeText(searchQuery)
     // Remove any characters that are not letters, numbers, spaces, commas, dots, apostrophes or hyphens
-    const sanitizedSearchQuery = clean.replace(/[^a-zA-Z0-9\s.,-]/g, '')
+    const sanitizedSearchQuery = clean.replaceAll(/[^a-zA-Z0-9\s.,-]/g, '')
 
     const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
     const totalResponse = await fetchAll(singularize(type))
@@ -119,19 +119,7 @@ export const finderController = {
     )
 
     // Apply proper case formatting for display
-    if (type === 'appliances') {
-      pageSpecificRecords.forEach((item) => {
-        item.fuels = fuelTranslation(item.fuels, language)
-        item.manufacturer = toProperCase(item.manufacturer)
-        item.type = typeTranslation(item.type, language)
-        item.authorisedIn = countryTranslation(item.authorisedIn, language)
-      })
-    } else {
-      pageSpecificRecords.forEach((item) => {
-        item.manufacturer = toProperCase(item.manufacturer)
-        item.authorisedIn = countryTranslation(item.authorisedIn, language)
-      })
-    }
+    handleTranslationAndCase(type, pageSpecificRecords, language)
     const paginationLinks = buildPaginationLinks(
       validPage,
       totalPages,
@@ -157,6 +145,21 @@ export const finderController = {
       certifiedInOptions,
       fuelsAllowedOptions,
       applianceTypeOptions
+    })
+  }
+}
+const handleTranslationAndCase = (type, pageSpecificRecords, language) => {
+  if (type === 'appliances') {
+    pageSpecificRecords.forEach((item) => {
+      item.fuels = fuelTranslation(item.fuels, language)
+      item.manufacturer = toProperCase(item.manufacturer)
+      item.type = typeTranslation(item.type, language)
+      item.authorisedIn = countryTranslation(item.authorisedIn, language)
+    })
+  } else {
+    pageSpecificRecords.forEach((item) => {
+      item.manufacturer = toProperCase(item.manufacturer)
+      item.authorisedIn = countryTranslation(item.authorisedIn, language)
     })
   }
 }

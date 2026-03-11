@@ -1,5 +1,5 @@
 export const searchFuntionality = (
-  type,
+  datatype,
   totalResponse,
   sanitizedSearchQuery
 ) => {
@@ -14,7 +14,7 @@ export const searchFuntionality = (
       .filter((item) => item.length > 0)
       .map((q) => q.toLowerCase())
 
-    if (type === 'appliances') {
+    if (datatype === 'appliances') {
       searchResonse = totalResponse.filter((item) => {
         // Check if any of the relevant fields contain the search query
         return (
