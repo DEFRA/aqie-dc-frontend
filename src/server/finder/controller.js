@@ -68,10 +68,10 @@ export const finderController = {
         // update the logic here when we have a design for how to handle validation errors on the front end - e.g. do we want to show an error message on the page, or just ignore the search query and show all results? For now, we will just ignore the search query and show all results if there is a validation error
         //TODO - if we want to show an error message on the page, we will need to update the view to display the error message, and pass the error message in the context when rendering the view here
 
-        // return h.view('error/index', {
-        //   message: 'Invalid search query',
-        //   details: error
-        // })
+        return h.view('error/index', {
+          message: 'Invalid search query',
+          details: error
+        })
       }
     }
     // Sanitize text from XSS

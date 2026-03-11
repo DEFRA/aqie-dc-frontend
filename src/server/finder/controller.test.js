@@ -16,7 +16,7 @@ vi.mock('../common/util.js', () => ({
   }),
   sanitizeText: vi.fn((value) => value), // For testing, just return the input
   textFieldSchema: vi.fn(() => ({
-    validate: vi.fn(() => ({ error: null }))
+    validate: vi.fn()
   })),
   toProperCase: vi.fn((value = '') => value),
   typeTranslation: vi.fn((value = '') => value),
@@ -315,5 +315,77 @@ describe('finderController – filter state integration', () => {
     expect(m.certifiedInOptions).toEqual(['GB', 'Wales'])
     expect(m.fuelsAllowedOptions).toEqual(['Wood', 'Peat'])
     expect(m.applianceTypeOptions).toEqual(['Boiler', 'Oven'])
+  })
+})
+// -----------------------------------------------------
+// VALIDATION ERROR PATH TEST
+// -----------------------------------------------------
+describe('finderController – search query validation error path', () => {
+  beforeEach(() => {
+    vi.resetModules()
+  })
+
+  afterEach(() => {
+    vi.resetModules()
+  })
+
+  it('returns error view when textFieldSchema.validate reports an error', async () => {
+    // Mock the util module to export textFieldSchema as an OBJECT (not a factory)
+    vi.doMock('../common/util.js', () => {
+      return {
+        singularize: vi.fn((x) => (x.endsWith('s') ? x.slice(0, -1) : x)),
+        fuelTranslation: vi.fn((data = '', language) => data),
+        sanitizeText: vi.fn((v) => v),
+        // The critical part: an object with a .validate method that returns an error
+        textFieldSchema: {
+          validate: vi.fn(() => ({ error: new Error('bad input') }))
+        },
+        toProperCase: vi.fn((v) => v),
+        typeTranslation: vi.fn((v) => v),
+        countryTranslation: vi.fn((v) => v)
+      }
+    })
+
+    // Mock API to ensure it would be called if we didn't early return,
+    // which helps us confirm the early return actually happens.
+    vi.doMock('../common/api/api.js', () => ({
+      fetchAll: vi.fn()
+    }))
+
+    // Spy on console.error so we can assert the log message
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    // Import the controller AFTER setting mocks
+    const { finderController } = await import('../finder/controller.js')
+    const { fetchAll } = await import('../common/api/api.js')
+
+    // Prepare a request that triggers the validation branch (non-empty search)
+    const request = {
+      params: { type: 'appliances', language: 'en' },
+      query: { page: '1', search: '@@invalid@@' }
+    }
+
+    // h.view mock that returns what the controller passes in
+    const h = { view: vi.fn((template, model) => ({ template, model })) }
+
+    // Act
+    const resp = await finderController.handler(request, h)
+
+    // Assert: error view returned with message + error details
+    expect(resp.template).toBe('error/index')
+    expect(resp.model?.message).toBe('Invalid search query')
+    expect(resp.model?.details).toBeInstanceOf(Error)
+
+    // Assert: console.error called with the expected prefix and the same error instance
+    expect(errorSpy).toHaveBeenCalledTimes(1)
+    const [msg, err] = errorSpy.mock.calls[0]
+    expect(msg).toBe('Search query validation error:')
+    expect(err).toBe(resp.model.details)
+
+    // Assert: early return happened — fetchAll should NOT be called
+    expect(fetchAll).not.toHaveBeenCalled()
+
+    // Cleanup
+    errorSpy.mockRestore()
   })
 })
