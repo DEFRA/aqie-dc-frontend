@@ -35,7 +35,7 @@
         {%- set filterOptionsHtml %}
           {{ govukDetails({
             summaryText: authorisedIn,
-            open: true,
+            open: false,
             html: govukCheckboxes({
               idPrefix: "certifiedIn",
               name: "certifiedIn",
@@ -47,7 +47,7 @@
           {% if type === 'appliances' %}
             {{ govukDetails({
               summaryText: fuelsAllowed,
-              open: true,
+              open: false,
               html: govukCheckboxes({
                 idPrefix: "fuelsAllowed",
                 name: "fuelsAllowed",
@@ -58,7 +58,7 @@
 
           {{ govukDetails({
             summaryText: applianceType,
-            open: true,
+            open: false,
             html: govukCheckboxes({
               idPrefix: "applianceType",
               name: "applianceType",
@@ -71,7 +71,7 @@
           {% if type === 'fuels' %}
             {{ govukDetails({
               summaryText: manufacturer,
-              open: true,
+              open: false,
               html: govukCheckboxes({
                 idPrefix: "manufacturer",
                 name: "manufacturer",
