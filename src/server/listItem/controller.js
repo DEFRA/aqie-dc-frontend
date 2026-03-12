@@ -58,7 +58,7 @@ export const listItemController = {
       applianceDetails: {
         fuelsAllowed: item.allowedFuels,
         type: item.applianceType,
-        output: item.nominalOutput,
+        output: item.nominalOutput
       },
       conditionsForUse: {
         airControlModifications: item.airControlModifications,
@@ -69,8 +69,7 @@ export const listItemController = {
           additionalConditions: item.instructionManualAdditionalInfo
         }
       },
-      
-       manufacturerAddress: item.manufacturerAddress,
+      manufacturerAddress: item.manufacturerAddress,
       backLinkText: content.backLinkText[`${type}`],
       backLinkHref: `/finder/${type}/${language}`
     })

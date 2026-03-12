@@ -26,7 +26,7 @@ export const listItemContent = {
     applianceDetailsLabels: {
       fuelsAllowed: 'Fuels allowed',
       type: 'Appliance type',
-      output: 'Nominal (thermal) output',
+      output: 'Nominal (thermal) output'
     },
 
     manufacturerDetailsHeading: 'Manufacturer details',
@@ -76,7 +76,7 @@ export const listItemContent = {
     applianceDetailsLabels: {
       fuelsAllowed: 'Fuels allowed--CY',
       type: 'Appliance type--CY',
-      output: 'Nominal (thermal) output--CY',
+      output: 'Nominal (thermal) output--CY'
     },
 
     manufacturerDetailsHeading: 'Manufacturer details--CY',
@@ -99,8 +99,8 @@ export const listItemContent = {
     wales: 'Wales--CY',
     nIreland: 'Northern Ireland--CY',
 
-    legalBasisText:
-      'See the legal basis for certification in each UK country.--CY',
+    legalBasisPrefix: 'See the--CY ',
+    legalBasisText: 'legal basis for certification in each UK country.--CY',
     legalBasisHref: '/legal-basis-for-appliances'
   }
 }
