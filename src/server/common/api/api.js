@@ -40,20 +40,27 @@ export async function fetchAll(type) {
     }
 
     return json.data.map((item) => {
-      // 1. Add the log here
-      console.log('Raw item from backend:', item)
-
-      // 2. Return the transformed object
-
-      return {
-        ...item,
-        manufacturer: item.manufacturer.toLowerCase().trim(),
-        fuels: item.fuels ? item.fuels.toLowerCase().trim() : null,
-        type: item.type ? item.type.toLowerCase().trim : null,
-        authorisedIn: Array.isArray(item.authorisedIn)
-          ? item.authorisedIn.map((country) => country.toLowerCase().trim())
-          : []
+      if (type === 'appliances') {
+        return {
+          ...item,
+          manufacturer: item.manufacturer.toLowerCase().trim(),
+          fuels: item.fuels.toLowerCase().trim(),
+          type: item.type.toLowerCase().trim(),
+          authorisedIn: Array.isArray(item.authorisedIn)
+            ? item.authorisedIn.map((country) => country.toLowerCase().trim())
+            : []
+        }
       }
+      if (type === 'fuel') {
+        return {
+          ...item,
+          manufacturer: item.manufacturer.toLowerCase().trim(),
+          authorisedIn: Array.isArray(item.authorisedIn)
+            ? item.authorisedIn.map((country) => country.toLowerCase().trim())
+            : []
+        }
+      }
+      return item
     })
   } catch (err) {
     logger.error('Error fetching data from backend:', err)

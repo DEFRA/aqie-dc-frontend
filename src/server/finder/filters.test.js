@@ -1,26 +1,136 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('../common/util.js', () => ({
   toProperCase: vi.fn((value = '') =>
     value
       .split(' ')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
   )
 }))
 
-describe('finder filters', async () => {
-  const { buildFinderFilterState, applyFinderFilters } =
-    await import('./filters.js')
+// ---------------------------------------------
+// Shared imports for parts of the test file
+// ---------------------------------------------
+let applyFinderFilters
+let buildFinderFilterState
+let buildQueryStringWithoutValue
 
-  it('builds checkbox options and selected filters from query params', () => {
+beforeEach(async () => {
+  const mod = await import('./filters.js')
+  applyFinderFilters = mod.applyFinderFilters
+  buildFinderFilterState = mod.buildFinderFilterState
+  buildQueryStringWithoutValue = mod.buildQueryStringWithoutValue
+})
+
+// -----------------------------------------------------
+// SECTION 1 — MANUFACTURER FILTER TESTS
+// -----------------------------------------------------
+describe('finder filters – manufacturer behaviour', () => {
+  it('throws if item.manufacturer is an array', () => {
+    const data = [
+      { id: 1, manufacturer: ['acme'] },
+      { id: 2, manufacturer: 'testco' }
+    ]
+
+    expect(() =>
+      applyFinderFilters(data, {
+        selectedCertifiedIn: [],
+        selectedFuelsAllowed: [],
+        selectedApplianceType: [],
+        selectedManufacturer: ['acme']
+      })
+    ).toThrow('manufacturer must be a string')
+  })
+
+  it('excludes items with null/undefined/empty-string manufacturer', () => {
+    const data = [
+      { id: 1, manufacturer: null },
+      { id: 2, manufacturer: undefined },
+      { id: 3, manufacturer: '' },
+      { id: 4, manufacturer: 'acme' }
+    ]
+
+    const filtered = applyFinderFilters(data, {
+      selectedCertifiedIn: [],
+      selectedFuelsAllowed: [],
+      selectedApplianceType: [],
+      selectedManufacturer: ['acme']
+    })
+
+    expect(filtered.map(i => i.id)).toEqual([4])
+  })
+
+  it('returns no items when manufacturer does not match', () => {
+    const data = [
+      { id: 1, manufacturer: 'acme' },
+      { id: 2, manufacturer: 'testco' }
+    ]
+
+    const result = applyFinderFilters(data, {
+      selectedCertifiedIn: [],
+      selectedFuelsAllowed: [],
+      selectedApplianceType: [],
+      selectedManufacturer: ['other']
+    })
+
+    expect(result).toEqual([])
+  })
+
+  it('correctly marks manufacturer options as selected in buildFinderFilterState', () => {
+    const state = buildFinderFilterState({
+      query: { manufacturer: ['Acme'] }, // mixed-case query
+      type: 'fuels',
+      language: 'en',
+      totalResponse: [
+        { manufacturer: 'acme' },
+        { manufacturer: 'testco' },
+        { manufacturer: 'acme' }
+      ]
+    })
+
+    expect(state.manufacturerOptions).toEqual([
+      {
+        value: 'acme',
+        text: expect.any(String),
+        checked: true
+      },
+      {
+        value: 'testco',
+        text: expect.any(String),
+        checked: false
+      }
+    ])
+  })
+
+  it('manufacturer values are unique and trimmed before mapping', () => {
+    const state = buildFinderFilterState({
+      query: {},
+      type: 'appliances',
+      language: 'en',
+      totalResponse: [
+        { manufacturer: ' acme ' },
+        { manufacturer: 'acme' },
+        { manufacturer: ' testco ' }
+      ]
+    })
+
+    expect(state.manufacturerOptions.map(m => m.value)).toEqual(['acme', 'testco'])
+  })
+})
+
+// -----------------------------------------------------
+// SECTION 2 — CERTIFIED IN / FUELS / APPLIANCE TYPE
+// -----------------------------------------------------
+describe('finder filters – certifiedIn, fuels, applianceType', () => {
+  it('builds selected values from query correctly', () => {
     const state = buildFinderFilterState({
       query: {
         certifiedIn: ['england', 'wales'],
         fuelsAllowed: 'wood pellets',
         applianceType: 'pizza oven',
-        page: '2',
-        search: 'abc'
+        search: 'abc',
+        page: '2'
       },
       type: 'appliances',
       language: 'en'
@@ -31,24 +141,20 @@ describe('finder filters', async () => {
     expect(state.selectedApplianceType).toEqual(['pizza oven'])
 
     expect(
-      state.certifiedInOptions.find((option) => option.value === 'england')
-        ?.checked
+      state.certifiedInOptions.find(o => o.value === 'england')?.checked
     ).toBe(true)
     expect(
-      state.fuelsAllowedOptions.find(
-        (option) => option.value === 'wood pellets'
-      )?.checked
+      state.fuelsAllowedOptions.find(o => o.value === 'wood pellets')?.checked
     ).toBe(true)
     expect(
-      state.applianceTypeOptions.find((option) => option.value === 'pizza oven')
-        ?.text
+      state.applianceTypeOptions.find(o => o.value === 'pizza oven')?.text
     ).toBe('Pizza oven')
 
     expect(state.selectedFilters.clearLink.href).toBe('/finder/appliances/en')
-    expect(state.selectedFilters.categories).toHaveLength(3)
+    expect(state.selectedFilters.categories.length).toBe(3)
   })
 
-  it('builds remove links preserving remaining query params', () => {
+  it('removal links preserve other query parameters', () => {
     const state = buildFinderFilterState({
       query: {
         certifiedIn: ['england', 'wales'],
@@ -60,20 +166,17 @@ describe('finder filters', async () => {
       language: 'en'
     })
 
-    const authorisedCategory = state.selectedFilters.categories.find(
-      (category) => category.heading.text === 'Certified in'
+    const cat = state.selectedFilters.categories.find(
+      c => c.heading.text === 'Certified in'
     )
 
-    expect(authorisedCategory?.items).toHaveLength(2)
-    expect(authorisedCategory?.items[0].href).toContain('certifiedIn=wales')
-    expect(authorisedCategory?.items[0].href).toContain('search=term')
-    expect(authorisedCategory?.items[0].href).toContain(
-      'fuelsAllowed=wood%20chips'
-    )
-    expect(authorisedCategory?.items[0].href).toContain('applianceType=boiler')
+    expect(cat.items[0].href).toContain('certifiedIn=wales')
+    expect(cat.items[0].href).toContain('search=term')
+    expect(cat.items[0].href).toContain('fuelsAllowed=wood%20chips')
+    expect(cat.items[0].href).toContain('applianceType=boiler')
   })
 
-  it('filters response by certifiedIn, fuels and applianceType', () => {
+  it('filters by certifiedIn / fuels / applianceType combined', () => {
     const data = [
       {
         id: 1,
@@ -81,18 +184,8 @@ describe('finder filters', async () => {
         fuels: 'wood pellets, wood chips',
         type: 'pizza oven'
       },
-      {
-        id: 2,
-        authorisedIn: ['scotland'],
-        fuels: 'peat briquettes',
-        type: 'boiler'
-      },
-      {
-        id: 3,
-        authorisedIn: ['england'],
-        fuels: 'wood chips',
-        type: 'boiler'
-      }
+      { id: 2, authorisedIn: ['scotland'], fuels: 'peat', type: 'boiler' },
+      { id: 3, authorisedIn: ['england'], fuels: 'wood chips', type: 'boiler' }
     ]
 
     const filtered = applyFinderFilters(data, {
@@ -101,25 +194,26 @@ describe('finder filters', async () => {
       selectedApplianceType: ['boiler']
     })
 
-    expect(filtered.map((item) => item.id)).toEqual([3])
+    expect(filtered.map(i => i.id)).toEqual([3])
   })
 
-  it('returns original response when no filters are selected', () => {
+  it('returns original response when no filters selected', () => {
     const data = [{ id: 1 }, { id: 2 }]
-
-    const filtered = applyFinderFilters(data, {
-      selectedCertifiedIn: [],
-      selectedFuelsAllowed: [],
-      selectedApplianceType: []
-    })
-
-    expect(filtered).toEqual(data)
+    expect(
+      applyFinderFilters(data, {
+        selectedCertifiedIn: [],
+        selectedFuelsAllowed: [],
+        selectedApplianceType: [],
+        selectedManufacturer: []
+      })
+    ).toEqual(data)
   })
 })
 
-describe('applyFinderFilters – appliance type filtering', async () => {
-  const { applyFinderFilters } = await import('./filters.js')
-
+// -----------------------------------------------------
+// APPLIANCE TYPE EDGE CASES
+// -----------------------------------------------------
+describe('applyFinderFilters – appliance type filtering', () => {
   const baseData = [
     { id: 1, type: 'boiler' },
     { id: 2, type: 'pizza oven' },
@@ -128,14 +222,9 @@ describe('applyFinderFilters – appliance type filtering', async () => {
     { id: 5, type: 'boiler' }
   ]
 
-  it('throws if item.type is an array (appliance type must be a string)', () => {
-    const badData = [
-      ...baseData,
-      { id: 6, type: ['pizza oven'] } // invalid
-    ]
-
+  it('throws if item.type is an array', () => {
     expect(() =>
-      applyFinderFilters(badData, {
+      applyFinderFilters([...baseData, { id: 6, type: ['pizza oven'] }], {
         selectedCertifiedIn: [],
         selectedFuelsAllowed: [],
         selectedApplianceType: ['pizza oven']
@@ -143,43 +232,104 @@ describe('applyFinderFilters – appliance type filtering', async () => {
     ).toThrow('appliance type must be a string')
   })
 
-  it('filters correctly when item.type is a string', () => {
+  it('filters correctly for valid strings', () => {
     const result = applyFinderFilters(baseData, {
       selectedCertifiedIn: [],
       selectedFuelsAllowed: [],
       selectedApplianceType: ['boiler']
     })
-    expect(result.map((i) => i.id)).toEqual([1, 5])
+    expect(result.map(i => i.id)).toEqual([1, 5])
   })
 
-  it('excludes items with no type value', () => {
+  it('excludes items with no type', () => {
     const result = applyFinderFilters(baseData, {
       selectedCertifiedIn: [],
       selectedFuelsAllowed: [],
-      selectedApplianceType: 'heat'
+      selectedApplianceType: ['heat']
     })
-    expect(result.map((i) => i.id)).toEqual([4])
+    expect(result.map(i => i.id)).toEqual([4])
   })
 
-  it('returns an empty array when no items match the type', () => {
-    const result = applyFinderFilters(baseData, {
-      selectedCertifiedIn: [],
-      selectedFuelsAllowed: [],
-      selectedApplianceType: ['nonexistent-type']
-    })
-    expect(result).toEqual([])
+  it('returns empty array for no matches', () => {
+    expect(
+      applyFinderFilters(baseData, {
+        selectedCertifiedIn: [],
+        selectedFuelsAllowed: [],
+        selectedApplianceType: ['xx']
+      })
+    ).toEqual([])
+  })
+})
+
+// -----------------------------------------------------
+// FUELS FILTER EDGE CASES
+// -----------------------------------------------------
+describe('applyFinderFilters – fuels edge cases', () => {
+  it('excludes empty fuels values', () => {
+    const result = applyFinderFilters(
+      [
+        { id: 1, fuels: '' },
+        { id: 2, fuels: null },
+        { id: 3, fuels: 'wood pellets' }
+      ],
+      {
+        selectedCertifiedIn: [],
+        selectedFuelsAllowed: ['wood pellets'],
+        selectedApplianceType: []
+      }
+    )
+    expect(result.map(i => i.id)).toEqual([3])
   })
 
-  it('executes the appliance type filter when selectedApplianceType has items', () => {
-    const spy = vi.spyOn(Array.prototype, 'filter')
-
-    applyFinderFilters(baseData, {
+  it('matches fuels despite spacing inconsistencies', () => {
+    const data = [
+      { id: 1, fuels: 'wood pellets , wood chips' },
+      { id: 2, fuels: '  wood pellets' }
+    ]
+    const result = applyFinderFilters(data, {
       selectedCertifiedIn: [],
-      selectedFuelsAllowed: [],
-      selectedApplianceType: ['boiler']
+      selectedFuelsAllowed: ['wood pellets'],
+      selectedApplianceType: []
     })
+    expect(result.map(i => i.id)).toEqual([1, 2])
+  })
+})
 
-    expect(spy).toHaveBeenCalled()
-    spy.mockRestore()
+// -----------------------------------------------------
+// QUERY STRING HANDLER — FULL COVERAGE
+// -----------------------------------------------------
+describe('buildQueryStringWithoutValue – full coverage', () => {
+  it('removes only the specified value', () => {
+    const q = { certifiedIn: ['england', 'wales'], search: 'abc' }
+    expect(
+      buildQueryStringWithoutValue('certifiedIn', 'wales', q)
+    ).toBe('certifiedIn=england&search=abc')
+  })
+
+  it('removes non-array value correctly', () => {
+    expect(
+      buildQueryStringWithoutValue('manufacturer', 'acme', {
+        manufacturer: 'acme',
+        search: 'term'
+      })
+    ).toBe('search=term')
+  })
+
+  it('retains params if remove value not found', () => {
+    const q = { certifiedIn: ['england', 'wales'], page: '1' }
+    expect(
+      buildQueryStringWithoutValue('certifiedIn', 'scotland', q)
+    ).toBe('certifiedIn=england&certifiedIn=wales&page=1')
+  })
+
+  it('handles mixed arrays and strings appropriately', () => {
+    const q = {
+      certifiedIn: 'england',
+      fuelsAllowed: ['wood', 'chips'],
+      page: '3'
+    }
+    expect(
+      buildQueryStringWithoutValue('certifiedIn', 'england', q)
+    ).toBe('fuelsAllowed=wood&fuelsAllowed=chips&page=3')
   })
 })

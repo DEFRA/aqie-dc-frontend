@@ -33,6 +33,36 @@ vi.mock('../../../config/config.js', () => ({
 }))
 
 describe('fetchAll', () => {
+  it('normalises manufacturer and authorisedIn for fuel type', async () => {
+    const mockData = {
+      msg: 'OK',
+      data: [
+        {
+          id: 2,
+          name: 'PelletBrand',
+          manufacturer: ' FuelCo ',
+          authorisedIn: [' Wales ', ' Scotland ']
+        }
+      ]
+    }
+
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => mockData
+    })
+
+    const result = await fetchAll('fuel')
+
+    expect(result).toEqual([
+      {
+        id: 2,
+        name: 'PelletBrand',
+        manufacturer: 'fuelco',
+        authorisedIn: ['wales', 'scotland']
+      }
+    ])
+  })
   beforeEach(() => {
     vi.clearAllMocks()
   })

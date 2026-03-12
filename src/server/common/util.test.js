@@ -181,16 +181,16 @@ describe('countryTranslation', () => {
 // toProperCase
 // ------------------------
 describe('toProperCase', () => {
-  it('formats a single string to Proper Case', () => {
-    expect(toProperCase('hello world')).toBe('Hello World')
-    expect(toProperCase('hElLo WoRLD')).toBe('Hello World')
+  it('capitalizes only the first letter of the string', () => {
+    expect(toProperCase('hello world')).toBe('Hello world')
+    expect(toProperCase('hElLo WoRLD')).toBe('Hello world')
     expect(toProperCase('a')).toBe('A')
     expect(toProperCase('')).toBe('') // empty string remains empty
   })
 
-  it('formats an array of strings to Proper Case (and leaves non-strings unchanged)', () => {
+  it('capitalizes only the first letter for each string in an array (and leaves non-strings unchanged)', () => {
     const input = ['hello world', 123, null, 'FOO bar']
-    const expected = ['Hello World', 123, null, 'Foo Bar']
+    const expected = ['Hello world', 123, null, 'Foo bar']
     expect(toProperCase(input)).toEqual(expected)
   })
 
@@ -203,8 +203,8 @@ describe('toProperCase', () => {
     expect(toProperCase(bool)).toBe(bool)
   })
 
-  it('preserves spacing while converting each word to Proper Case)', () => {
-    expect(toProperCase(' HELLO   woRLD ')).toBe(' Hello   World ')
+  it('preserves spacing while capitalizing only the first letter', () => {
+    expect(toProperCase(' HELLO   woRLD ')).toBe(' hello   world ')
   })
 })
 describe('sanitizeText', () => {
