@@ -1,3 +1,5 @@
+import sanitizeHtml from 'sanitize-html'
+import Joi from 'joi'
 import { filterOptions } from '../finder/content.js'
 
 export const singularize = (word) =>
@@ -40,6 +42,20 @@ export const fuelTranslation = (data, language = 'en') => {
   return translate('fuels', data, language)
 }
 
+export const sanitizeText = (value) => {
+  return sanitizeHtml(value, {
+    allowedTags: [],
+    allowedAttributes: {}
+  })
+}
+
+export const textFieldSchema = Joi.string()
+  .trim()
+  .pattern(/^[a-zA-Z0-9\s.,-]*$/) // Allow only safe characters
+  .messages({
+    'string.pattern.base':
+      'Enter only letters, numbers, spaces, commas, dots and hyphens.'
+  })
 export const typeTranslation = (data, language = 'en') => {
   return translate('applianceTypes', data, language)
 }

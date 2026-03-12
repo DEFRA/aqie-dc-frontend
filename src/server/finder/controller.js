@@ -2,15 +2,18 @@ import { fetchAll } from '../common/api/api.js'
 import { finderContent } from './content.js'
 import {
   singularize,
+  sanitizeText,
   fuelTranslation,
+  textFieldSchema,
   toProperCase,
   typeTranslation,
   countryTranslation
 } from '../common/util.js'
+import { searchFunctionality } from './search.js'
 import { applyFinderFilters, buildFinderFilterState } from './filters.js'
 
 export const ITEMS_PER_PAGE = 25
-const ElllipsicalPageLimit = 3 // Number of pages to show before and after current page when using ellipses
+const EllipsicalPageLimit = 3 // Number of pages to show before and after current page when using ellipses
 
 const buildPaginationLinks = (currentPage, totalPages, searchQuery) => {
   const links = []
@@ -26,7 +29,7 @@ const buildPaginationLinks = (currentPage, totalPages, searchQuery) => {
   add(1)
 
   // Left ellipsis
-  if (currentPage - 1 >= ElllipsicalPageLimit) {
+  if (currentPage - 1 >= EllipsicalPageLimit) {
     links.push({ text: '…' }) // No link
   }
 
@@ -50,16 +53,32 @@ const buildPaginationLinks = (currentPage, totalPages, searchQuery) => {
   return links
 }
 /**
- * Controller for the authorised appliances finder page
+ * Controller for the authorised appliances/fuel finder page
  */
 export const finderController = {
   async handler(request, h) {
     const { type, language = 'en' } = request.params
     const searchQuery = request.query.search || ''
+
+    // Validate search query against schema to prevent malicious input (e.g. excessively long input, or input with disallowed characters)
+    if (searchQuery !== '') {
+      const { error } = textFieldSchema.validate(searchQuery)
+      if (error) {
+        return handleValidationError(error, h)
+      }
+    }
+    // Sanitize text from XSS
+    const clean = sanitizeText(searchQuery)
+    // Remove any characters that are not letters, numbers, spaces, commas, dots or hyphens
+    const sanitizedSearchQuery = clean.replaceAll(/[^a-zA-Z0-9\s.,-]/g, '')
+
     const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
-
     const totalResponse = await fetchAll(singularize(type))
-
+    const searchResponse = searchFunctionality(
+      type,
+      totalResponse,
+      sanitizedSearchQuery
+    )
     const {
       selectedCertifiedIn,
       selectedFuelsAllowed,
@@ -74,7 +93,7 @@ export const finderController = {
       language
     })
 
-    const searchAndFilteredResponse = applyFinderFilters(totalResponse, {
+    const searchAndFilteredResponse = applyFinderFilters(searchResponse, {
       selectedCertifiedIn,
       selectedFuelsAllowed,
       selectedApplianceType
@@ -93,23 +112,11 @@ export const finderController = {
     )
 
     // Apply proper case formatting for display
-    if (type === 'appliances') {
-      pageSpecificRecords.forEach((item) => {
-        item.fuels = fuelTranslation(item.fuels, language)
-        item.manufacturer = toProperCase(item.manufacturer)
-        item.type = typeTranslation(item.type, language)
-        item.authorisedIn = countryTranslation(item.authorisedIn, language)
-      })
-    } else {
-      pageSpecificRecords.forEach((item) => {
-        item.manufacturer = toProperCase(item.manufacturer)
-        item.authorisedIn = countryTranslation(item.authorisedIn, language)
-      })
-    }
+    handleTranslationAndCase(type, pageSpecificRecords, language)
     const paginationLinks = buildPaginationLinks(
       validPage,
       totalPages,
-      searchQuery
+      sanitizedSearchQuery
     )
     const pageEndRecord = Math.min(validPage * ITEMS_PER_PAGE, totalRecords)
     return h.view('finder/index', {
@@ -117,7 +124,7 @@ export const finderController = {
       type,
       language,
       search: finderContent.search, //need to update while handling search options
-      searchQuery,
+      sanitizedSearchQuery,
       pageSpecificRecords,
       totalRecords,
       currentPage: validPage,
@@ -133,4 +140,28 @@ export const finderController = {
       applianceTypeOptions
     })
   }
+}
+const handleTranslationAndCase = (type, pageSpecificRecords, language) => {
+  if (type === 'appliances') {
+    pageSpecificRecords.forEach((item) => {
+      item.fuels = fuelTranslation(item.fuels, language)
+      item.manufacturer = toProperCase(item.manufacturer)
+      item.type = typeTranslation(item.type, language)
+      item.authorisedIn = countryTranslation(item.authorisedIn, language)
+    })
+  } else {
+    pageSpecificRecords.forEach((item) => {
+      item.manufacturer = toProperCase(item.manufacturer)
+      item.authorisedIn = countryTranslation(item.authorisedIn, language)
+    })
+  }
+}
+const handleValidationError = (error, h) => {
+  console.error('Search query validation error:', error)
+  // update the logic here when we have a design for how to handle validation errors on the front end - e.g. do we want to show an error message on the page, or just ignore the search query and show all results? For now, we will just ignore the search query and show all results if there is a validation error
+  //TODO - if we want to show an error message on the page, we will need to update the view to display the error message, and pass the error message in the context when rendering the view here
+  return h.view('error/index', {
+    message: 'Invalid search query',
+    details: error
+  })
 }
