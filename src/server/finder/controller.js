@@ -83,11 +83,14 @@ export const finderController = {
       selectedCertifiedIn,
       selectedFuelsAllowed,
       selectedApplianceType,
+      selectedManufacturer,
       selectedFilters,
       certifiedInOptions,
       fuelsAllowedOptions,
-      applianceTypeOptions
+      applianceTypeOptions,
+      manufacturerOptions
     } = buildFinderFilterState({
+      totalResponse,
       query: request.query,
       type,
       language
@@ -96,7 +99,8 @@ export const finderController = {
     const searchAndFilteredResponse = applyFinderFilters(searchResponse, {
       selectedCertifiedIn,
       selectedFuelsAllowed,
-      selectedApplianceType
+      selectedApplianceType,
+      selectedManufacturer
     })
 
     // Calculate pagination
@@ -112,6 +116,22 @@ export const finderController = {
     )
 
     // Apply proper case formatting for display
+    const handleTranslationAndCase = (type, pageSpecificRecords, language) => {
+      if (type === 'appliances') {
+        pageSpecificRecords.forEach((item) => {
+          item.fuels = fuelTranslation(item.fuels, language)
+          item.manufacturer = toProperCase(item.manufacturer)
+          item.type = typeTranslation(item.type, language)
+          item.authorisedIn = countryTranslation(item.authorisedIn, language)
+        })
+      } else {
+        pageSpecificRecords.forEach((item) => {
+          item.manufacturer = toProperCase(item.manufacturer)
+          item.authorisedIn = countryTranslation(item.authorisedIn, language)
+        })
+      }
+    }
+
     handleTranslationAndCase(type, pageSpecificRecords, language)
     const paginationLinks = buildPaginationLinks(
       validPage,
@@ -137,22 +157,8 @@ export const finderController = {
       selectedFilters,
       certifiedInOptions,
       fuelsAllowedOptions,
-      applianceTypeOptions
-    })
-  }
-}
-const handleTranslationAndCase = (type, pageSpecificRecords, language) => {
-  if (type === 'appliances') {
-    pageSpecificRecords.forEach((item) => {
-      item.fuels = fuelTranslation(item.fuels, language)
-      item.manufacturer = toProperCase(item.manufacturer)
-      item.type = typeTranslation(item.type, language)
-      item.authorisedIn = countryTranslation(item.authorisedIn, language)
-    })
-  } else {
-    pageSpecificRecords.forEach((item) => {
-      item.manufacturer = toProperCase(item.manufacturer)
-      item.authorisedIn = countryTranslation(item.authorisedIn, language)
+      applianceTypeOptions,
+      manufacturerOptions
     })
   }
 }

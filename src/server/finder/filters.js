@@ -1,4 +1,5 @@
 import { finderContent, filterOptions } from './content.js'
+import { toProperCase } from '../common/util.js'
 
 /**
  * Build checkbox options for filters
@@ -6,13 +7,39 @@ import { finderContent, filterOptions } from './content.js'
 // language - 'en' or 'cy'
 // selectedValues - selected values (in lowercase) to determine which options should be checked
  */
-const getFilterOptions = (category, language, selectedValues = []) =>
-  filterOptions[category].map((item) => ({
-    value: item.key,
-    text: item[language],
-    checked: selectedValues.includes(item.key)
-  }))
 
+//Function that returns filter options, and if they are in the selected values from the query parameters
+const getFilterOptions = (
+  category,
+  language,
+  selectedValues = [],
+  totalResponse
+) => {
+  // //The options from manufacturer filter are based on the dataset:
+  if (category === 'manufacturers') {
+    const manufacturerSet = [] //this is an array of strings from the dataset
+    for (const item of totalResponse) {
+      if (item.manufacturer) {
+        const trimmedVal = item.manufacturer.trim()
+        if (!manufacturerSet.includes(trimmedVal)) {
+          manufacturerSet.push(trimmedVal)
+        }
+      }
+    }
+    return manufacturerSet.map((item) => ({
+      value: item,
+      text: toProperCase(item),
+      checked: selectedValues.includes(item)
+    }))
+  } else {
+    return filterOptions[category].map((item) => ({
+      value: item.key,
+      text: item[language],
+      checked: selectedValues.includes(item.key)
+    }))
+  }
+}
+// This function gets the selected values from the query parameters
 const getSelectedValues = (queryValue) => {
   if (Array.isArray(queryValue)) {
     return queryValue.map((value) => value.trim().toLowerCase())
@@ -47,7 +74,7 @@ const buildQueryStringWithoutValue = (keyToRemove, removeValue, query) => {
 
   return params.join('&')
 }
-
+//creates link to remove individual filters in the selected filters section
 const buildSelectedItems = (options, selectedValues, query, queryKey) =>
   options
     .filter((option) => selectedValues.includes(option.value))
@@ -56,6 +83,7 @@ const buildSelectedItems = (options, selectedValues, query, queryKey) =>
       text: option.text
     }))
 
+//function that takes options and selected to display in grey selected filters section
 const buildSelectedFilters = ({
   type,
   language,
@@ -63,9 +91,11 @@ const buildSelectedFilters = ({
   certifiedInOptions,
   fuelsAllowedOptions,
   applianceTypeOptions,
+  manufacturerOptions,
   selectedCertifiedIn,
   selectedFuelsAllowed,
-  selectedApplianceType
+  selectedApplianceType,
+  selectedManufacturer
 }) => {
   const certifiedInSelectedItems = buildSelectedItems(
     certifiedInOptions,
@@ -87,6 +117,20 @@ const buildSelectedFilters = ({
     query,
     'applianceType'
   )
+
+  const manufacturerSelectedItems = buildSelectedItems(
+    manufacturerOptions,
+    selectedManufacturer,
+    query,
+    'manufacturer'
+  )
+  // // Record of selected options that are params in URL
+  // let selectedManufacturer = []
+  // if (Array.isArray(request.query.manufacturer)) {
+  //   selectedManufacturer = request.query.manufacturer.map((v) => v.trim())
+  // } else if (request.query.manufacturer) {
+  //   selectedManufacturer = [request.query.manufacturer.trim()]
+  // }
 
   const categories = []
 
@@ -111,6 +155,13 @@ const buildSelectedFilters = ({
     })
   }
 
+  if (manufacturerSelectedItems.length > 0) {
+    categories.push({
+      heading: { text: finderContent[type][language].manufacturer },
+      items: manufacturerSelectedItems
+    })
+  }
+
   return {
     clearLink: {
       text: finderContent[type][language].clearFilters,
@@ -120,11 +171,19 @@ const buildSelectedFilters = ({
   }
 }
 
-export const buildFinderFilterState = ({ query, type, language }) => {
+export const buildFinderFilterState = ({
+  totalResponse,
+  query,
+  type,
+  language
+}) => {
+  // Get selected values from query parameters
   const selectedCertifiedIn = getSelectedValues(query.certifiedIn)
   const selectedFuelsAllowed = getSelectedValues(query.fuelsAllowed)
   const selectedApplianceType = getSelectedValues(query.applianceType)
+  const selectedManufacturer = getSelectedValues(query.manufacturer)
 
+  // Build filter options (checkboxes) with checked status
   const certifiedInOptions = getFilterOptions(
     'countries',
     language,
@@ -140,7 +199,13 @@ export const buildFinderFilterState = ({ query, type, language }) => {
     language,
     selectedApplianceType
   )
-
+  const manufacturerOptions = getFilterOptions(
+    'manufacturers',
+    language,
+    selectedManufacturer,
+    totalResponse
+  )
+  // // Build selected filters for display in grey selected filters section
   const selectedFilters = buildSelectedFilters({
     type,
     language,
@@ -148,25 +213,33 @@ export const buildFinderFilterState = ({ query, type, language }) => {
     certifiedInOptions,
     fuelsAllowedOptions,
     applianceTypeOptions,
+    manufacturerOptions,
     selectedCertifiedIn,
     selectedFuelsAllowed,
-    selectedApplianceType
+    selectedApplianceType,
+    selectedManufacturer
   })
 
   return {
     selectedCertifiedIn,
     selectedFuelsAllowed,
     selectedApplianceType,
+    selectedManufacturer,
     selectedFilters,
     certifiedInOptions,
     fuelsAllowedOptions,
-    applianceTypeOptions
+    applianceTypeOptions,
+    manufacturerOptions
   }
 }
-
+//Filtering logic based on selected filters from query parameters, applied to the search results from backend
 export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
-  const { selectedCertifiedIn, selectedFuelsAllowed, selectedApplianceType } =
-    selectedFilterValues
+  const {
+    selectedCertifiedIn,
+    selectedFuelsAllowed,
+    selectedApplianceType,
+    selectedManufacturer
+  } = selectedFilterValues
 
   let filteredResponse = totalResponse
 
@@ -215,6 +288,26 @@ export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
       }
 
       return selectedApplianceType.includes(String(item.type))
+    })
+  }
+
+  if (selectedManufacturer.length > 0) {
+    filteredResponse = filteredResponse.filter((item) => {
+      if (Array.isArray(item.manufacturer)) {
+        throw new TypeError('manufacturer must be a string')
+      }
+
+      if (!item.manufacturer) {
+        return false
+      }
+
+      if (Array.isArray(item.manufacturer)) {
+        return selectedManufacturer.some((value) =>
+          item.manufacturer.includes((m) => m === value)
+        )
+      }
+
+      return selectedManufacturer.includes(String(item.manufacturer))
     })
   }
 
