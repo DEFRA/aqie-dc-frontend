@@ -1,3 +1,5 @@
+import sanitizeHtml from 'sanitize-html'
+import Joi from 'joi'
 import { filterOptions } from '../finder/content.js'
 
 export const singularize = (word) =>
@@ -26,9 +28,11 @@ export const translate = (category, dbValue, language) => {
 
   const translated = values.map((val) => {
     const trimmed = val.trim()
-    const item = filterOptions[category].find(
-      (opt) => opt.key === trimmed.toLowerCase()
-    )
+    const items = filterOptions[category]
+    if (!items) {
+      return trimmed
+    }
+    const item = items.find((opt) => opt.key === trimmed.toLowerCase())
     return item ? item[language] : trimmed
   })
 
@@ -36,38 +40,52 @@ export const translate = (category, dbValue, language) => {
 }
 
 // Convenience wrappers for specific categories
-export const fuelTranslation = (data, language = 'en') => {
-  return translate('fuels', data, language)
+export const sanitizeText = (value) => {
+  return sanitizeHtml(value, {
+    allowedTags: [],
+    allowedAttributes: {}
+  })
 }
 
-export const typeTranslation = (data, language = 'en') => {
-  return translate('applianceTypes', data, language)
-}
-
-export const countryTranslation = (data, language = 'en') => {
-  return translate('countries', data, language)
-}
+export const textFieldSchema = Joi.string()
+  .trim()
+  .pattern(/^[a-zA-Z0-9\s.,-]*$/) // Allow only safe characters
+  .messages({
+    'string.pattern.base':
+      'Enter only letters, numbers, spaces, commas, dots and hyphens.'
+  })
 
 export const toProperCase = (value) => {
   const formatString = (str) => {
     if (typeof str !== 'string') {
       return str
     }
-    return str
-      .split(' ')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ')
+    if (str.length === 0) {
+      return ''
+    }
+    // Assumption: input is already normalized in api.js, e.g., 'ALLCAPS company', not 'ALLCAPS Company'.
+    // Only the first word may need capitalization, all-caps words are preserved.
+    const s = str.replaceAll(/\s+/g, ' ').trim()
+    const words = s.split(' ')
+    const result = words.map((w, i) => {
+      if (/^[A-Z]+$/.test(w)) {
+        // All caps word, preserve as is
+        return w
+      }
+      if (i === 0) {
+        // Capitalize first word if not all-caps
+        return w.length > 0 ? w[0].toUpperCase() + w.slice(1) : w
+      }
+      // All other non-all-caps words, force lowercase
+      return w.toLowerCase()
+    })
+    return result.join(' ')
   }
-
-  // If value is a string → format it
   if (typeof value === 'string') {
     return formatString(value)
   }
-
-  // If value is an array → format each element
   if (Array.isArray(value)) {
     return value.map(formatString)
   }
-
   return value
 }
