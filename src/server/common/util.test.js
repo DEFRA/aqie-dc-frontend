@@ -8,7 +8,7 @@ vi.mock('sanitize-html')
 
 // Mock the content module - only filterOptions is needed since translate functions are in util.js
 vi.mock('../finder/content.js', () => ({
-  filterOptions: {
+  lookupData: {
     countries: [
       { key: 'wales', en: 'Wales', cy: 'Wales--cy' },
       { key: 'england', en: 'England', cy: 'England--cy' },
@@ -134,7 +134,7 @@ describe('translate (applianceTypes)', () => {
   })
 })
 
-// ...existing code...
+
 // ------------------------
 // translate (countries)
 // ------------------------
@@ -160,7 +160,7 @@ describe('translate (countries)', () => {
   it('falls back to trimmed original on missing translation', () => {
     const input = ['Scotland'] // not defined in cy map in the mock
     const expected = 'Scotland'
-    expect(translate('countries', input, 'cy')).toBe(expected)
+    expect(translate('countries', input, '')).toBe(expected)
   })
 
   it('handles empty array returning an empty string', () => {

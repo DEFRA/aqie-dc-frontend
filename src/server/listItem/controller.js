@@ -1,6 +1,7 @@
 import { listItemContent } from './content.js'
 import { fetchById } from '../common/api/api.js'
-import { singularize } from '../common/util.js'
+import { singularize, translate } from '../common/util.js'
+import { lookupData } from '../common/content.js'
 
 /**
  * List Item page controller.
@@ -22,11 +23,7 @@ export const listItemController = {
       return h.response(`${appliance} not found`).code(404)
     }
 
-    // Build certification by country table
-    const countryKeys = ['england', 'scotland', 'wales', 'nIreland']
-    //get these from content?
-
-    const certification = countryKeys.map((key) => {
+    const certification = lookupData.countries.map((country) => {
       const statusMap = {
         Revoked: { label: content.status.revoked, colour: 'govuk-tag--red' },
         Uncertified: {
@@ -38,13 +35,14 @@ export const listItemController = {
           colour: 'govuk-tag--green'
         }
       }
-
+      // Use country key to access the approval status and date DB fields and map language to display values
       return {
-        name: content[key],
-        status: statusMap[item[`${key}Approval`]] || statusMap.Uncertified,
+        name: country[language], // display name based on language
+        status:
+          statusMap[item[`${country.key}Approval`]] || statusMap.Uncertified,
         firstCertified:
-          item[`${key}Approval`] === 'Certified'
-            ? item[`${key}DateFirstAuthorised`]
+          item[`${country.key}Approval`] === 'Certified'
+            ? item[`${country.key}DateFirstAuthorised`]
             : null
       }
     })
@@ -56,8 +54,8 @@ export const listItemController = {
       manufacturer: item.manufacturerName, //company name - check?
       certification,
       applianceDetails: {
-        fuelsAllowed: item.allowedFuels,
-        type: item.applianceType,
+        fuelsAllowed: translate('fuels', item.allowedFuels, language),
+        type: translate('applianceTypes', item.applianceType, language),
         output: item.nominalOutput
       },
       conditionsForUse: {

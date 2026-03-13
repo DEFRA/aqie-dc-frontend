@@ -44,11 +44,6 @@ export const listItemContent = {
       revoked: 'Revoked'
     },
     notApplicable: 'Not applicable',
-    //can i remove these and use other finder? adn CY:
-    england: 'England',
-    scotland: 'Scotland',
-    wales: 'Wales',
-    nIreland: 'Northern Ireland',
 
     legalBasisPrefix: 'See the ',
     legalBasisText: 'legal basis for certification in each UK country.',
@@ -94,10 +89,6 @@ export const listItemContent = {
       revoked: 'Revoked--CY'
     },
     notApplicable: 'Not applicable--CY',
-    england: 'England--CY',
-    scotland: 'Scotland--CY',
-    wales: 'Wales--CY',
-    nIreland: 'Northern Ireland--CY',
 
     legalBasisPrefix: 'See the--CY ',
     legalBasisText: 'legal basis for certification in each UK country.--CY',

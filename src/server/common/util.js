@@ -1,6 +1,6 @@
 import sanitizeHtml from 'sanitize-html'
 import Joi from 'joi'
-import { filterOptions } from '../finder/content.js'
+import { lookupData } from '../common/content.js'
 
 export const singularize = (word) =>
   word.endsWith('s') ? word.slice(0, -1) : word
@@ -28,7 +28,7 @@ export const translate = (category, dbValue, language) => {
 
   const translated = values.map((val) => {
     const trimmed = val.trim()
-    const items = filterOptions[category]
+    const items = lookupData[category]
     if (!items) {
       return trimmed
     }
