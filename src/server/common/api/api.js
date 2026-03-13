@@ -1,6 +1,7 @@
 import fetch from 'node-fetch'
 import { createLogger } from '../helpers/logging/logger.js'
 import { config } from '../../../config/config.js'
+import { smartLowercase } from '../util.js'
 
 const logger = createLogger()
 
@@ -43,7 +44,7 @@ export async function fetchAll(type) {
       if (type === 'appliance' || type === 'appliances') {
         return {
           ...item,
-          manufacturer: item.manufacturer.toLowerCase().trim(),
+          manufacturer: smartLowercase(item.manufacturer).trim(),
           fuels: item.fuels.toLowerCase().trim(),
           type: item.type.toLowerCase().trim(),
           authorisedIn: Array.isArray(item.authorisedIn)
@@ -54,7 +55,7 @@ export async function fetchAll(type) {
       if (type === 'fuel' || type === 'fuels') {
         return {
           ...item,
-          manufacturer: item.manufacturer.toLowerCase().trim(),
+          manufacturer: smartLowercase(item.manufacturer).trim(),
           authorisedIn: Array.isArray(item.authorisedIn)
             ? item.authorisedIn.map((country) => country.toLowerCase().trim())
             : []
@@ -88,6 +89,10 @@ export async function fetchById(type, applicationId) {
 
     try {
       const json = JSON.parse(text)
+      console.log(
+        'fetchById - Data returned from DB:',
+        JSON.stringify(json.data, null, 2)
+      )
       return json.data || null
     } catch (error) {
       logger.error('Failed to parse JSON response:', error)

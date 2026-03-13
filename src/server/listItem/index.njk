@@ -65,7 +65,7 @@
         <div class="govuk-grid-column-two-thirds">
           
           <h2 class="govuk-heading-m">{{ conditionsForUseHeading }}</h2>
-          <p class="govuk-!-margin-bottom-6">{{ conditionsForUse.airControlModifications }}</p>
+          <p class="govuk-!-margin-bottom-6">{{ conditionsForUse.airControlModifications | safe }}</p>
 
           <h2 class="govuk-heading-s">{{instructionManualLabel }}</h2>
           <p class="govuk-!-margin-bottom-2"> {{ conditionsForUse.instructionManual.title }} ({{ conditionsForUse.instructionManual.version }})</p>

@@ -59,7 +59,10 @@ export const listItemController = {
         output: item.nominalOutput
       },
       conditionsForUse: {
-        airControlModifications: item.airControlModifications,
+        airControlModifications: item.airControlModifications.replace(
+          /\n/g,
+          '<br><br>'
+        ),
         instructionManual: {
           title: item.instructionManualTitle,
           date: item.instructionManualDate,
