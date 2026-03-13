@@ -40,7 +40,7 @@ export async function fetchAll(type) {
     }
 
     return json.data.map((item) => {
-      if (type === 'appliances') {
+      if (type === 'appliance' || type === 'appliances') {
         return {
           ...item,
           manufacturer: item.manufacturer.toLowerCase().trim(),
@@ -51,7 +51,7 @@ export async function fetchAll(type) {
             : []
         }
       }
-      if (type === 'fuel') {
+      if (type === 'fuel' || type === 'fuels') {
         return {
           ...item,
           manufacturer: item.manufacturer.toLowerCase().trim(),
