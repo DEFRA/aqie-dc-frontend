@@ -3,11 +3,9 @@ import { finderContent } from './content.js'
 import {
   singularize,
   sanitizeText,
-  fuelTranslation,
+  translate,
   textFieldSchema,
-  toProperCase,
-  typeTranslation,
-  countryTranslation
+  toProperCase
 } from '../common/util.js'
 import { searchFunctionality } from './search.js'
 import { applyFinderFilters, buildFinderFilterState } from './filters.js'
@@ -55,6 +53,7 @@ const buildPaginationLinks = (currentPage, totalPages, searchQuery) => {
 /**
  * Controller for the authorised appliances/fuel finder page
  */
+
 export const finderController = {
   async handler(request, h) {
     const { type, language = 'en' } = request.params
@@ -74,30 +73,22 @@ export const finderController = {
 
     const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
     const totalResponse = await fetchAll(singularize(type))
+    console.log('Records returned from API:', totalResponse)
     const searchResponse = searchFunctionality(
       type,
       totalResponse,
       sanitizedSearchQuery
     )
-    const {
-      selectedCertifiedIn,
-      selectedFuelsAllowed,
-      selectedApplianceType,
-      selectedFilters,
-      certifiedInOptions,
-      fuelsAllowedOptions,
-      applianceTypeOptions
-    } = buildFinderFilterState({
+    const filterState = buildFinderFilterState({
+      totalResponse,
       query: request.query,
       type,
       language
     })
-
-    const searchAndFilteredResponse = applyFinderFilters(searchResponse, {
-      selectedCertifiedIn,
-      selectedFuelsAllowed,
-      selectedApplianceType
-    })
+    const searchAndFilteredResponse = filterSearchResults(
+      searchResponse,
+      filterState
+    )
 
     // Calculate pagination
     const totalRecords = searchAndFilteredResponse.length
@@ -111,7 +102,6 @@ export const finderController = {
       startIndex + ITEMS_PER_PAGE
     )
 
-    // Apply proper case formatting for display
     handleTranslationAndCase(type, pageSpecificRecords, language)
     const paginationLinks = buildPaginationLinks(
       validPage,
@@ -134,28 +124,48 @@ export const finderController = {
       ITEMS_PER_PAGE,
       //backLinkHref: '#' //TODO: add correct back link once home page finalised
       // certifiedIn: finderContent.certifiedIn,
-      selectedFilters,
-      certifiedInOptions,
-      fuelsAllowedOptions,
-      applianceTypeOptions
+      selectedFilters: filterState.selectedFilters,
+      certifiedInOptions: filterState.certifiedInOptions,
+      fuelsAllowedOptions: filterState.fuelsAllowedOptions,
+      applianceTypeOptions: filterState.applianceTypeOptions,
+      manufacturerOptions: filterState.manufacturerOptions
     })
   }
 }
+
+// Extracted filtering logic
+function filterSearchResults(searchResponse, filterState) {
+  const {
+    selectedCertifiedIn,
+    selectedFuelsAllowed,
+    selectedApplianceType,
+    selectedManufacturer
+  } = filterState
+  return applyFinderFilters(searchResponse, {
+    selectedCertifiedIn,
+    selectedFuelsAllowed,
+    selectedApplianceType,
+    selectedManufacturer
+  })
+}
+
+// Apply proper case formatting for display
 const handleTranslationAndCase = (type, pageSpecificRecords, language) => {
   if (type === 'appliances') {
     pageSpecificRecords.forEach((item) => {
-      item.fuels = fuelTranslation(item.fuels, language)
+      item.fuels = translate('fuels', item.fuels, language)
       item.manufacturer = toProperCase(item.manufacturer)
-      item.type = typeTranslation(item.type, language)
-      item.authorisedIn = countryTranslation(item.authorisedIn, language)
+      item.type = translate('applianceTypes', item.type, language)
+      item.authorisedIn = translate('countries', item.authorisedIn, language)
     })
   } else {
     pageSpecificRecords.forEach((item) => {
       item.manufacturer = toProperCase(item.manufacturer)
-      item.authorisedIn = countryTranslation(item.authorisedIn, language)
+      item.authorisedIn = translate('countries', item.authorisedIn, language)
     })
   }
 }
+
 const handleValidationError = (error, h) => {
   console.error('Search query validation error:', error)
   // update the logic here when we have a design for how to handle validation errors on the front end - e.g. do we want to show an error message on the page, or just ignore the search query and show all results? For now, we will just ignore the search query and show all results if there is a validation error

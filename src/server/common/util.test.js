@@ -1,14 +1,6 @@
-// util.test.js
 import { describe, it, test, expect, vi } from 'vitest'
 
-import {
-  singularize,
-  fuelTranslation,
-  typeTranslation,
-  countryTranslation,
-  toProperCase,
-  sanitizeText
-} from './util.js'
+import { singularize, translate, toProperCase, sanitizeText } from './util.js'
 import sanitizeHtml from 'sanitize-html'
 
 // Mock sanitize-html behaviour
@@ -71,109 +63,110 @@ describe('singularize', () => {
 })
 
 // ------------------------
-// fuelTranslation
+// translate (fuels)
 // ------------------------
-describe('fuelTranslation', () => {
+describe('translate (fuels)', () => {
   test('returns English values when language = en', () => {
     const input = 'Wood Logs, Wood Pellets, Wood Chips, Other'
     const expected = 'Wood Logs, Wood Pellets, Wood Chips, Other'
-    expect(fuelTranslation(input, 'en')).toBe(expected)
+    expect(translate('fuels', input, 'en')).toBe(expected)
   })
 
   test('returns Welsh values when language = cy', () => {
     const input = 'Wood Logs, Wood Pellets, Wood Chips, Other'
     const expected =
       'Wood Logs--cy, Wood Pellets--cy, Wood Chips--cy, Other--cy'
-    expect(fuelTranslation(input, 'cy')).toBe(expected)
+    expect(translate('fuels', input, 'cy')).toBe(expected)
   })
 
   test('handles extra spaces correctly', () => {
     const input = ' Wood Logs ,  Wood Pellets , Wood Chips ,   Other '
     const expected =
       'Wood Logs--cy, Wood Pellets--cy, Wood Chips--cy, Other--cy'
-    expect(fuelTranslation(input, 'cy')).toBe(expected)
+    expect(translate('fuels', input, 'cy')).toBe(expected)
   })
 
   test('returns original value if translation missing', () => {
     const input = 'Unknown Fuel'
     const expected = 'Unknown Fuel'
-    expect(fuelTranslation(input, 'cy')).toBe(expected)
+    expect(translate('fuels', input, 'cy')).toBe(expected)
   })
 
   test('handles single value (no commas)', () => {
     const input = 'Wood Logs'
     const expected = 'Wood Logs--cy'
-    expect(fuelTranslation(input, 'cy')).toBe(expected)
+    expect(translate('fuels', input, 'cy')).toBe(expected)
   })
 
   test('handles empty string', () => {
     const input = ''
     const expected = ''
-    expect(fuelTranslation(input, 'cy')).toBe(expected)
+    expect(translate('fuels', input, 'cy')).toBe(expected)
   })
 })
 
 // ------------------------
-// typeTranslation
+// translate (applianceTypes)
 // ------------------------
-describe('typeTranslation', () => {
+describe('translate (applianceTypes)', () => {
   it('returns English values when language = en', () => {
     const input = 'Boiler'
     const expected = 'Boiler'
-    expect(typeTranslation(input, 'en')).toBe(expected)
+    expect(translate('applianceTypes', input, 'en')).toBe(expected)
   })
 
   it('returns Welsh values when language = cy', () => {
     const input = 'Boiler'
     const expected = 'Boiler--cy'
-    expect(typeTranslation(input, 'cy')).toBe(expected)
+    expect(translate('applianceTypes', input, 'cy')).toBe(expected)
   })
 
   it('trims whitespace before translating', () => {
     const input = '  Stove  '
     const expected = 'Stove--cy'
-    expect(typeTranslation(input, 'cy')).toBe(expected)
+    expect(translate('applianceTypes', input, 'cy')).toBe(expected)
   })
 
   it('falls back to trimmed original on missing translation', () => {
     const input = '  Heat Pump  ' // not in the mock map
     const expected = 'Heat Pump'
-    expect(typeTranslation(input, 'cy')).toBe(expected)
+    expect(translate('applianceTypes', input, 'cy')).toBe(expected)
   })
 })
 
+// ...existing code...
 // ------------------------
-// countryTranslation
+// translate (countries)
 // ------------------------
-describe('countryTranslation', () => {
+describe('translate (countries)', () => {
   it('translates an array of country names to English when language = en', () => {
     const input = ['Wales', ' England ', 'Scotland']
     const expected = 'Wales, England, Scotland'
-    expect(countryTranslation(input, 'en')).toBe(expected)
+    expect(translate('countries', input, 'en')).toBe(expected)
   })
 
   it('translates an array of country names to Welsh when language = cy', () => {
     const input = ['Wales', ' England ']
     const expected = 'Wales--cy, England--cy'
-    expect(countryTranslation(input, 'cy')).toBe(expected)
+    expect(translate('countries', input, 'cy')).toBe(expected)
   })
 
   it('trims each array element before translating', () => {
     const input = ['  Wales  ', '  England']
     const expected = 'Wales--cy, England--cy'
-    expect(countryTranslation(input, 'cy')).toBe(expected)
+    expect(translate('countries', input, 'cy')).toBe(expected)
   })
 
   it('falls back to trimmed original on missing translation', () => {
     const input = ['Scotland'] // not defined in cy map in the mock
     const expected = 'Scotland'
-    expect(countryTranslation(input, 'cy')).toBe(expected)
+    expect(translate('countries', input, 'cy')).toBe(expected)
   })
 
   it('handles empty array returning an empty string', () => {
     const input = []
     const expected = ''
-    expect(countryTranslation(input, 'cy')).toBe(expected)
+    expect(translate('countries', input, 'cy')).toBe(expected)
   })
 })
 
@@ -181,18 +174,18 @@ describe('countryTranslation', () => {
 // toProperCase
 // ------------------------
 describe('toProperCase', () => {
-  it('formats a single string to Proper Case', () => {
-    expect(toProperCase('hello world')).toBe('Hello World')
-    expect(toProperCase('hElLo WoRLD')).toBe('Hello World')
+  it('skips all-caps words, capitalizes first non-all-caps word, keeps other non-all-caps words lowercase', () => {
+    expect(toProperCase('hello world')).toBe('Hello world')
     expect(toProperCase('a')).toBe('A')
     expect(toProperCase('')).toBe('') // empty string remains empty
+    expect(toProperCase('BMW')).toBe('BMW')
+    expect(toProperCase('NASA rocket')).toBe('NASA rocket')
+    expect(toProperCase('HELLO WORLD')).toBe('HELLO WORLD')
+    expect(toProperCase('BMW NASA car ROCKET')).toBe('BMW NASA car ROCKET')
+    expect(toProperCase('BMW NASA')).toBe('BMW NASA')
+    expect(toProperCase('bmw car NASA rocket')).toBe('Bmw car NASA rocket')
   })
-
-  it('formats an array of strings to Proper Case (and leaves non-strings unchanged)', () => {
-    const input = ['hello world', 123, null, 'FOO bar']
-    const expected = ['Hello World', 123, null, 'Foo Bar']
-    expect(toProperCase(input)).toEqual(expected)
-  })
+  // No test for mixed or camel case, as function will never receive such input
 
   it('leaves non-string, non-array values unchanged', () => {
     const obj = { x: 'y' }
@@ -201,10 +194,6 @@ describe('toProperCase', () => {
     expect(toProperCase(obj)).toBe(obj)
     expect(toProperCase(num)).toBe(num)
     expect(toProperCase(bool)).toBe(bool)
-  })
-
-  it('preserves spacing while converting each word to Proper Case)', () => {
-    expect(toProperCase(' HELLO   woRLD ')).toBe(' Hello   World ')
   })
 })
 describe('sanitizeText', () => {

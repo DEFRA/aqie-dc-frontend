@@ -35,7 +35,7 @@
         {%- set filterOptionsHtml %}
           {{ govukDetails({
             summaryText: authorisedIn,
-            open: true,
+            open: false,
             html: govukCheckboxes({
               idPrefix: "certifiedIn",
               name: "certifiedIn",
@@ -44,20 +44,21 @@
             })
           }) }}
 
-          {{ govukDetails({
-            summaryText: fuelsAllowed,
-            open: true,
-            html: govukCheckboxes({
-              idPrefix: "fuelsAllowed",
-              name: "fuelsAllowed",
-              classes: "govuk-checkboxes--small",
-              items: fuelsAllowedOptions
-            })
-          }) }}
+          {% if type === 'appliances' %}
+            {{ govukDetails({
+              summaryText: fuelsAllowed,
+              open: false,
+              html: govukCheckboxes({
+                idPrefix: "fuelsAllowed",
+                name: "fuelsAllowed",
+                classes: "govuk-checkboxes--small",
+                items: fuelsAllowedOptions
+              })
+            }) }}
 
           {{ govukDetails({
             summaryText: applianceType,
-            open: true,
+            open: false,
             html: govukCheckboxes({
               idPrefix: "applianceType",
               name: "applianceType",
@@ -65,6 +66,20 @@
               items: applianceTypeOptions
             })
           }) }}
+           {% endif %}
+
+          {% if type === 'fuels' %}
+            {{ govukDetails({
+              summaryText: manufacturer,
+              open: false,
+              html: govukCheckboxes({
+                idPrefix: "manufacturer",
+                name: "manufacturer",
+                classes: "govuk-checkboxes--small",
+                items: manufacturerOptions
+              })
+            }) }}
+          {% endif %}
         {% endset -%}
 
         {{ appFilter({
@@ -111,8 +126,8 @@
                 <a href="/details/fuels/{{pageSpecificRecord.id}}/{{language}}" class="govuk-link">{{ pageSpecificRecord.name }}</a>
               </h3>
               <p class="govuk-body"><strong>{{manufacturedBy}} {{ pageSpecificRecord.manufacturer }}</strong></p>
-              <p class="govuk-body">{{fuelID}} {{ pageSpecificRecord.id }}</p>
-              <p class="govuk-body">{{authorisedIn}} {{ pageSpecificRecord.authorisedIn }}</p>
+              <p class="govuk-body">{{fuelID}}: {{ pageSpecificRecord.id }}</p>
+              <p class="govuk-body">{{authorisedIn}}: {{ pageSpecificRecord.authorisedIn }}</p>
             </div>
             <hr class="govuk-section-break govuk-section-break--visible">
           {% endfor %}

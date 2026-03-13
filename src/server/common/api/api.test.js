@@ -33,6 +33,36 @@ vi.mock('../../../config/config.js', () => ({
 }))
 
 describe('fetchAll', () => {
+  it('normalises manufacturer and authorisedIn for fuel type', async () => {
+    const mockData = {
+      msg: 'OK',
+      data: [
+        {
+          id: 2,
+          name: 'PelletBrand',
+          manufacturer: ' FuelCo ',
+          authorisedIn: [' Wales ', ' Scotland ']
+        }
+      ]
+    }
+
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => mockData
+    })
+
+    const result = await fetchAll('fuel')
+
+    expect(result).toEqual([
+      {
+        id: 2,
+        name: 'PelletBrand',
+        manufacturer: 'fuelco',
+        authorisedIn: ['wales', 'scotland']
+      }
+    ])
+  })
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -58,10 +88,10 @@ describe('fetchAll', () => {
       json: async () => mockData
     })
 
-    const result = await fetchAll('appliance')
+    const result = await fetchAll('appliances')
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:3001/get-all/appliance',
+      'http://localhost:3001/get-all/appliances',
       expect.objectContaining({
         method: 'GET',
         headers: {
@@ -94,7 +124,7 @@ describe('fetchAll', () => {
       json: async () => mockData
     })
 
-    const result = await fetchAll('appliance')
+    const result = await fetchAll('appliances')
 
     expect(result).toEqual([
       {
@@ -117,12 +147,12 @@ describe('fetchAll', () => {
       json: async () => badData
     })
 
-    const result = await fetchAll('appliance')
+    const result = await fetchAll('appliances')
 
     expect(result).toEqual([])
 
     expect(mockLogger.warn).toHaveBeenCalledWith(
-      'Expected array in response data for type "appliance", got:',
+      'Expected array in response data for type "appliances", got:',
       badData.data
     )
   })
@@ -148,7 +178,7 @@ describe('fetchAll', () => {
       json: async () => mockData
     })
 
-    const result = await fetchAll('appliance')
+    const result = await fetchAll('appliances')
 
     expect(result).toEqual([
       {
@@ -204,7 +234,7 @@ describe('fetchAll', () => {
     ]
   ])('%s', async (_desc, setup, arg, expected) => {
     setup()
-    const result = await fetchAll(arg)
+    const result = await fetchAll(arg === 'appliance' ? 'appliances' : arg)
     expect(result).toEqual(expected)
   })
 })
