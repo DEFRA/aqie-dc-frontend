@@ -88,10 +88,10 @@ describe('fetchAll', () => {
       json: async () => mockData
     })
 
-    const result = await fetchAll('appliance')
+    const result = await fetchAll('appliances')
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:3001/get-all/appliance',
+      'http://localhost:3001/get-all/appliances',
       expect.objectContaining({
         method: 'GET',
         headers: {
@@ -124,7 +124,7 @@ describe('fetchAll', () => {
       json: async () => mockData
     })
 
-    const result = await fetchAll('appliance')
+    const result = await fetchAll('appliances')
 
     expect(result).toEqual([
       {
@@ -147,12 +147,12 @@ describe('fetchAll', () => {
       json: async () => badData
     })
 
-    const result = await fetchAll('appliance')
+    const result = await fetchAll('appliances')
 
     expect(result).toEqual([])
 
     expect(mockLogger.warn).toHaveBeenCalledWith(
-      'Expected array in response data for type "appliance", got:',
+      'Expected array in response data for type "appliances", got:',
       badData.data
     )
   })
@@ -178,7 +178,7 @@ describe('fetchAll', () => {
       json: async () => mockData
     })
 
-    const result = await fetchAll('appliance')
+    const result = await fetchAll('appliances')
 
     expect(result).toEqual([
       {
@@ -234,7 +234,7 @@ describe('fetchAll', () => {
     ]
   ])('%s', async (_desc, setup, arg, expected) => {
     setup()
-    const result = await fetchAll(arg)
+    const result = await fetchAll(arg === 'appliance' ? 'appliances' : arg)
     expect(result).toEqual(expected)
   })
 })

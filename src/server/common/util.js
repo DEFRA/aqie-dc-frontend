@@ -38,10 +38,6 @@ export const translate = (category, dbValue, language) => {
 }
 
 // Convenience wrappers for specific categories
-export const fuelTranslation = (data, language = 'en') => {
-  return translate('fuels', data, language)
-}
-
 export const sanitizeText = (value) => {
   return sanitizeHtml(value, {
     allowedTags: [],
@@ -56,13 +52,6 @@ export const textFieldSchema = Joi.string()
     'string.pattern.base':
       'Enter only letters, numbers, spaces, commas, dots and hyphens.'
   })
-export const typeTranslation = (data, language = 'en') => {
-  return translate('applianceTypes', data, language)
-}
-
-export const countryTranslation = (data, language = 'en') => {
-  return translate('countries', data, language)
-}
 
 export const toProperCase = (value) => {
   const formatString = (str) => {
@@ -72,18 +61,34 @@ export const toProperCase = (value) => {
     if (str.length === 0) {
       return ''
     }
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+    // Normalize whitespace
+    let s = str.replace(/\s+/g, ' ').trim()
+    // If all uppercase, preserve as is
+    if (/^[A-Z\s]+$/.test(s)) {
+      return s
+    }
+    // If all lowercase or all words have first letter capital, convert to first word upper, rest lower
+    const words = s.split(' ')
+    if (
+      /^[a-z\s]+$/.test(s) ||
+      words.every((w) => w.charAt(0) === w.charAt(0).toUpperCase())
+    ) {
+      // Special: if first word is all uppercase (e.g. BMW Car), preserve it, lower the rest
+      if (words.length > 1 && /^[A-Z]+$/.test(words[0])) {
+        return words[0] + ' ' + words.slice(1).join(' ').toLowerCase()
+      }
+      s = s.toLowerCase()
+      s = s.charAt(0).toUpperCase() + s.slice(1)
+      return s
+    }
+    // Otherwise, return as is
+    return s
   }
-
-  // If value is a string → format it
   if (typeof value === 'string') {
     return formatString(value)
   }
-
-  // If value is an array → format each element
   if (Array.isArray(value)) {
     return value.map(formatString)
   }
-
   return value
 }

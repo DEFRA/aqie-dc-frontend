@@ -44,7 +44,11 @@ const getSelectedValues = (queryValue) => {
 }
 
 // Build link to remove individual filter
-export const buildQueryStringWithoutValue = (keyToRemove, removeValue, query) => {
+export const buildQueryStringWithoutValue = (
+  keyToRemove,
+  removeValue,
+  query
+) => {
   const params = []
   for (const [key, value] of Object.entries(query)) {
     if (key === keyToRemove) {
@@ -66,7 +70,7 @@ export const buildQueryStringWithoutValue = (keyToRemove, removeValue, query) =>
 }
 
 // Build selected filter items for display
-export const buildSelectedItems = (options, selectedValues, query, queryKey) =>
+const buildSelectedItems = (options, selectedValues, query, queryKey) =>
   options
     .filter((option) => selectedValues.includes(option.value))
     .map((option) => ({

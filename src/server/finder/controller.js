@@ -3,11 +3,9 @@ import { finderContent } from './content.js'
 import {
   singularize,
   sanitizeText,
-  fuelTranslation,
+  translate,
   textFieldSchema,
-  toProperCase,
-  typeTranslation,
-  countryTranslation
+  toProperCase
 } from '../common/util.js'
 import { searchFunctionality } from './search.js'
 import { applyFinderFilters, buildFinderFilterState } from './filters.js'
@@ -55,6 +53,16 @@ const buildPaginationLinks = (currentPage, totalPages, searchQuery) => {
 /**
  * Controller for the authorised appliances/fuel finder page
  */
+const handleValidationError = (error, h) => {
+  console.error('Search query validation error:', error)
+  // update the logic here when we have a design for how to handle validation errors on the front end - e.g. do we want to show an error message on the page, or just ignore the search query and show all results? For now, we will just ignore the search query and show all results if there is a validation error
+  //TODO - if we want to show an error message on the page, we will need to update the view to display the error message, and pass the error message in the context when rendering the view here
+  return h.view('error/index', {
+    message: 'Invalid search query',
+    details: error
+  })
+}
+
 export const finderController = {
   async handler(request, h) {
     const { type, language = 'en' } = request.params
@@ -119,15 +127,15 @@ export const finderController = {
     const handleTranslationAndCase = (type, pageSpecificRecords, language) => {
       if (type === 'appliances') {
         pageSpecificRecords.forEach((item) => {
-          item.fuels = fuelTranslation(item.fuels, language)
+          item.fuels = translate(item.fuels, language)
           item.manufacturer = toProperCase(item.manufacturer)
-          item.type = typeTranslation(item.type, language)
-          item.authorisedIn = countryTranslation(item.authorisedIn, language)
+          item.type = translate(item.type, language)
+          item.authorisedIn = translate(item.authorisedIn, language)
         })
       } else {
         pageSpecificRecords.forEach((item) => {
           item.manufacturer = toProperCase(item.manufacturer)
-          item.authorisedIn = countryTranslation(item.authorisedIn, language)
+          item.authorisedIn = translate(item.authorisedIn, language)
         })
       }
     }
@@ -161,13 +169,4 @@ export const finderController = {
       manufacturerOptions
     })
   }
-}
-const handleValidationError = (error, h) => {
-  console.error('Search query validation error:', error)
-  // update the logic here when we have a design for how to handle validation errors on the front end - e.g. do we want to show an error message on the page, or just ignore the search query and show all results? For now, we will just ignore the search query and show all results if there is a validation error
-  //TODO - if we want to show an error message on the page, we will need to update the view to display the error message, and pass the error message in the context when rendering the view here
-  return h.view('error/index', {
-    message: 'Invalid search query',
-    details: error
-  })
 }
