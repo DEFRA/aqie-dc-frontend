@@ -73,6 +73,7 @@ export const finderController = {
 
     const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
     const totalResponse = await fetchAll(singularize(type))
+    console.log('Records returned from API:', totalResponse)
     const searchResponse = searchFunctionality(
       type,
       totalResponse,
@@ -152,15 +153,15 @@ function filterSearchResults(searchResponse, filterState) {
 const handleTranslationAndCase = (type, pageSpecificRecords, language) => {
   if (type === 'appliances') {
     pageSpecificRecords.forEach((item) => {
-      item.fuels = translate(item.fuels, language)
+      item.fuels = translate('fuels', item.fuels, language)
       item.manufacturer = toProperCase(item.manufacturer)
-      item.type = translate(item.type, language)
-      item.authorisedIn = translate(item.authorisedIn, language)
+      item.type = translate('applianceTypes', item.type, language)
+      item.authorisedIn = translate('countries', item.authorisedIn, language)
     })
   } else {
     pageSpecificRecords.forEach((item) => {
       item.manufacturer = toProperCase(item.manufacturer)
-      item.authorisedIn = translate(item.authorisedIn, language)
+      item.authorisedIn = translate('countries', item.authorisedIn, language)
     })
   }
 }

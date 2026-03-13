@@ -28,9 +28,9 @@ export const translate = (category, dbValue, language) => {
 
   const translated = values.map((val) => {
     const trimmed = val.trim()
-    const item = filterOptions[category].find(
-      (opt) => opt.key === trimmed.toLowerCase()
-    )
+    const items = filterOptions[category]
+    if (!items) return trimmed
+    const item = items.find((opt) => opt.key === trimmed.toLowerCase())
     return item ? item[language] : trimmed
   })
 

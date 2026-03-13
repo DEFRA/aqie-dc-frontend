@@ -282,7 +282,7 @@ describe('finderController', () => {
     const { fetchAll } = await import('../common/api/api.js')
     // Patch the translate mock for this test to return the expected format
     const { translate, toProperCase } = await import('../common/util.js')
-    translate.mockImplementation((data, lang) => {
+    translate.mockImplementation((category, data, lang) => {
       if (lang === 'cy') {
         return data
           .split(', ')
@@ -305,9 +305,9 @@ describe('finderController', () => {
     const resp = await finderController.handler(request, h)
     const row = resp.model.pageSpecificRecords[0]
     // translate used for fuels, type, and authorisedIn
-    expect(translate).toHaveBeenCalledWith('Wood, Peat', 'cy')
-    expect(translate).toHaveBeenCalledWith('range', 'cy')
-    expect(translate).toHaveBeenCalledWith('uk', 'cy')
+    expect(translate).toHaveBeenCalledWith('fuels', 'Wood, Peat', 'cy')
+    expect(translate).toHaveBeenCalledWith('applianceTypes', 'range', 'cy')
+    expect(translate).toHaveBeenCalledWith('countries', 'uk', 'cy')
     // toProperCase called on manufacturer
     expect(toProperCase).toHaveBeenCalledWith('acme')
     // The output uses our mocked translate format: item--language
@@ -320,7 +320,7 @@ describe('finderController', () => {
     const { fetchAll } = await import('../common/api/api.js')
     const { toProperCase, translate } = await import('../common/util.js')
     // Patch translate to join arrays for this test
-    translate.mockImplementation((data, lang) => {
+    translate.mockImplementation((category, data, lang) => {
       if (Array.isArray(data)) return data.join(', ')
       return data
     })
