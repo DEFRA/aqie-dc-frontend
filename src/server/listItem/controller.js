@@ -2,6 +2,7 @@ import { listItemContent } from './content.js'
 import { fetchById } from '../common/api/api.js'
 import { singularize, translate } from '../common/util.js'
 import { lookupData } from '../common/content.js'
+import { statusCodes } from '../common/constants/status-codes.js'
 
 /**
  * List Item page controller.
@@ -9,18 +10,17 @@ import { lookupData } from '../common/content.js'
  */
 export const listItemController = {
   async handler(request, h) {
-    const { type, id, language = 'en' } = request.params // id from URL and optional language parameter
-    const content = listItemContent[language] //content depending on language
+    const { type, id, language = 'en' } = request.params
+    const content = listItemContent[language]
 
-    //TODO: differenccated between fuel or applicance i.e. content.types[type]
+    //NEEDTO: differenccated between fuel or applicance i.e. content.types[type]
     const appliance = singularize(type)
 
-    // Fetch the specific appliance by ID
     const item = await fetchById(appliance, id)
-    console.log(`Fetched item for ${appliance} with ID ${id}:`, item)
+    console.log(`Fetched item for ${appliance} with ID ${id}:`, item) //NEEDTO: remove after testing fuel
 
     if (!item) {
-      return h.response(`${appliance} not found`).code(404)
+      return h.response(`${appliance} not found`).code(statusCodes.notFound)
     }
 
     const certification = lookupData.countries.map((country) => {
@@ -35,9 +35,9 @@ export const listItemController = {
           colour: 'govuk-tag--green'
         }
       }
-      // Use country key to access the approval status and date DB fields and map language to display values
+      // Display country name based on language and use country key to access DB fields e.g. walesApproval, walesDateFirstAuthorised
       return {
-        name: country[language], // display name based on language
+        name: country[language], //
         status:
           statusMap[item[`${country.key}Approval`]] || statusMap.Uncertified,
         firstCertified:
@@ -51,7 +51,7 @@ export const listItemController = {
       ...content,
       name: item.modelName,
       publishedDate: item.publishedDate,
-      updatedDate: item.submittedDate, //TODO is this correct field for updated date?
+      updatedDate: item.submittedDate,
       manufacturer: item.manufacturerName,
       certification,
       applianceDetails: {
@@ -60,7 +60,7 @@ export const listItemController = {
         output: item.nominalOutput
       },
       conditionsForUse: {
-        airControlModifications: item.airControlModifications.replace(
+        airControlModifications: item.airControlModifications.replaceAll(
           /\n/g,
           '<br><br>'
         ),

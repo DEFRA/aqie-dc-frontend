@@ -92,7 +92,9 @@ export const toProperCase = (value) => {
 
 // Converts a word to lowercase unless it is all caps (E.g. manufacturer's name might be in all caps )
 export const smartLowercase = (word) => {
-  if (typeof word !== 'string') return word
+  if (typeof word !== 'string') {
+    return word
+  }
   // If the word is all caps, return as is
   if (/^[A-Z]+$/.test(word)) {
     return word
