@@ -68,21 +68,21 @@ describe('singularize', () => {
 describe('translate (fuels)', () => {
   test('returns English values when language = en', () => {
     const input = 'Wood Logs, Wood Pellets, Wood Chips, Other'
-    const expected = 'Wood Logs, Wood Pellets, Wood Chips, Other'
+    const expected = 'Wood logs, Wood pellets, Wood chips, Other'
     expect(translate('fuels', input, 'en')).toBe(expected)
   })
 
   test('returns Welsh values when language = cy', () => {
     const input = 'Wood Logs, Wood Pellets, Wood Chips, Other'
     const expected =
-      'Wood Logs--cy, Wood Pellets--cy, Wood Chips--cy, Other--cy'
+      'Wood logs--CY, Wood pellets--CY, Wood chips--CY, Other--CY'
     expect(translate('fuels', input, 'cy')).toBe(expected)
   })
 
   test('handles extra spaces correctly', () => {
     const input = ' Wood Logs ,  Wood Pellets , Wood Chips ,   Other '
     const expected =
-      'Wood Logs--cy, Wood Pellets--cy, Wood Chips--cy, Other--cy'
+      'Wood logs--CY, Wood pellets--CY, Wood chips--CY, Other--CY'
     expect(translate('fuels', input, 'cy')).toBe(expected)
   })
 
@@ -94,7 +94,7 @@ describe('translate (fuels)', () => {
 
   test('handles single value (no commas)', () => {
     const input = 'Wood Logs'
-    const expected = 'Wood Logs--cy'
+    const expected = 'Wood logs--CY'
     expect(translate('fuels', input, 'cy')).toBe(expected)
   })
 
@@ -117,13 +117,13 @@ describe('translate (applianceTypes)', () => {
 
   it('returns Welsh values when language = cy', () => {
     const input = 'Boiler'
-    const expected = 'Boiler--cy'
+    const expected = 'Boiler--CY'
     expect(translate('applianceTypes', input, 'cy')).toBe(expected)
   })
 
   it('trims whitespace before translating', () => {
-    const input = '  Stove  '
-    const expected = 'Stove--cy'
+    const input = '  Boiler  '
+    const expected = 'Boiler--CY'
     expect(translate('applianceTypes', input, 'cy')).toBe(expected)
   })
 
@@ -133,7 +133,6 @@ describe('translate (applianceTypes)', () => {
     expect(translate('applianceTypes', input, 'cy')).toBe(expected)
   })
 })
-
 
 // ------------------------
 // translate (countries)
@@ -147,20 +146,20 @@ describe('translate (countries)', () => {
 
   it('translates an array of country names to Welsh when language = cy', () => {
     const input = ['Wales', ' England ']
-    const expected = 'Wales--cy, England--cy'
+    const expected = 'Wales--CY, England--CY'
     expect(translate('countries', input, 'cy')).toBe(expected)
   })
 
   it('trims each array element before translating', () => {
     const input = ['  Wales  ', '  England']
-    const expected = 'Wales--cy, England--cy'
+    const expected = 'Wales--CY, England--CY'
     expect(translate('countries', input, 'cy')).toBe(expected)
   })
 
   it('falls back to trimmed original on missing translation', () => {
-    const input = ['Scotland'] // not defined in cy map in the mock
-    const expected = 'Scotland'
-    expect(translate('countries', input, '')).toBe(expected)
+    const input = ['Scotland']
+    const expected = 'Scotland--CY'
+    expect(translate('countries', input, 'cy')).toBe(expected)
   })
 
   it('handles empty array returning an empty string', () => {

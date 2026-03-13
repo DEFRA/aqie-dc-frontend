@@ -1,5 +1,5 @@
 /**
- * Content for the List Item (Appliance Details) page
+ * Content for the List Item (Appliance/Fuel Details) page
  */
 
 import { config } from '../../config/config.js'
@@ -11,6 +11,7 @@ export const listItemContent = {
       fuels: 'Back to fuels list'
     },
     publishedLabel: 'Published',
+    updatedLabel: 'Updated',
     manufacturedByLabel: 'Manufactured by',
     departmentLabel: 'From:',
     departmentInfo: {
@@ -55,6 +56,7 @@ export const listItemContent = {
       fuels: 'Back to fuels list--CY'
     },
     publishedLabel: 'Published--CY',
+    updatedLabel: 'Updated--CY',
     manufacturedByLabel: 'Manufactured by--CY',
 
     departmentLabel: 'From:--CY',

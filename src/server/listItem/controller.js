@@ -5,7 +5,7 @@ import { lookupData } from '../common/content.js'
 
 /**
  * List Item page controller.
- * Displays detailed information about a specific appliance.
+ * Displays detailed information about a specific appliance/fuel.
  */
 export const listItemController = {
   async handler(request, h) {
@@ -51,7 +51,8 @@ export const listItemController = {
       ...content,
       name: item.modelName,
       publishedDate: item.publishedDate,
-      manufacturer: item.manufacturerName, //company name - check?
+      updatedDate: item.submittedDate, //TODO is this correct field for updated date?
+      manufacturer: item.manufacturerName,
       certification,
       applianceDetails: {
         fuelsAllowed: translate('fuels', item.allowedFuels, language),
