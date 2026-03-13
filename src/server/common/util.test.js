@@ -174,20 +174,17 @@ describe('translate (countries)', () => {
 // toProperCase
 // ------------------------
 describe('toProperCase', () => {
-  it('converts all lowercase or all words with first letter capital to first word upper, rest lower', () => {
+  it('skips all-caps words, capitalizes first non-all-caps word, keeps other non-all-caps words lowercase', () => {
     expect(toProperCase('hello world')).toBe('Hello world')
-    expect(toProperCase('Hello World')).toBe('Hello world')
     expect(toProperCase('a')).toBe('A')
     expect(toProperCase('')).toBe('') // empty string remains empty
-  })
-
-  it('preserves all-uppercase words and first all-uppercase word in phrase', () => {
     expect(toProperCase('BMW')).toBe('BMW')
-    expect(toProperCase('BMW Car')).toBe('BMW car')
-    expect(toProperCase('NASA Rocket')).toBe('NASA rocket')
+    expect(toProperCase('NASA rocket')).toBe('NASA rocket')
     expect(toProperCase('HELLO WORLD')).toBe('HELLO WORLD')
+    expect(toProperCase('BMW NASA car ROCKET')).toBe('BMW NASA car ROCKET')
+    expect(toProperCase('BMW NASA')).toBe('BMW NASA')
+    expect(toProperCase('bmw car NASA rocket')).toBe('Bmw car NASA rocket')
   })
-
   // No test for mixed or camel case, as function will never receive such input
 
   it('leaves non-string, non-array values unchanged', () => {

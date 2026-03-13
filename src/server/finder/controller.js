@@ -53,15 +53,6 @@ const buildPaginationLinks = (currentPage, totalPages, searchQuery) => {
 /**
  * Controller for the authorised appliances/fuel finder page
  */
-const handleValidationError = (error, h) => {
-  console.error('Search query validation error:', error)
-  // update the logic here when we have a design for how to handle validation errors on the front end - e.g. do we want to show an error message on the page, or just ignore the search query and show all results? For now, we will just ignore the search query and show all results if there is a validation error
-  //TODO - if we want to show an error message on the page, we will need to update the view to display the error message, and pass the error message in the context when rendering the view here
-  return h.view('error/index', {
-    message: 'Invalid search query',
-    details: error
-  })
-}
 
 export const finderController = {
   async handler(request, h) {
@@ -87,29 +78,16 @@ export const finderController = {
       totalResponse,
       sanitizedSearchQuery
     )
-    const {
-      selectedCertifiedIn,
-      selectedFuelsAllowed,
-      selectedApplianceType,
-      selectedManufacturer,
-      selectedFilters,
-      certifiedInOptions,
-      fuelsAllowedOptions,
-      applianceTypeOptions,
-      manufacturerOptions
-    } = buildFinderFilterState({
+    const filterState = buildFinderFilterState({
       totalResponse,
       query: request.query,
       type,
       language
     })
-
-    const searchAndFilteredResponse = applyFinderFilters(searchResponse, {
-      selectedCertifiedIn,
-      selectedFuelsAllowed,
-      selectedApplianceType,
-      selectedManufacturer
-    })
+    const searchAndFilteredResponse = filterSearchResults(
+      searchResponse,
+      filterState
+    )
 
     // Calculate pagination
     const totalRecords = searchAndFilteredResponse.length
@@ -122,23 +100,6 @@ export const finderController = {
       startIndex,
       startIndex + ITEMS_PER_PAGE
     )
-
-    // Apply proper case formatting for display
-    const handleTranslationAndCase = (type, pageSpecificRecords, language) => {
-      if (type === 'appliances') {
-        pageSpecificRecords.forEach((item) => {
-          item.fuels = translate(item.fuels, language)
-          item.manufacturer = toProperCase(item.manufacturer)
-          item.type = translate(item.type, language)
-          item.authorisedIn = translate(item.authorisedIn, language)
-        })
-      } else {
-        pageSpecificRecords.forEach((item) => {
-          item.manufacturer = toProperCase(item.manufacturer)
-          item.authorisedIn = translate(item.authorisedIn, language)
-        })
-      }
-    }
 
     handleTranslationAndCase(type, pageSpecificRecords, language)
     const paginationLinks = buildPaginationLinks(
@@ -162,11 +123,54 @@ export const finderController = {
       ITEMS_PER_PAGE,
       //backLinkHref: '#' //TODO: add correct back link once home page finalised
       // certifiedIn: finderContent.certifiedIn,
-      selectedFilters,
-      certifiedInOptions,
-      fuelsAllowedOptions,
-      applianceTypeOptions,
-      manufacturerOptions
+      selectedFilters: filterState.selectedFilters,
+      certifiedInOptions: filterState.certifiedInOptions,
+      fuelsAllowedOptions: filterState.fuelsAllowedOptions,
+      applianceTypeOptions: filterState.applianceTypeOptions,
+      manufacturerOptions: filterState.manufacturerOptions
     })
   }
+}
+
+// Extracted filtering logic
+function filterSearchResults(searchResponse, filterState) {
+  const {
+    selectedCertifiedIn,
+    selectedFuelsAllowed,
+    selectedApplianceType,
+    selectedManufacturer
+  } = filterState
+  return applyFinderFilters(searchResponse, {
+    selectedCertifiedIn,
+    selectedFuelsAllowed,
+    selectedApplianceType,
+    selectedManufacturer
+  })
+}
+
+// Apply proper case formatting for display
+const handleTranslationAndCase = (type, pageSpecificRecords, language) => {
+  if (type === 'appliances') {
+    pageSpecificRecords.forEach((item) => {
+      item.fuels = translate(item.fuels, language)
+      item.manufacturer = toProperCase(item.manufacturer)
+      item.type = translate(item.type, language)
+      item.authorisedIn = translate(item.authorisedIn, language)
+    })
+  } else {
+    pageSpecificRecords.forEach((item) => {
+      item.manufacturer = toProperCase(item.manufacturer)
+      item.authorisedIn = translate(item.authorisedIn, language)
+    })
+  }
+}
+
+const handleValidationError = (error, h) => {
+  console.error('Search query validation error:', error)
+  // update the logic here when we have a design for how to handle validation errors on the front end - e.g. do we want to show an error message on the page, or just ignore the search query and show all results? For now, we will just ignore the search query and show all results if there is a validation error
+  //TODO - if we want to show an error message on the page, we will need to update the view to display the error message, and pass the error message in the context when rendering the view here
+  return h.view('error/index', {
+    message: 'Invalid search query',
+    details: error
+  })
 }

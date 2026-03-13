@@ -61,28 +61,23 @@ export const toProperCase = (value) => {
     if (str.length === 0) {
       return ''
     }
-    // Normalize whitespace
-    let s = str.replace(/\s+/g, ' ').trim()
-    // If all uppercase, preserve as is
-    if (/^[A-Z\s]+$/.test(s)) {
-      return s
-    }
-    // If all lowercase or all words have first letter capital, convert to first word upper, rest lower
+    // Assumption: input is already normalized in api.js, e.g., 'ALLCAPS company', not 'ALLCAPS Company'.
+    // Only the first word may need capitalization, all-caps words are preserved.
+    const s = str.replaceAll(/\s+/g, ' ').trim()
     const words = s.split(' ')
-    if (
-      /^[a-z\s]+$/.test(s) ||
-      words.every((w) => w.charAt(0) === w.charAt(0).toUpperCase())
-    ) {
-      // Special: if first word is all uppercase (e.g. BMW Car), preserve it, lower the rest
-      if (words.length > 1 && /^[A-Z]+$/.test(words[0])) {
-        return words[0] + ' ' + words.slice(1).join(' ').toLowerCase()
+    const result = words.map((w, i) => {
+      if (/^[A-Z]+$/.test(w)) {
+        // All caps word, preserve as is
+        return w
       }
-      s = s.toLowerCase()
-      s = s.charAt(0).toUpperCase() + s.slice(1)
-      return s
-    }
-    // Otherwise, return as is
-    return s
+      if (i === 0) {
+        // Capitalize first word if not all-caps
+        return w.length > 0 ? w[0].toUpperCase() + w.slice(1) : w
+      }
+      // All other non-all-caps words, force lowercase
+      return w.toLowerCase()
+    })
+    return result.join(' ')
   }
   if (typeof value === 'string') {
     return formatString(value)

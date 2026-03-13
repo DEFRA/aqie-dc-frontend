@@ -5,17 +5,15 @@ import { toProperCase } from '../common/util.js'
 const getFilterOptions = (
   category,
   language,
-  selectedValues = [],
-  totalResponse
+  totalResponse,
+  selectedValues = []
 ) => {
   if (category === 'manufacturers') {
     const manufacturerSet = []
     for (const item of totalResponse || []) {
-      if (item.manufacturer) {
-        const trimmedVal = item.manufacturer.trim()
-        if (!manufacturerSet.includes(trimmedVal)) {
-          manufacturerSet.push(trimmedVal)
-        }
+      const trimmedVal = item.manufacturer?.trim()
+      if (trimmedVal && !manufacturerSet.includes(trimmedVal)) {
+        manufacturerSet.push(trimmedVal)
       }
     }
     return manufacturerSet.map((item) => ({
@@ -164,23 +162,26 @@ export const buildFinderFilterState = ({
   const certifiedInOptions = getFilterOptions(
     'countries',
     language,
+    totalResponse,
     selectedCertifiedIn
   )
   const fuelsAllowedOptions = getFilterOptions(
     'fuels',
     language,
+    totalResponse,
     selectedFuelsAllowed
   )
   const applianceTypeOptions = getFilterOptions(
     'applianceTypes',
     language,
+    totalResponse,
     selectedApplianceType
   )
   const manufacturerOptions = getFilterOptions(
     'manufacturers',
     language,
-    selectedManufacturer,
-    totalResponse
+    totalResponse,
+    selectedManufacturer
   )
   const selectedFilters = buildSelectedFilters({
     type,

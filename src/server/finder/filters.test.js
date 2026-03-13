@@ -1,14 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-
-vi.mock('../common/util.js', () => ({
-  toProperCase: vi.fn((value = '') =>
-    value
-      .split(' ')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ')
-  )
-}))
-
+import { describe, it, expect, beforeEach } from 'vitest'
 // ---------------------------------------------
 // Shared imports for parts of the test file
 // ---------------------------------------------
