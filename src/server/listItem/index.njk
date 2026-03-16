@@ -61,8 +61,8 @@
       <a href="{{ legalBasisHref }}" class="govuk-link">{{ legalBasisText }}</a>
     </p>
 
-    {% if type === 'appliances' %}
-    {# Conditions for Use Section #}      
+      {% if type === 'appliances' %}
+        {# Conditions for Use Section #}      
         <h2 class="govuk-heading-m">{{ conditionsForUseHeading }}</h2>
         <p class="govuk-!-margin-bottom-6">{{ conditionsForUse.airControlModifications | safe }}</p>
 
@@ -78,68 +78,74 @@
         
         {{ govukSummaryList({
           rows: [
-            { key: { text: applianceDetailsLabels.fuelsAllowed }, value: { html: applianceDetails.fuelsAllowed } },
+            { key: { text: applianceDetailsLabels.fuelsAllowed }, value: { text: applianceDetails.fuelsAllowed } },
             { key: { text: applianceDetailsLabels.type }, value: { html: applianceDetails.type } },
             { key: { text: applianceDetailsLabels.output }, value: { html: applianceDetails.output + ' kW' } }
           ]
         }) }}
 
-        {# Manufacturer Section #}
+        {# Manufacturer Section - Heading only #}
         <h2 class="govuk-heading-m govuk-!-margin-top-9">{{ manufacturerDetailsHeading }}</h2>
-        <p class="govuk-body">{{ manufacturerLabel }} {{ manufacturer }}.</p>
-        <p class="govuk-body">{{ manufacturerAddress }}</p>
-    {% endif %}
+      {% endif %}
 
-    {% if type === 'fuels' %}
+      {% if type === 'fuels' %}
       {# Fuel Description Section #}
-      <h2 class="govuk-heading-m">{{ fuelDescriptionHeading }}</h2>
-      {{ govukSummaryList({
-        rows: [
-          {
-            key: {
-              text: fuelDescriptionLabels.appearance
-            },
-            value: {
-              text: fuelDescription.appearance
-            }
-          },
-          {
-            key: {
-              text: fuelDescriptionLabels.weight
-            },
-            value: {
-              text: fuelDescription.weight
-            }
-          },
-          {
-            key: {
-              text: fuelDescriptionLabels.composition
-            },
-            value: {
-              text: fuelDescription.composition
-            }
-          },
-          {
-            key: {
-              text: fuelDescriptionLabels.manufacturing
-            },
-            value: {
-              text: fuelDescription.manufacturingProcess
-            }
-          },
-          {
-            key: {
-              text: fuelDescriptionLabels.sulphurContent
-            },
-            value: {
-              text: fuelDescription.sulphurContent
-            }
-          }
-        ]
-      }) }}
+        <h2 class="govuk-heading-m">{{ fuelDescriptionHeading }}</h2>
+          {{ govukSummaryList({
+            rows: [
+              {
+                key: {
+                  text: fuelDescriptionLabels.appearance
+                },
+                value: {
+                  text: fuelDescription.appearance
+                }
+              },
+              {
+                key: {
+                  text: fuelDescriptionLabels.weight
+                },
+                value: {
+                  text: fuelDescription.weight
+                }
+              },
+              {
+                key: {
+                  text: fuelDescriptionLabels.composition
+                },
+                value: {
+                  text: fuelDescription.composition
+                }
+              },
+              {
+                key: {
+                  text: fuelDescriptionLabels.manufacturing
+                },
+                value: {
+                  text: fuelDescription.manufacturingProcess
+                }
+              },
+              {
+                key: {
+                  text: fuelDescriptionLabels.sulphurContent
+                },
+                value: {
+                  text: fuelDescription.sulphurContent
+                }
+              }
+            ]
+          }) }}
 
-    {% endif %}
+          {# Company Section - Heading only #}
+          <h2 class="govuk-heading-m govuk-!-margin-top-9">{{ companyDetailsHeading }}</h2>
 
+      {% endif %}
+      {# Manufacturer/Company Section - Details only #}
+        <p class="govuk-body">{{ certifiedByLabel[type] }} {{ manufacturer }}.</p>
+        <p class="govuk-body">{{ manufacturerAddress }}</p>
+   
+
+   
   </div>
 </div>
 {% endblock %}

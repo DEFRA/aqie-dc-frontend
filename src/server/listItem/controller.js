@@ -59,15 +59,15 @@ export const listItemController = {
             date: item.instructionManualDate,
             version: item.instructionManualVersion,
             additionalConditions: item.instructionManualAdditionalInfo
-          },
-          applianceDetails: {
-            fuelsAllowed: translate('fuels', item.allowedFuels, language),
-            type: translate('applianceTypes', item.applianceType, language),
-            output: item.nominalOutput
           }
+        },
+        applianceDetails: {
+          fuelsAllowed: translate('fuels', item.allowedFuels, language),
+          type: translate('applianceTypes', item.applianceType, language),
+          output: item.nominalOutput
         }
       }),
-      fuels: (item, language) => ({
+      fuels: (item) => ({
         fuelDescription: {
           appearance: item.fuelDescription,
           weight: item.fuelWeight,

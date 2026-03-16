@@ -18,21 +18,6 @@ export const listItemContent = {
       name: 'Department for Environment, Food and Rural Affairs',
       url: config.get('DefraUrl')
     },
-
-    conditionsForUseHeading: 'Conditions for use',
-    instructionManualLabel: 'Instruction manual details',
-    additionalConditionsLabel: 'Additional conditions for use',
-
-    applianceDetailsHeading: 'Appliance details',
-    applianceDetailsLabels: {
-      fuelsAllowed: 'Fuels allowed',
-      type: 'Appliance type',
-      output: 'Nominal (thermal) output'
-    },
-
-    manufacturerDetailsHeading: 'Manufacturer details',
-    manufacturerLabel: 'This appliance is manufactured by',
-
     certificationHeading: 'Certification by country',
     certificationTableHeaders: {
       country: 'Country',
@@ -50,13 +35,32 @@ export const listItemContent = {
     legalBasisText: 'legal basis for certification in each UK country.',
     legalBasisHref: '/legal-basis-for-appliances',
 
+    conditionsForUseHeading: 'Conditions for use',
+    instructionManualLabel: 'Instruction manual details',
+    additionalConditionsLabel: 'Additional conditions for use',
+
+    applianceDetailsHeading: 'Appliance details',
+    applianceDetailsLabels: {
+      fuelsAllowed: 'Fuels allowed',
+      type: 'Appliance type',
+      output: 'Nominal (thermal) output'
+    },
+
+    manufacturerDetailsHeading: 'Manufacturer details',
+    companyDetailsHeading: 'Company details',
+    certifiedByLabel: {
+      fuels: 'This fuel was certified by',
+      appliances: 'This appliance was certified by'
+    },
+
     fuelDescriptionHeading: 'Fuel description',
     fuelDescriptionLabels: {
       appearance: 'Appearance',
       weight: 'Weight',
       composition: 'Composition',
       manufacturing: 'Manufacturing process',
-      sulphurContent: 'Sulphur content'
+      sulphurContent: 'Sulphur content',
+      sulphurContentUnit: '% of total dry, ash free weight'
     }
   },
   cy: {
@@ -74,20 +78,6 @@ export const listItemContent = {
       url: 'https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs'
     },
 
-    conditionsForUseHeading: 'Conditions for use--CY',
-    instructionManualLabel: 'Instruction manual details--CY',
-    additionalConditionsLabel: 'Additional conditions for use--CY',
-
-    applianceDetailsHeading: 'Appliance details--CY',
-    applianceDetailsLabels: {
-      fuelsAllowed: 'Fuels allowed--CY',
-      type: 'Appliance type--CY',
-      output: 'Nominal (thermal) output--CY'
-    },
-
-    manufacturerDetailsHeading: 'Manufacturer details--CY',
-    manufacturerLabel: 'This appliance is manufactured by--CY',
-
     certificationHeading: 'Certification by country--CY',
     certificationTableHeaders: {
       country: 'Country--CY',
@@ -103,6 +93,34 @@ export const listItemContent = {
 
     legalBasisPrefix: 'See the--CY ',
     legalBasisText: 'legal basis for certification in each UK country.--CY',
-    legalBasisHref: '/legal-basis-for-appliances'
+    legalBasisHref: '/legal-basis-for-appliances',
+
+    conditionsForUseHeading: 'Conditions for use--CY',
+    instructionManualLabel: 'Instruction manual details--CY',
+    additionalConditionsLabel: 'Additional conditions for use--CY',
+
+    applianceDetailsHeading: 'Appliance details--CY',
+    applianceDetailsLabels: {
+      fuelsAllowed: 'Fuels allowed--CY',
+      type: 'Appliance type--CY',
+      output: 'Nominal (thermal) output--CY'
+    },
+
+    manufacturerDetailsHeading: 'Manufacturer details--CY',
+    companyDetailsHeading: 'Company details--CY',
+    certifiedByLabel: {
+      fuels: 'This fuel was certified by--CY',
+      appliances: 'This appliance was certified by--CY'
+    },
+    
+    fuelDescriptionHeading: 'Fuel description--CY',
+    fuelDescriptionLabels: {
+      appearance: 'Appearance--CY',
+      weight: 'Weight--CY',
+      composition: 'Composition--CY',
+      manufacturing: 'Manufacturing process--CY',
+      sulphurContent: 'Sulphur content--CY',
+      sulphurContentUnit: '% of total dry, ash free weight--CY'
+    }
   }
 }
