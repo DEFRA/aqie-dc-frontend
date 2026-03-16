@@ -78,7 +78,7 @@
         
         {{ govukSummaryList({
           rows: [
-            { key: { text: applianceDetailsLabels.fuelsAllowed }, value: { text: applianceDetails.fuelsAllowed } },
+            { key: { text: applianceDetailsLabels.fuelsAllowed }, value: { html: applianceDetails.fuelsAllowed } },
             { key: { text: applianceDetailsLabels.type }, value: { html: applianceDetails.type } },
             { key: { text: applianceDetailsLabels.output }, value: { html: applianceDetails.output + ' kW' } }
           ]
@@ -130,7 +130,7 @@
                   text: fuelDescriptionLabels.sulphurContent
                 },
                 value: {
-                  text: fuelDescription.sulphurContent
+                  html: fuelDescription.sulphurContent + fuelDescriptionLabels.sulphurContentUnit
                 }
               }
             ]

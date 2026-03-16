@@ -237,4 +237,208 @@ describe('fetchAll', () => {
     const result = await fetchAll(arg === 'appliance' ? 'appliances' : arg)
     expect(result).toEqual(expected)
   })
+
+  it('URL encodes type and filters special characters', async () => {
+    const mockData = { msg: 'OK', data: [] }
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => mockData
+    })
+
+    await fetchAll('special/type?query=1')
+
+    const callUrl = fetch.mock.calls[0][0]
+    expect(callUrl).toContain('get-all')
+    expect(callUrl).not.toContain('?query')
+    expect(callUrl).toContain('%2F') // forward slash encoded
+  })
+
+  it('uses backend URL from config and removes trailing slash', async () => {
+    mockConfig.get.mockImplementation((key) => {
+      if (key === 'backend.url') return 'http://api.example.com/'
+      if (key === 'cdpXApiKey') return 'secret-key'
+      return ''
+    })
+
+    const mockData = { msg: 'OK', data: [] }
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => mockData
+    })
+
+    await fetchAll('test')
+
+    const urlUsed = fetch.mock.calls[0][0]
+    expect(urlUsed).toBe('http://api.example.com/get-all/test')
+  })
+
+  it('sends correct headers including API key', async () => {
+    mockConfig.get.mockImplementation((key) => {
+      if (key === 'backend.url') return 'http://localhost:3001'
+      if (key === 'cdpXApiKey') return 'test-api-key-12345'
+      return ''
+    })
+
+    const mockData = { msg: 'OK', data: [] }
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => mockData
+    })
+
+    await fetchAll('appliances')
+
+    expect(fetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        method: 'GET',
+        headers: {
+          'x-api-key': 'test-api-key-12345',
+          'Content-Type': 'application/json'
+        }
+      })
+    )
+  })
+})
+
+describe('fetchById', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('fetches a single item by type and ID', async () => {
+    const { fetchById } = await import('./api.js')
+    const mockData = {
+      msg: 'OK',
+      data: {
+        id: '123abc',
+        name: 'Test Item',
+        manufacturer: 'Test Corp'
+      }
+    }
+
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify(mockData)
+    })
+
+    const result = await fetchById('appliance', '123abc')
+
+    expect(result).toEqual(mockData.data)
+  })
+
+  it('returns null when item not found (404)', async () => {
+    const { fetchById } = await import('./api.js')
+
+    fetch.mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+      text: async () => 'Not found'
+    })
+
+    const result = await fetchById('appliance', 'nonexistent')
+
+    expect(result).toBeNull()
+  })
+
+  it('returns null on server error (500)', async () => {
+    const { fetchById } = await import('./api.js')
+
+    fetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      text: async () => 'Internal Server Error'
+    })
+
+    const result = await fetchById('appliance', '123')
+
+    expect(result).toBeNull()
+  })
+
+  it('URL encodes type and ID parameters', async () => {
+    const { fetchById } = await import('./api.js')
+
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({ data: {} })
+    })
+
+    await fetchById('special/type', 'id?with=special')
+
+    const urlUsed = fetch.mock.calls[0][0]
+    expect(urlUsed).toContain('get/')
+    expect(urlUsed).not.toContain('?')
+  })
+
+  it('handles invalid JSON response gracefully', async () => {
+    const { fetchById } = await import('./api.js')
+
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      text: async () => '{invalid json response'
+    })
+
+    const result = await fetchById('appliance', '123')
+
+    expect(result).toBeNull()
+  })
+
+  it('handles network errors gracefully', async () => {
+    const { fetchById } = await import('./api.js')
+
+    fetch.mockRejectedValueOnce(new Error('Network timeout'))
+
+    const result = await fetchById('appliance', '123')
+
+    expect(result).toBeNull()
+  })
+
+  it('returns null when response has no data property', async () => {
+    const { fetchById } = await import('./api.js')
+
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({ result: 'something' })
+    })
+
+    const result = await fetchById('appliance', '123')
+
+    expect(result).toBeNull()
+  })
+
+  it('sends correct headers with API key', async () => {
+    const { fetchById } = await import('./api.js')
+
+    mockConfig.get.mockImplementation((key) => {
+      if (key === 'backend.url') return 'http://localhost:3001'
+      if (key === 'cdpXApiKey') return 'api-key-xyz'
+      return ''
+    })
+
+    const mockData = { msg: 'OK', data: { id: '123' } }
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify(mockData)
+    })
+
+    await fetchById('appliance', '123')
+
+    expect(fetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        method: 'GET',
+        headers: {
+          'x-api-key': 'api-key-xyz',
+          'Content-Type': 'application/json'
+        }
+      })
+    )
+  })
 })

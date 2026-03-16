@@ -1,13 +1,20 @@
 import { describe, it, test, expect, vi } from 'vitest'
 
-import { singularize, translate, toProperCase, sanitizeText } from './util.js'
+import {
+  singularize,
+  translate,
+  toProperCase,
+  sanitizeText,
+  smartLowercase,
+  textFieldSchema
+} from './util.js'
 import sanitizeHtml from 'sanitize-html'
 
 // Mock sanitize-html behaviour
 vi.mock('sanitize-html')
 
 // Mock the content module - only filterOptions is needed since translate functions are in util.js
-vi.mock('../finder/content.js', () => ({
+vi.mock('../common/content.js', () => ({
   lookupData: {
     countries: [
       { key: 'wales', en: 'Wales', cy: 'Wales--cy' },
@@ -67,22 +74,22 @@ describe('singularize', () => {
 // ------------------------
 describe('translate (fuels)', () => {
   test('returns English values when language = en', () => {
-    const input = 'Wood Logs, Wood Pellets, Wood Chips, Other'
-    const expected = 'Wood logs, Wood pellets, Wood chips, Other'
+    const input = 'wood logs, wood pellets, wood chips, other'
+    const expected = 'Wood Logs, Wood Pellets, Wood Chips, Other'
     expect(translate('fuels', input, 'en')).toBe(expected)
   })
 
   test('returns Welsh values when language = cy', () => {
-    const input = 'Wood Logs, Wood Pellets, Wood Chips, Other'
+    const input = 'wood logs, wood pellets, wood chips, other'
     const expected =
-      'Wood logs--CY, Wood pellets--CY, Wood chips--CY, Other--CY'
+      'Wood Logs--cy, Wood Pellets--cy, Wood Chips--cy, Other--cy'
     expect(translate('fuels', input, 'cy')).toBe(expected)
   })
 
   test('handles extra spaces correctly', () => {
-    const input = ' Wood Logs ,  Wood Pellets , Wood Chips ,   Other '
+    const input = ' wood logs ,  wood pellets , wood chips ,   other '
     const expected =
-      'Wood logs--CY, Wood pellets--CY, Wood chips--CY, Other--CY'
+      'Wood Logs--cy, Wood Pellets--cy, Wood Chips--cy, Other--cy'
     expect(translate('fuels', input, 'cy')).toBe(expected)
   })
 
@@ -93,8 +100,8 @@ describe('translate (fuels)', () => {
   })
 
   test('handles single value (no commas)', () => {
-    const input = 'Wood Logs'
-    const expected = 'Wood logs--CY'
+    const input = 'wood logs'
+    const expected = 'Wood Logs--cy'
     expect(translate('fuels', input, 'cy')).toBe(expected)
   })
 
@@ -110,20 +117,20 @@ describe('translate (fuels)', () => {
 // ------------------------
 describe('translate (applianceTypes)', () => {
   it('returns English values when language = en', () => {
-    const input = 'Boiler'
+    const input = 'boiler'
     const expected = 'Boiler'
     expect(translate('applianceTypes', input, 'en')).toBe(expected)
   })
 
   it('returns Welsh values when language = cy', () => {
-    const input = 'Boiler'
-    const expected = 'Boiler--CY'
+    const input = 'boiler'
+    const expected = 'Boiler--cy'
     expect(translate('applianceTypes', input, 'cy')).toBe(expected)
   })
 
   it('trims whitespace before translating', () => {
-    const input = '  Boiler  '
-    const expected = 'Boiler--CY'
+    const input = '  boiler  '
+    const expected = 'Boiler--cy'
     expect(translate('applianceTypes', input, 'cy')).toBe(expected)
   })
 
@@ -139,26 +146,26 @@ describe('translate (applianceTypes)', () => {
 // ------------------------
 describe('translate (countries)', () => {
   it('translates an array of country names to English when language = en', () => {
-    const input = ['Wales', ' England ', 'Scotland']
+    const input = ['wales', ' england ', 'scotland']
     const expected = 'Wales, England, Scotland'
     expect(translate('countries', input, 'en')).toBe(expected)
   })
 
   it('translates an array of country names to Welsh when language = cy', () => {
-    const input = ['Wales', ' England ']
-    const expected = 'Wales--CY, England--CY'
+    const input = ['wales', ' england ']
+    const expected = 'Wales--cy, England--cy'
     expect(translate('countries', input, 'cy')).toBe(expected)
   })
 
   it('trims each array element before translating', () => {
-    const input = ['  Wales  ', '  England']
-    const expected = 'Wales--CY, England--CY'
+    const input = ['  wales  ', '  england']
+    const expected = 'Wales--cy, England--cy'
     expect(translate('countries', input, 'cy')).toBe(expected)
   })
 
   it('falls back to trimmed original on missing translation', () => {
-    const input = ['Scotland']
-    const expected = 'Scotland--CY'
+    const input = ['scotland']
+    const expected = 'Scotland'
     expect(translate('countries', input, 'cy')).toBe(expected)
   })
 
@@ -220,5 +227,211 @@ describe('sanitizeText', () => {
 
     const result = sanitizeText('<img src=x onerror=alert(1)>alert')
     expect(result).toBe('alert')
+  })
+})
+
+// ------------------------
+// smartLowercase
+// ------------------------
+describe('smartLowercase', () => {
+  it('converts lowercase words to lowercase', () => {
+    expect(smartLowercase('hello')).toBe('hello')
+    expect(smartLowercase('world')).toBe('world')
+  })
+
+  it('converts mixed case words to lowercase', () => {
+    expect(smartLowercase('Hello')).toBe('hello')
+    expect(smartLowercase('HeLLo')).toBe('hello')
+  })
+
+  it('preserves all-caps words containing letters only', () => {
+    expect(smartLowercase('BMW')).toBe('BMW')
+    expect(smartLowercase('NASA')).toBe('NASA')
+    expect(smartLowercase('ACME')).toBe('ACME')
+  })
+
+  it('preserves single uppercase letter as all-caps', () => {
+    expect(smartLowercase('A')).toBe('A')
+  })
+
+  it('converts single lowercase letter to lowercase', () => {
+    expect(smartLowercase('a')).toBe('a')
+  })
+
+  it('returns non-string values unchanged', () => {
+    expect(smartLowercase(null)).toBe(null)
+    expect(smartLowercase(undefined)).toBe(undefined)
+    expect(smartLowercase(123)).toBe(123)
+    expect(smartLowercase({})).toEqual({})
+  })
+
+  it('handles empty strings', () => {
+    expect(smartLowercase('')).toBe('')
+  })
+
+  it('converts mixed case with special characters to lowercase', () => {
+    expect(smartLowercase('Hello World')).toBe('hello world')
+    expect(smartLowercase('BMW-123')).toBe('bmw-123')
+  })
+
+  it('preserves all-caps but converts mixed case with numbers', () => {
+    expect(smartLowercase('BMW')).toBe('BMW')
+    expect(smartLowercase('Bmw')).toBe('bmw')
+  })
+})
+
+// ------------------------
+// translate with arrays
+// ------------------------
+describe('translate with arrays', () => {
+  it('translates array of fuels to English', () => {
+    const input = ['wood logs', 'wood pellets', 'wood chips']
+    const expected = 'Wood Logs, Wood Pellets, Wood Chips'
+    expect(translate('fuels', input, 'en')).toBe(expected)
+  })
+
+  it('translates array of fuels to Welsh', () => {
+    const input = ['wood logs', 'wood pellets']
+    const expected = 'Wood Logs--cy, Wood Pellets--cy'
+    expect(translate('fuels', input, 'cy')).toBe(expected)
+  })
+
+  it('handles array with whitespace', () => {
+    const input = ['  wood logs  ', 'wood pellets']
+    const expected = 'Wood Logs--cy, Wood Pellets--cy'
+    expect(translate('fuels', input, 'cy')).toBe(expected)
+  })
+
+  it('returns translated array for appliance types', () => {
+    const input = ['boiler', 'stove']
+    const expected = 'Boiler--cy, Stove--cy'
+    expect(translate('applianceTypes', input, 'cy')).toBe(expected)
+  })
+})
+
+// ------------------------
+// translate with null/undefined
+// ------------------------
+describe('translate edge cases', () => {
+  it('returns null when given null', () => {
+    expect(translate('fuels', null, 'en')).toBeNull()
+    expect(translate('fuels', null, 'cy')).toBeNull()
+  })
+
+  it('returns undefined when given undefined', () => {
+    expect(translate('fuels', undefined, 'en')).toBeUndefined()
+    expect(translate('fuels', undefined, 'cy')).toBeUndefined()
+  })
+
+  it('returns empty string when given empty string', () => {
+    expect(translate('fuels', '', 'en')).toBe('')
+    expect(translate('fuels', '', 'cy')).toBe('')
+  })
+
+  it('returns empty string when given empty array', () => {
+    expect(translate('fuels', [], 'en')).toBe('')
+    expect(translate('fuels', [], 'cy')).toBe('')
+  })
+
+  it('handles category that does not exist', () => {
+    const input = 'some value'
+    expect(translate('nonexistent', input, 'en')).toBe('some value')
+  })
+
+  it('preserves value case when category missing', () => {
+    const input = 'SomeThing Else'
+    expect(translate('nonexistent', input, 'en')).toBe('SomeThing Else')
+  })
+})
+
+// ------------------------
+// toProperCase with arrays
+// ------------------------
+describe('toProperCase with arrays', () => {
+  it('applies proper case to each element in array', () => {
+    const input = ['hello world', 'BMW rocket', 'test space']
+    const expected = ['Hello world', 'BMW rocket', 'Test space']
+    expect(toProperCase(input)).toEqual(expected)
+  })
+
+  it('returns empty array unchanged', () => {
+    expect(toProperCase([])).toEqual([])
+  })
+
+  it('handles array with empty strings', () => {
+    const input = ['', 'hello', '']
+    const expected = ['', 'Hello', '']
+    expect(toProperCase(input)).toEqual(expected)
+  })
+
+  it('applies proper case transformation to array elements', () => {
+    const input = ['ALLCAPS text', 'lower case', 'Mixed Case']
+    const result = toProperCase(input)
+    expect(Array.isArray(result)).toBe(true)
+    expect(result.length).toBe(3)
+  })
+})
+
+// ------------------------
+// textFieldSchema
+// ------------------------
+describe('textFieldSchema', () => {
+  it('validates simple text with allowed characters', () => {
+    const result = textFieldSchema.validate('hello world')
+    expect(result.error).toBeUndefined()
+    expect(result.value).toBe('hello world')
+  })
+
+  it('allows letters and numbers', () => {
+    const result = textFieldSchema.validate('test123')
+    expect(result.error).toBeUndefined()
+  })
+
+  it('allows spaces, commas, dots, and hyphens', () => {
+    const result = textFieldSchema.validate('hello, world. test-case')
+    expect(result.error).toBeUndefined()
+  })
+
+  it('rejects special characters', () => {
+    const result = textFieldSchema.validate('hello@world')
+    expect(result.error).toBeDefined()
+  })
+
+  it('rejects script tags', () => {
+    const result = textFieldSchema.validate('<script>alert</script>')
+    expect(result.error).toBeDefined()
+  })
+
+  it('rejects ampersands', () => {
+    const result = textFieldSchema.validate('A & B')
+    expect(result.error).toBeDefined()
+  })
+
+  it('rejects question marks', () => {
+    const result = textFieldSchema.validate('What?')
+    expect(result.error).toBeDefined()
+  })
+
+  it('trims whitespace', () => {
+    const result = textFieldSchema.validate('  hello  ')
+    expect(result.value).toBe('hello')
+  })
+
+  it('returns trimmed value on success', () => {
+    const result = textFieldSchema.validate('  valid text  ')
+    expect(result.value).toBe('valid text')
+    expect(result.value).not.toMatch(/^\s/)
+    expect(result.value).not.toMatch(/\s$/)
+  })
+
+  it('rejects empty string', () => {
+    const result = textFieldSchema.validate('')
+    expect(result.error).toBeDefined()
+    expect(result.error.message).toContain('not allowed to be empty')
+  })
+
+  it('rejects percentage signs', () => {
+    const result = textFieldSchema.validate('100%')
+    expect(result.error).toBeDefined()
   })
 })

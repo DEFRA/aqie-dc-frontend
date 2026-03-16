@@ -13,7 +13,7 @@ export const listItemController = {
     const { type, id, language = 'en' } = request.params
     const content = listItemContent[language]
 
-    //NEEDTO: differenccated between fuel or applicance i.e. content.types[type]
+    //NEEDTO: differenciated between fuel or applicance i.e. content.types[type]
     const singularType = singularize(type)
 
     const item = await fetchById(singularType, id)
@@ -48,10 +48,10 @@ export const listItemController = {
     })
 
     const pageSpecificRecord = {
-      appliances: (item, language) => ({
+      appliances: () => ({
         conditionsForUse: {
           airControlModifications: item.airControlModifications.replaceAll(
-            /\n/g,
+            '\n',
             '<br><br>'
           ),
           instructionManual: {
@@ -67,7 +67,7 @@ export const listItemController = {
           output: item.nominalOutput
         }
       }),
-      fuels: (item) => ({
+      fuels: () => ({
         fuelDescription: {
           appearance: item.fuelDescription,
           weight: item.fuelWeight,
