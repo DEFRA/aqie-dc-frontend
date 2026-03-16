@@ -14,13 +14,13 @@ export const listItemController = {
     const content = listItemContent[language]
 
     //NEEDTO: differenccated between fuel or applicance i.e. content.types[type]
-    const appliance = singularize(type)
+    const singularType = singularize(type)
 
-    const item = await fetchById(appliance, id)
-    console.log(`Fetched item for ${appliance} with ID ${id}:`, item) //NEEDTO: remove after testing fuel
+    const item = await fetchById(singularType, id)
+    console.log(`Fetched item for ${singularType} with ID ${id}:`, item) //NEEDTO: remove after testing fuel
 
     if (!item) {
-      return h.response(`${appliance} not found`).code(statusCodes.notFound)
+      return h.response(`${singularType} not found`).code(statusCodes.notFound)
     }
 
     const certification = lookupData.countries.map((country) => {
@@ -47,30 +47,47 @@ export const listItemController = {
       }
     })
 
+    const pageSpecificRecord = {
+      appliances: (item, language) => ({
+        conditionsForUse: {
+          airControlModifications: item.airControlModifications.replaceAll(
+            /\n/g,
+            '<br><br>'
+          ),
+          instructionManual: {
+            title: item.instructionManualTitle,
+            date: item.instructionManualDate,
+            version: item.instructionManualVersion,
+            additionalConditions: item.instructionManualAdditionalInfo
+          },
+          applianceDetails: {
+            fuelsAllowed: translate('fuels', item.allowedFuels, language),
+            type: translate('applianceTypes', item.applianceType, language),
+            output: item.nominalOutput
+          }
+        }
+      }),
+      fuels: (item, language) => ({
+        fuelDescription: {
+          appearance: item.fuelDescription,
+          weight: item.fuelWeight,
+          composition: item.fuelComposition,
+          manufacturingProcess: item.manufacturingProcess,
+          sulphurContent: item.sulphurContent
+        }
+      })
+    }
+
     return h.view('listItem/index', {
       ...content,
-      name: item.modelName,
+      type,
+      name: item.name,
       publishedDate: item.publishedDate,
       updatedDate: item.submittedDate,
+      ...pageSpecificRecord[type](item, language),
       manufacturer: item.manufacturerName,
       certification,
-      applianceDetails: {
-        fuelsAllowed: translate('fuels', item.allowedFuels, language),
-        type: translate('applianceTypes', item.applianceType, language),
-        output: item.nominalOutput
-      },
-      conditionsForUse: {
-        airControlModifications: item.airControlModifications.replaceAll(
-          /\n/g,
-          '<br><br>'
-        ),
-        instructionManual: {
-          title: item.instructionManualTitle,
-          date: item.instructionManualDate,
-          version: item.instructionManualVersion,
-          additionalConditions: item.instructionManualAdditionalInfo
-        }
-      },
+
       manufacturerAddress: item.manufacturerAddress,
       backLinkText: content.backLinkText[`${type}`],
       backLinkHref: `/finder/${type}/${language}`

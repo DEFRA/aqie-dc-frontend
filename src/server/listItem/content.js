@@ -48,7 +48,16 @@ export const listItemContent = {
 
     legalBasisPrefix: 'See the ',
     legalBasisText: 'legal basis for certification in each UK country.',
-    legalBasisHref: '/legal-basis-for-appliances'
+    legalBasisHref: '/legal-basis-for-appliances',
+
+    fuelDescriptionHeading: 'Fuel description',
+    fuelDescriptionLabels: {
+      appearance: 'Appearance',
+      weight: 'Weight',
+      composition: 'Composition',
+      manufacturing: 'Manufacturing process',
+      sulphurContent: 'Sulphur content'
+    }
   },
   cy: {
     backLinkText: {

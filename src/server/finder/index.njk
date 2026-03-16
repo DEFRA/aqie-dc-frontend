@@ -56,17 +56,17 @@
               })
             }) }}
 
-          {{ govukDetails({
-            summaryText: applianceType,
-            open: false,
-            html: govukCheckboxes({
+            {{ govukDetails({
+              summaryText: applianceType,
+              open: false,
+              html: govukCheckboxes({
               idPrefix: "applianceType",
               name: "applianceType",
               classes: "govuk-checkboxes--small",
               items: applianceTypeOptions
             })
-          }) }}
-           {% endif %}
+            }) }}
+          {% endif %}
 
           {% if type === 'fuels' %}
             {{ govukDetails({
