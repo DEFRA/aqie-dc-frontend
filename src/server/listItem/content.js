@@ -112,7 +112,7 @@ export const listItemContent = {
       fuels: 'This fuel was certified by--CY',
       appliances: 'This appliance was certified by--CY'
     },
-    
+
     fuelDescriptionHeading: 'Fuel description--CY',
     fuelDescriptionLabels: {
       appearance: 'Appearance--CY',

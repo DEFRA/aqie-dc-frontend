@@ -9,7 +9,9 @@ vi.mock('../common/api/api.js', () => ({
 vi.mock('../common/util.js', () => ({
   singularize: vi.fn((word) => (word.endsWith('s') ? word.slice(0, -1) : word)),
   translate: vi.fn((category, value, language) => {
-    if (!value) return value
+    if (!value) {
+      return value
+    }
     // Simple mock translation
     return language === 'cy' ? `${value}--CY` : value
   })
@@ -60,7 +62,7 @@ vi.mock('./content.js', () => ({
 }))
 
 const makeMockItem = (overrides = {}) => ({
-  modelName: 'Test Appliance Model',
+  name: 'Test Appliance Model',
   publishedDate: '2024-01-15',
   submittedDate: '2024-02-20',
   manufacturerName: 'Test Manufacturer Ltd',
@@ -161,7 +163,7 @@ describe('listItemController', () => {
 
     it('should pass item name to the view model', async () => {
       const { fetchById } = await import('../common/api/api.js')
-      const mockItem = makeMockItem({ modelName: 'Custom Model Name' })
+      const mockItem = makeMockItem({ name: 'Custom Model Name' })
       fetchById.mockResolvedValueOnce(mockItem)
 
       const request = makeRequest()
