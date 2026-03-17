@@ -17,10 +17,10 @@
     </p>
 
     <p class="govuk-body-s govuk-!-margin-bottom-2">
-      {{ publishedLabel }} {{ publishedDate | formatDate('d MMMM yyyy') }}
+      {{ publishedLabel }} {{ publishedDate }}
     </p>
     <p class="govuk-body-s govuk-!-margin-bottom-9">
-      {{ updatedLabel }} {{ updatedDate | formatDate('d MMMM yyyy') }}
+      {{ updatedLabel }} {{ updatedDate }}
     </p>
 
       {# Certification Section #}
@@ -35,7 +35,7 @@
             classes: country.status.colour
             })
         },
-        { html: (country.firstCertified | formatDate('d MMMM yyyy')) if country.firstCertified else notApplicable }
+        { html: (country.firstCertified) if country.firstCertified else notApplicable }
       ]), countryRows) %}
     {% endfor %}
     
@@ -68,7 +68,7 @@
 
         <h2 class="govuk-heading-s">{{instructionManualLabel }}</h2>
         <p class="govuk-!-margin-bottom-2"> {{ conditionsForUse.instructionManual.title }} ({{ conditionsForUse.instructionManual.version }})</p>
-        <p class="govuk-!-margin-bottom-6">{{ publishedLabel }} {{ conditionsForUse.instructionManual.date | formatDate('d MMMM yyyy') }}</p>
+        <p class="govuk-!-margin-bottom-6">{{ publishedLabel }} {{ conditionsForUse.instructionManual.date }}</p>
 
         <h2 class="govuk-heading-s">{{ additionalConditionsLabel }}</h2>
         <p class="govuk-!-margin-bottom-9"> {{ conditionsForUse.instructionManual.additionalConditions }}</p>

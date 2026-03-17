@@ -1,17 +1,26 @@
 import sanitizeHtml from 'sanitize-html'
 import Joi from 'joi'
 import { lookupData } from '../common/content.js'
+import { formatDate } from '../../config/nunjucks/filters/format-date.js'
 
 export const singularize = (word) =>
   word.endsWith('s') ? word.slice(0, -1) : word
 
 // Translate a DB value for display
-// category - 'countries', 'fuels', or 'applianceTypes'
+// category - 'countries', 'fuels', 'applianceTypes', or 'dates'
 // dbValue - the raw value from DB (will be lowercased for matching)
 // language - 'en' or 'cy'
 
 //Translates a single value, comma-separated list of values or array of values (as each category stored differently)
 export const translate = (category, dbValue, language) => {
+  if (category === 'dates') {
+    // Date comes from Backend as ISO string, (YYYY-MM-DDTHH:mm:ss.sssZ), we want to display in localized and translated format
+    const day = formatDate(dbValue, 'd')
+    const month = lookupData.months.find((m) => m.key === formatDate(dbValue, 'MM'))
+    const year = formatDate(dbValue, 'yyyy') 
+    return `${day} ${month[language]} ${year}`;
+  }   
+
   if (!dbValue) {
     return dbValue
   }
@@ -39,7 +48,6 @@ export const translate = (category, dbValue, language) => {
   return translated.join(', ')
 }
 
-// Convenience wrappers for specific categories
 export const sanitizeText = (value) => {
   return sanitizeHtml(value, {
     allowedTags: [],

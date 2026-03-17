@@ -53,5 +53,19 @@ export const lookupData = {
     { key: 'boiler', en: 'Boiler', cy: 'Boiler--CY' },
     { key: 'heat', en: 'Heat', cy: 'Heat--CY' },
     { key: 'other', en: 'Other', cy: 'Other--CY' }
+  ],
+  months: [
+    {key: '01', en: 'January', cy: 'January--CY' },
+    { key: '02', en: 'February', cy: 'February--CY' },
+    { key: '03', en: 'March', cy: 'March--CY' },
+    { key: '04', en: 'April', cy: 'April--CY' },
+    { key: '05', en: 'May', cy: 'May--CY' },
+    { key: '06', en: 'June', cy: 'June--CY' },
+    { key: '07', en: 'July', cy: 'July--CY' },
+    { key: '08', en: 'August', cy: 'August--CY' },
+    { key: '09', en: 'September', cy: 'September--CY' },
+    { key: '10', en: 'October', cy: 'October--CY' },
+    { key: '11', en: 'November', cy: 'November--CY' },
+    { key: '12', en: 'December', cy: 'December--CY' }
   ]
 }

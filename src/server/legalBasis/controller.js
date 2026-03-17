@@ -47,7 +47,7 @@ export const legalBasisController = {
       itemType: plural,
       listHref: `/finder/${plural}/${language}`,
       backLinkHref: '/X', //TODO: add correct back link once other page finalised
-      publishedDate: content.publishedDate,
+      publishedDate: content.publishedDate, //NEEDTO: make dynamic
       publishedLabel: content.publishedLabel,
       departmentInfo: content.departmentInfo,
       departmentLabel: content.departmentLabel,

@@ -22,7 +22,16 @@ export const listItemController = {
     if (!item) {
       return h.response(`${singularType} not found`).code(statusCodes.notFound)
     }
-
+    const lastUpdatedDate = (() => {
+      const validDates = lookupData.countries
+        .map((country) => item[`${country.key}DateLastUpdated`])
+        .filter(Boolean) // Remove null/undefined
+        .map(dateString => new Date(dateString)) // Convert to Date objects
+        .filter(date => !Number.isNaN(date.getTime())) // Remove invalid dates
+        .sort((a, b) => b.getTime() - a.getTime()) // Sort descending (most recent first)
+      
+      return validDates.length > 0 ? validDates[0].toISOString() : null
+    })()
     const certification = lookupData.countries.map((country) => {
       const statusMap = {
         Revoked: { label: content.status.revoked, colour: 'govuk-tag--red' },
@@ -42,7 +51,7 @@ export const listItemController = {
           statusMap[item[`${country.key}Approval`]] || statusMap.Uncertified,
         firstCertified:
           item[`${country.key}Approval`] === 'Certified'
-            ? item[`${country.key}DateFirstAuthorised`]
+          ? translate('dates', item[`${country.key}DateFirstAuthorised`], language)
             : null
       }
     })
@@ -56,7 +65,7 @@ export const listItemController = {
           ),
           instructionManual: {
             title: item.instructionManualTitle,
-            date: item.instructionManualDate,
+            date: translate('dates', item.instructionManualDate, language),
             version: item.instructionManualVersion,
             additionalConditions: item.instructionManualAdditionalInfo
           }
@@ -82,8 +91,8 @@ export const listItemController = {
       ...content,
       type,
       name: item.name,
-      publishedDate: item.publishedDate,
-      updatedDate: item.submittedDate,
+      publishedDate: translate('dates', item.publishedDate, language),
+      updatedDate: lastUpdatedDate ? translate('dates', lastUpdatedDate, language) : translate('dates', item.publishedDate, language),
       ...pageSpecificRecord[type](item, language),
       manufacturer: item.manufacturerName,
       certification,

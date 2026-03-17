@@ -21,7 +21,7 @@ export const legalBasisContent = {
     },
 
     publishedLabel: 'Published',
-    publishedDate: '14 January 2026',
+    publishedDate: '14 January 2026', //NEEDTO: make dynamic
 
     departmentLabel: 'From:',
     departmentInfo: {
