@@ -41,47 +41,47 @@ function getCertification(item, content, language) {
   }))
 }
 
-function buildPageSpecificRecord(item, content, language, type) {
-  if (type === 'appliances') {
-    return {
-      appliances: {
-        conditionsForUse: {
-          airControlModifications: item.airControlModifications.replaceAll(
-            '\n',
-            '<br><br>'
-          ),
-          instructionManual: {
-            title: item.instructionManualTitle,
-            date: translate('dates', item.instructionManualDate, language),
-            version: item.instructionManualVersion,
-            additionalConditions: item.instructionManualAdditionalInfo
+function buildAppliancesRecord(item, content, language) {
+  return {
+    appliances: {
+      conditionsForUse: {
+        airControlModifications: item.airControlModifications.replaceAll(
+          '\n',
+          '<br><br>'
+        ),
+        instructionManual: {
+          title: item.instructionManualTitle,
+          date: translate('dates', item.instructionManualDate, language),
+          version: item.instructionManualVersion,
+          additionalConditions: item.instructionManualAdditionalInfo
+        }
+      },
+      applianceDetails: {
+        fuelsAllowed: translate('fuels', item.allowedFuels, language),
+        type: translate('applianceTypes', item.applianceType, language),
+        output: item.nominalOutput
+      },
+      summaryListRows: [
+        {
+          key: { text: content.applianceDetailsLabels.fuelsAllowed },
+          value: { html: translate('fuels', item.allowedFuels, language) }
+        },
+        {
+          key: { text: content.applianceDetailsLabels.type },
+          value: {
+            html: translate('applianceTypes', item.applianceType, language)
           }
         },
-        applianceDetails: {
-          fuelsAllowed: translate('fuels', item.allowedFuels, language),
-          type: translate('applianceTypes', item.applianceType, language),
-          output: item.nominalOutput
-        },
-        summaryListRows: [
-          {
-            key: { text: content.applianceDetailsLabels.fuelsAllowed },
-            value: { html: translate('fuels', item.allowedFuels, language) }
-          },
-          {
-            key: { text: content.applianceDetailsLabels.type },
-            value: {
-              html: translate('applianceTypes', item.applianceType, language)
-            }
-          },
-          {
-            key: { text: content.applianceDetailsLabels.output },
-            value: { html: item.nominalOutput + ' kW' }
-          }
-        ]
-      }
+        {
+          key: { text: content.applianceDetailsLabels.output },
+          value: { html: item.nominalOutput + ' kW' }
+        }
+      ]
     }
   }
+}
 
+function buildFuelsRecord(item, content, language) {
   return {
     fuels: {
       fuelDescription: {
@@ -119,6 +119,12 @@ function buildPageSpecificRecord(item, content, language, type) {
       ]
     }
   }
+}
+
+function buildPageSpecificRecord(item, content, language, type) {
+  return type === 'appliances'
+    ? buildAppliancesRecord(item, content, language)
+    : buildFuelsRecord(item, content, language)
 }
 
 /**
