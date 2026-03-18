@@ -41,27 +41,10 @@ function getCertification(item, content, language) {
   }))
 }
 
-/**
- * List Item page controller.
- * Displays detailed information about a specific appliance/fuel.
- */
-export const listItemController = {
-  async handler(request, h) {
-    const { type, id, language = 'en' } = request.params
-    const content = listItemContent[language]
-
-    const singularType = singularize(type)
-
-    const item = await fetchById(singularType, id)
-
-    if (!item) {
-      return h.response(`${singularType} not found`).code(statusCodes.notFound)
-    }
-    const lastUpdatedDate = getLastUpdatedDate(item)
-    const certification = getCertification(item, content, language)
-
-    const pageSpecificRecord = {
-      appliances: () => ({
+function buildPageSpecificRecord(item, content, language, type) {
+  if (type === 'appliances') {
+    return {
+      appliances: {
         conditionsForUse: {
           airControlModifications: item.airControlModifications.replaceAll(
             '\n',
@@ -95,43 +78,73 @@ export const listItemController = {
             value: { html: item.nominalOutput + ' kW' }
           }
         ]
-      }),
-      fuels: () => ({
-        fuelDescription: {
-          appearance: item.fuelDescription,
-          weight: item.fuelWeight,
-          composition: item.fuelComposition,
-          manufacturingProcess: item.manufacturingProcess,
-          sulphurContent: item.sulphurContent
-        },
-        fuelSummaryListRows: [
-          {
-            key: { text: content.fuelDescriptionLabels.appearance },
-            value: { text: item.fuelDescription }
-          },
-          {
-            key: { text: content.fuelDescriptionLabels.weight },
-            value: { text: item.fuelWeight }
-          },
-          {
-            key: { text: content.fuelDescriptionLabels.composition },
-            value: { text: item.fuelComposition }
-          },
-          {
-            key: { text: content.fuelDescriptionLabels.manufacturing },
-            value: { text: item.manufacturingProcess }
-          },
-          {
-            key: { text: content.fuelDescriptionLabels.sulphurContent },
-            value: {
-              html:
-                item.sulphurContent +
-                content.fuelDescriptionLabels.sulphurContentUnit
-            }
-          }
-        ]
-      })
+      }
     }
+  }
+
+  return {
+    fuels: {
+      fuelDescription: {
+        appearance: item.fuelDescription,
+        weight: item.fuelWeight,
+        composition: item.fuelComposition,
+        manufacturingProcess: item.manufacturingProcess,
+        sulphurContent: item.sulphurContent
+      },
+      fuelSummaryListRows: [
+        {
+          key: { text: content.fuelDescriptionLabels.appearance },
+          value: { text: item.fuelDescription }
+        },
+        {
+          key: { text: content.fuelDescriptionLabels.weight },
+          value: { text: item.fuelWeight }
+        },
+        {
+          key: { text: content.fuelDescriptionLabels.composition },
+          value: { text: item.fuelComposition }
+        },
+        {
+          key: { text: content.fuelDescriptionLabels.manufacturing },
+          value: { text: item.manufacturingProcess }
+        },
+        {
+          key: { text: content.fuelDescriptionLabels.sulphurContent },
+          value: {
+            html:
+              item.sulphurContent +
+              content.fuelDescriptionLabels.sulphurContentUnit
+          }
+        }
+      ]
+    }
+  }
+}
+
+/**
+ * List Item page controller.
+ * Displays detailed information about a specific appliance/fuel.
+ */
+export const listItemController = {
+  async handler(request, h) {
+    const { type, id, language = 'en' } = request.params
+    const content = listItemContent[language]
+
+    const singularType = singularize(type)
+
+    const item = await fetchById(singularType, id)
+
+    if (!item) {
+      return h.response(`${singularType} not found`).code(statusCodes.notFound)
+    }
+    const lastUpdatedDate = getLastUpdatedDate(item)
+    const certification = getCertification(item, content, language)
+    const pageSpecificRecord = buildPageSpecificRecord(
+      item,
+      content,
+      language,
+      type
+    )
 
     const {
       companyAddress,
@@ -164,7 +177,7 @@ export const listItemController = {
       updatedDate: lastUpdatedDate
         ? translate('dates', lastUpdatedDate, language)
         : translate('dates', publishedDate, language),
-      ...pageSpecificRecord[type](item, language),
+      ...pageSpecificRecord[type],
       manufacturer: item.manufacturerName,
       certification,
 
