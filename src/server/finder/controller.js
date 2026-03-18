@@ -97,7 +97,6 @@ export const finderController = {
 
     const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
     const totalResponse = await fetchAll(singularize(type))
-    // console.log('Records returned from API:', totalResponse)
     const searchResponse = searchFunctionality(
       type,
       totalResponse,
@@ -109,7 +108,6 @@ export const finderController = {
       type,
       language
     })
-    // console.log('Filter state:', filterState)
     const searchAndFilteredResponse = filterSearchResults(
       searchResponse,
       filterState
