@@ -55,7 +55,7 @@ export const lookupData = {
     { key: 'other', en: 'Other', cy: 'Other--CY' }
   ],
   months: [
-    {key: '01', en: 'January', cy: 'January--CY' },
+    { key: '01', en: 'January', cy: 'January--CY' },
     { key: '02', en: 'February', cy: 'February--CY' },
     { key: '03', en: 'March', cy: 'March--CY' },
     { key: '04', en: 'April', cy: 'April--CY' },

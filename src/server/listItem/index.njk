@@ -142,8 +142,11 @@
       {% endif %}
       {# Manufacturer/Company Section - Details only #}
         <p class="govuk-body">{{ certifiedByLabel[type] }} {{ manufacturer }}.</p>
-        <p class="govuk-body">{{ manufacturerAddress }}</p>
-   
+        {% if isUkBased %}
+          <p class="govuk-body" style="white-space: pre-line">{{ formattedUkAddress | safe }}</p>
+        {% else %}
+          <p class="govuk-body">{{ companyAddress }}</p>
+        {% endif %}
 
    
   </div>

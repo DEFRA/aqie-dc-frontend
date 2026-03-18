@@ -16,10 +16,12 @@ export const translate = (category, dbValue, language) => {
   if (category === 'dates') {
     // Date comes from Backend as ISO string, (YYYY-MM-DDTHH:mm:ss.sssZ), we want to display in localized and translated format
     const day = formatDate(dbValue, 'd')
-    const month = lookupData.months.find((m) => m.key === formatDate(dbValue, 'MM'))
-    const year = formatDate(dbValue, 'yyyy') 
-    return `${day} ${month[language]} ${year}`;
-  }   
+    const month = lookupData.months.find(
+      (m) => m.key === formatDate(dbValue, 'MM')
+    )
+    const year = formatDate(dbValue, 'yyyy')
+    return `${day} ${month[language]} ${year}`
+  }
 
   if (!dbValue) {
     return dbValue

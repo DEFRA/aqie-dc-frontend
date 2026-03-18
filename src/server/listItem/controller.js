@@ -26,10 +26,10 @@ export const listItemController = {
       const validDates = lookupData.countries
         .map((country) => item[`${country.key}DateLastUpdated`])
         .filter(Boolean) // Remove null/undefined
-        .map(dateString => new Date(dateString)) // Convert to Date objects
-        .filter(date => !Number.isNaN(date.getTime())) // Remove invalid dates
+        .map((dateString) => new Date(dateString)) // Convert to Date objects
+        .filter((date) => !Number.isNaN(date.getTime())) // Remove invalid dates
         .sort((a, b) => b.getTime() - a.getTime()) // Sort descending (most recent first)
-      
+
       return validDates.length > 0 ? validDates[0].toISOString() : null
     })()
     const certification = lookupData.countries.map((country) => {
@@ -51,7 +51,11 @@ export const listItemController = {
           statusMap[item[`${country.key}Approval`]] || statusMap.Uncertified,
         firstCertified:
           item[`${country.key}Approval`] === 'Certified'
-          ? translate('dates', item[`${country.key}DateFirstAuthorised`], language)
+            ? translate(
+                'dates',
+                item[`${country.key}DateFirstAuthorised`],
+                language
+              )
             : null
       }
     })
@@ -92,12 +96,26 @@ export const listItemController = {
       type,
       name: item.name,
       publishedDate: translate('dates', item.publishedDate, language),
-      updatedDate: lastUpdatedDate ? translate('dates', lastUpdatedDate, language) : translate('dates', item.publishedDate, language),
+      updatedDate: lastUpdatedDate
+        ? translate('dates', lastUpdatedDate, language)
+        : translate('dates', item.publishedDate, language),
       ...pageSpecificRecord[type](item, language),
       manufacturer: item.manufacturerName,
       certification,
 
-      manufacturerAddress: item.manufacturerAddress,
+      companyAddress: item.companyAddress,
+      isUkBased: item.isUkBased,
+      formattedUkAddress: item.isUkBased
+        ? [
+            item.companyAddressLine1,
+            item.companyAddressLine2,
+            item.companyAddressCity,
+            item.companyAddressCounty,
+            item.companyAddressPostcode
+          ]
+            .filter(Boolean)
+            .join('<br>')
+        : null,
       backLinkText: content.backLinkText[`${type}`],
       backLinkHref: `/finder/${type}/${language}`
     })

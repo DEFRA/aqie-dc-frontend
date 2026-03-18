@@ -66,7 +66,7 @@ const makeMockItem = (overrides = {}) => ({
   publishedDate: '2024-01-15',
   submittedDate: '2024-02-20',
   manufacturerName: 'Test Manufacturer Ltd',
-  manufacturerAddress: '123 Test Street, Test City, TE1 1ST',
+  companyAddress: '123 Test Street, Test City, TE1 1ST',
   allowedFuels: 'Wood logs',
   applianceType: 'Boiler',
   nominalOutput: '5kW',
@@ -79,12 +79,16 @@ const makeMockItem = (overrides = {}) => ({
   // Country approval statuses
   englandApproval: 'Certified',
   englandDateFirstAuthorised: '2023-06-01',
+  englandDateLastUpdated: '2024-01-10',
   scotlandApproval: 'Certified',
   scotlandDateFirstAuthorised: '2023-07-01',
+  scotlandDateLastUpdated: '2024-02-15',
   walesApproval: 'Uncertified',
   walesDateFirstAuthorised: null,
+  walesDateLastUpdated: null,
   'northern irelandApproval': 'Revoked',
   'northern irelandDateFirstAuthorised': '2022-01-01',
+  'northern irelandDateLastUpdated': '2024-03-20',
   ...overrides
 })
 
@@ -174,11 +178,14 @@ describe('listItemController', () => {
       expect(result.model.name).toBe('Custom Model Name')
     })
 
-    it('should pass published and updated dates to the view model', async () => {
+    it('should pass published dates and last updated to the view model', async () => {
       const { fetchById } = await import('../common/api/api.js')
       const mockItem = makeMockItem({
         publishedDate: '2024-03-15',
-        submittedDate: '2024-04-20'
+        englandDateLastUpdated: '2024-04-10',
+        scotlandDateLastUpdated: '2024-05-20',
+        walesDateLastUpdated: '2024-04-15',
+        northernIrelandDateLastUpdated: '2024-03-01'
       })
       fetchById.mockResolvedValueOnce(mockItem)
 
@@ -188,7 +195,8 @@ describe('listItemController', () => {
       const result = await listItemController.handler(request, h)
 
       expect(result.model.publishedDate).toBe('2024-03-15')
-      expect(result.model.updatedDate).toBe('2024-04-20')
+      // updatedDate should be the most recent DateLastUpdated (Scotland: 2024-05-20)
+      expect(result.model.updatedDate).toBe('2024-05-20T00:00:00.000Z')
     })
 
     it('should pass manufacturer name to the view model', async () => {
@@ -204,9 +212,9 @@ describe('listItemController', () => {
       expect(result.model.manufacturer).toBe('ACME Corp')
     })
 
-    it('should pass manufacturer address to the view model', async () => {
+    it('should pass company address to the view model', async () => {
       const { fetchById } = await import('../common/api/api.js')
-      const mockItem = makeMockItem({ manufacturerAddress: '456 Factory Lane' })
+      const mockItem = makeMockItem({ companyAddress: '456 Factory Lane' })
       fetchById.mockResolvedValueOnce(mockItem)
 
       const request = makeRequest()
@@ -214,7 +222,7 @@ describe('listItemController', () => {
 
       const result = await listItemController.handler(request, h)
 
-      expect(result.model.manufacturerAddress).toBe('456 Factory Lane')
+      expect(result.model.companyAddress).toBe('456 Factory Lane')
     })
 
     describe('translate function usage', () => {
