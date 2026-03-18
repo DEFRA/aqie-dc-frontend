@@ -75,14 +75,7 @@
 
         {# Appliance Details Section #}
         <h2 class="govuk-heading-m">{{ applianceDetailsHeading }}</h2>
-        
-        {{ govukSummaryList({
-          rows: [
-            { key: { text: applianceDetailsLabels.fuelsAllowed }, value: { html: applianceDetails.fuelsAllowed } },
-            { key: { text: applianceDetailsLabels.type }, value: { html: applianceDetails.type } },
-            { key: { text: applianceDetailsLabels.output }, value: { html: applianceDetails.output + ' kW' } }
-          ]
-        }) }}
+        {{ govukSummaryList({ rows: summaryListRows }) }}
 
         {# Manufacturer Section - Heading only #}
         <h2 class="govuk-heading-m govuk-!-margin-top-9">{{ manufacturerDetailsHeading }}</h2>
@@ -91,50 +84,7 @@
       {% if type === 'fuels' %}
       {# Fuel Description Section #}
         <h2 class="govuk-heading-m">{{ fuelDescriptionHeading }}</h2>
-          {{ govukSummaryList({
-            rows: [
-              {
-                key: {
-                  text: fuelDescriptionLabels.appearance
-                },
-                value: {
-                  text: fuelDescription.appearance
-                }
-              },
-              {
-                key: {
-                  text: fuelDescriptionLabels.weight
-                },
-                value: {
-                  text: fuelDescription.weight
-                }
-              },
-              {
-                key: {
-                  text: fuelDescriptionLabels.composition
-                },
-                value: {
-                  text: fuelDescription.composition
-                }
-              },
-              {
-                key: {
-                  text: fuelDescriptionLabels.manufacturing
-                },
-                value: {
-                  text: fuelDescription.manufacturingProcess
-                }
-              },
-              {
-                key: {
-                  text: fuelDescriptionLabels.sulphurContent
-                },
-                value: {
-                  html: fuelDescription.sulphurContent + fuelDescriptionLabels.sulphurContentUnit
-                }
-              }
-            ]
-          }) }}
+          {{ govukSummaryList({ rows: fuelSummaryListRows }) }}
 
           {# Company Section - Heading only #}
           <h2 class="govuk-heading-m govuk-!-margin-top-9">{{ companyDetailsHeading }}</h2>

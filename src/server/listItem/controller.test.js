@@ -41,10 +41,52 @@ vi.mock('./content.js', () => ({
         appliances: 'Back to appliances list',
         fuels: 'Back to fuels list'
       },
+      publishedLabel: 'Published',
+      updatedLabel: 'Updated',
+      manufacturedByLabel: 'Manufactured by',
+      departmentLabel: 'From:',
+      departmentInfo: {
+        name: 'Department for Environment, Food and Rural Affairs',
+        url: 'https://www.gov.uk'
+      },
+      certificationHeading: 'Certification by country',
+      certificationTableHeaders: {
+        country: 'Country',
+        status: 'Status',
+        dateFirstCertified: 'Date Certified'
+      },
       status: {
         certified: 'Certified',
         unCertified: 'Uncertified',
         revoked: 'Revoked'
+      },
+      notApplicable: 'Not applicable',
+      legalBasisPrefix: 'See the ',
+      legalBasisText: 'legal basis for certification in each UK country.',
+      legalBasisHref: '/legal-basis-for-appliances',
+      conditionsForUseHeading: 'Conditions for use',
+      instructionManualLabel: 'Instruction manual details',
+      additionalConditionsLabel: 'Additional conditions for use',
+      applianceDetailsHeading: 'Appliance details',
+      applianceDetailsLabels: {
+        fuelsAllowed: 'Fuels allowed',
+        type: 'Appliance type',
+        output: 'Nominal (thermal) output'
+      },
+      manufacturerDetailsHeading: 'Manufacturer details',
+      companyDetailsHeading: 'Company details',
+      certifiedByLabel: {
+        fuels: 'This fuel was certified by',
+        appliances: 'This appliance was certified by'
+      },
+      fuelDescriptionHeading: 'Fuel description',
+      fuelDescriptionLabels: {
+        appearance: 'Appearance',
+        weight: 'Weight',
+        composition: 'Composition',
+        manufacturing: 'Manufacturing process',
+        sulphurContent: 'Sulphur content',
+        sulphurContentUnit: '% of total dry, ash free weight'
       }
     },
     cy: {
@@ -52,10 +94,52 @@ vi.mock('./content.js', () => ({
         appliances: 'Back to appliances list--CY',
         fuels: 'Back to fuels list--CY'
       },
+      publishedLabel: 'Published--CY',
+      updatedLabel: 'Updated--CY',
+      manufacturedByLabel: 'Manufactured by--CY',
+      departmentLabel: 'From:--CY',
+      departmentInfo: {
+        name: 'Department for Environment, Food and Rural Affairs--CY',
+        url: 'https://www.gov.uk'
+      },
+      certificationHeading: 'Certification by country--CY',
+      certificationTableHeaders: {
+        country: 'Country--CY',
+        status: 'Status--CY',
+        dateFirstCertified: 'Date Certified--CY'
+      },
       status: {
         certified: 'Certified--CY',
-        unCertified: 'Uncertified--CY',
+        unCertified: 'Not certified--CY',
         revoked: 'Revoked--CY'
+      },
+      notApplicable: 'Not applicable--CY',
+      legalBasisPrefix: 'See the--CY ',
+      legalBasisText: 'legal basis for certification in each UK country.--CY',
+      legalBasisHref: '/legal-basis-for-appliances',
+      conditionsForUseHeading: 'Conditions for use--CY',
+      instructionManualLabel: 'Instruction manual details--CY',
+      additionalConditionsLabel: 'Additional conditions for use--CY',
+      applianceDetailsHeading: 'Appliance details--CY',
+      applianceDetailsLabels: {
+        fuelsAllowed: 'Fuels allowed--CY',
+        type: 'Appliance type--CY',
+        output: 'Nominal (thermal) output--CY'
+      },
+      manufacturerDetailsHeading: 'Manufacturer details--CY',
+      companyDetailsHeading: 'Company details--CY',
+      certifiedByLabel: {
+        fuels: 'This fuel was certified by--CY',
+        appliances: 'This appliance was certified by--CY'
+      },
+      fuelDescriptionHeading: 'Fuel description--CY',
+      fuelDescriptionLabels: {
+        appearance: 'Appearance--CY',
+        weight: 'Weight--CY',
+        composition: 'Composition--CY',
+        manufacturing: 'Manufacturing process--CY',
+        sulphurContent: 'Sulphur content--CY',
+        sulphurContentUnit: '% of total dry, ash free weight--CY'
       }
     }
   }
@@ -75,6 +159,12 @@ const makeMockItem = (overrides = {}) => ({
   instructionManualDate: '2024-01-01',
   instructionManualVersion: '1.0',
   instructionManualAdditionalInfo: 'Additional info here',
+  fuelDescription: 'Light mineral oil',
+  fuelWeight: '0.84 kg/l',
+  fuelComposition: 'Paraffinic',
+  manufacturingProcess: 'Distillation',
+  sulphurContent: '0.2',
+  isUkBased: false,
 
   // Country approval statuses
   englandApproval: 'Certified',
@@ -610,6 +700,172 @@ describe('listItemController', () => {
 
         expect(singularize).toHaveBeenCalledWith('fuels')
         expect(fetchById).toHaveBeenCalledWith('fuel', 'fuel-123')
+      })
+    })
+
+    describe('summary list rows for appliances', () => {
+      it('should include summaryListRows for appliances type', async () => {
+        const { fetchById } = await import('../common/api/api.js')
+        fetchById.mockResolvedValueOnce(makeMockItem())
+
+        const request = makeRequest({ type: 'appliances' })
+        const h = makeH()
+
+        const result = await listItemController.handler(request, h)
+
+        expect(result.model.summaryListRows).toBeDefined()
+        expect(Array.isArray(result.model.summaryListRows)).toBe(true)
+        expect(result.model.summaryListRows.length).toBe(3)
+      })
+
+      it('should build summaryListRows with correct structure for appliances', async () => {
+        const { fetchById } = await import('../common/api/api.js')
+        fetchById.mockResolvedValueOnce(makeMockItem())
+
+        const request = makeRequest({ type: 'appliances' })
+        const h = makeH()
+
+        const result = await listItemController.handler(request, h)
+
+        expect(result.model.summaryListRows[0]).toHaveProperty('key.text')
+        expect(result.model.summaryListRows[0]).toHaveProperty('value.html')
+        expect(result.model.summaryListRows[0].key.text).toBe('Fuels allowed')
+      })
+
+      it('should include output in summaryListRows with kW suffix', async () => {
+        const { fetchById } = await import('../common/api/api.js')
+        const mockItem = makeMockItem({ nominalOutput: '10' })
+        fetchById.mockResolvedValueOnce(mockItem)
+
+        const request = makeRequest({ type: 'appliances' })
+        const h = makeH()
+
+        const result = await listItemController.handler(request, h)
+
+        const outputRow = result.model.summaryListRows.find(
+          (row) => row.key.text === 'Nominal (thermal) output'
+        )
+        expect(outputRow).toBeDefined()
+        expect(outputRow.value.html).toBe('10 kW')
+      })
+    })
+
+    describe('summary list rows for fuels', () => {
+      it('should include fuelSummaryListRows for fuels type', async () => {
+        const { fetchById } = await import('../common/api/api.js')
+        fetchById.mockResolvedValueOnce(makeMockItem())
+
+        const request = makeRequest({ type: 'fuels' })
+        const h = makeH()
+
+        const result = await listItemController.handler(request, h)
+
+        expect(result.model.fuelSummaryListRows).toBeDefined()
+        expect(Array.isArray(result.model.fuelSummaryListRows)).toBe(true)
+        expect(result.model.fuelSummaryListRows.length).toBe(5)
+      })
+
+      it('should build fuelSummaryListRows with correct structure for fuels', async () => {
+        const { fetchById } = await import('../common/api/api.js')
+        fetchById.mockResolvedValueOnce(makeMockItem())
+
+        const request = makeRequest({ type: 'fuels' })
+        const h = makeH()
+
+        const result = await listItemController.handler(request, h)
+
+        expect(result.model.fuelSummaryListRows[0]).toHaveProperty('key.text')
+        expect(result.model.fuelSummaryListRows[0]).toHaveProperty('value.text')
+        expect(result.model.fuelSummaryListRows[0].key.text).toBe('Appearance')
+        expect(result.model.fuelSummaryListRows[0].value.text).toBe(
+          'Light mineral oil'
+        )
+      })
+
+      it('should include sulphur content with unit in fuelSummaryListRows', async () => {
+        const { fetchById } = await import('../common/api/api.js')
+        const mockItem = makeMockItem({ sulphurContent: '0.5' })
+        fetchById.mockResolvedValueOnce(mockItem)
+
+        const request = makeRequest({ type: 'fuels' })
+        const h = makeH()
+
+        const result = await listItemController.handler(request, h)
+
+        const sulphurRow = result.model.fuelSummaryListRows.find(
+          (row) => row.key.text === 'Sulphur content'
+        )
+        expect(sulphurRow).toBeDefined()
+        expect(sulphurRow.value.html).toContain('0.5')
+        expect(sulphurRow.value.html).toContain(
+          '% of total dry, ash free weight'
+        )
+      })
+    })
+
+    describe('formatted UK address', () => {
+      it('should format UK address when isUkBased is true', async () => {
+        const { fetchById } = await import('../common/api/api.js')
+        const mockItem = makeMockItem({
+          isUkBased: true,
+          companyAddressLine1: '123 Main Street',
+          companyAddressLine2: 'Suite 100',
+          companyAddressCity: 'London',
+          companyAddressCounty: 'Greater London',
+          companyAddressPostcode: 'SW1A 1AA'
+        })
+        fetchById.mockResolvedValueOnce(mockItem)
+
+        const request = makeRequest()
+        const h = makeH()
+
+        const result = await listItemController.handler(request, h)
+
+        expect(result.model.formattedUkAddress).toBe(
+          '123 Main Street<br>Suite 100<br>London<br>Greater London<br>SW1A 1AA'
+        )
+      })
+
+      it('should filter out empty address lines', async () => {
+        const { fetchById } = await import('../common/api/api.js')
+        const mockItem = makeMockItem({
+          isUkBased: true,
+          companyAddressLine1: '123 Main Street',
+          companyAddressLine2: null,
+          companyAddressCity: 'London',
+          companyAddressCounty: null,
+          companyAddressPostcode: 'SW1A 1AA'
+        })
+        fetchById.mockResolvedValueOnce(mockItem)
+
+        const request = makeRequest()
+        const h = makeH()
+
+        const result = await listItemController.handler(request, h)
+
+        expect(result.model.formattedUkAddress).toBe(
+          '123 Main Street<br>London<br>SW1A 1AA'
+        )
+      })
+
+      it('should return null for formattedUkAddress when isUkBased is false', async () => {
+        const { fetchById } = await import('../common/api/api.js')
+        const mockItem = makeMockItem({
+          isUkBased: false,
+          companyAddressLine1: '123 Main Street',
+          companyAddressLine2: 'Suite 100',
+          companyAddressCity: 'London',
+          companyAddressCounty: 'Greater London',
+          companyAddressPostcode: 'SW1A 1AA'
+        })
+        fetchById.mockResolvedValueOnce(mockItem)
+
+        const request = makeRequest()
+        const h = makeH()
+
+        const result = await listItemController.handler(request, h)
+
+        expect(result.model.formattedUkAddress).toBeNull()
       })
     })
   })

@@ -78,7 +78,23 @@ export const listItemController = {
           fuelsAllowed: translate('fuels', item.allowedFuels, language),
           type: translate('applianceTypes', item.applianceType, language),
           output: item.nominalOutput
-        }
+        },
+        summaryListRows: [
+          {
+            key: { text: content.applianceDetailsLabels.fuelsAllowed },
+            value: { html: translate('fuels', item.allowedFuels, language) }
+          },
+          {
+            key: { text: content.applianceDetailsLabels.type },
+            value: {
+              html: translate('applianceTypes', item.applianceType, language)
+            }
+          },
+          {
+            key: { text: content.applianceDetailsLabels.output },
+            value: { html: item.nominalOutput + ' kW' }
+          }
+        ]
       }),
       fuels: () => ({
         fuelDescription: {
@@ -87,35 +103,74 @@ export const listItemController = {
           composition: item.fuelComposition,
           manufacturingProcess: item.manufacturingProcess,
           sulphurContent: item.sulphurContent
-        }
+        },
+        fuelSummaryListRows: [
+          {
+            key: { text: content.fuelDescriptionLabels.appearance },
+            value: { text: item.fuelDescription }
+          },
+          {
+            key: { text: content.fuelDescriptionLabels.weight },
+            value: { text: item.fuelWeight }
+          },
+          {
+            key: { text: content.fuelDescriptionLabels.composition },
+            value: { text: item.fuelComposition }
+          },
+          {
+            key: { text: content.fuelDescriptionLabels.manufacturing },
+            value: { text: item.manufacturingProcess }
+          },
+          {
+            key: { text: content.fuelDescriptionLabels.sulphurContent },
+            value: {
+              html:
+                item.sulphurContent +
+                content.fuelDescriptionLabels.sulphurContentUnit
+            }
+          }
+        ]
       })
     }
+
+    const {
+      companyAddress,
+      isUkBased,
+      companyAddressLine1,
+      companyAddressLine2,
+      companyAddressCity,
+      companyAddressCounty,
+      companyAddressPostcode,
+      publishedDate
+    } = item
+
+    const formattedUkAddress = isUkBased
+      ? [
+          companyAddressLine1,
+          companyAddressLine2,
+          companyAddressCity,
+          companyAddressCounty,
+          companyAddressPostcode
+        ]
+          .filter(Boolean)
+          .join('<br>')
+      : null
 
     return h.view('listItem/index', {
       ...content,
       type,
       name: item.name,
-      publishedDate: translate('dates', item.publishedDate, language),
+      publishedDate: translate('dates', publishedDate, language),
       updatedDate: lastUpdatedDate
         ? translate('dates', lastUpdatedDate, language)
-        : translate('dates', item.publishedDate, language),
+        : translate('dates', publishedDate, language),
       ...pageSpecificRecord[type](item, language),
       manufacturer: item.manufacturerName,
       certification,
 
-      companyAddress: item.companyAddress,
-      isUkBased: item.isUkBased,
-      formattedUkAddress: item.isUkBased
-        ? [
-            item.companyAddressLine1,
-            item.companyAddressLine2,
-            item.companyAddressCity,
-            item.companyAddressCounty,
-            item.companyAddressPostcode
-          ]
-            .filter(Boolean)
-            .join('<br>')
-        : null,
+      companyAddress,
+      isUkBased,
+      formattedUkAddress,
       backLinkText: content.backLinkText[`${type}`],
       backLinkHref: `/finder/${type}/${language}`
     })
