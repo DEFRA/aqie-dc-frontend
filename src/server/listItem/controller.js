@@ -4,6 +4,43 @@ import { singularize, translate } from '../common/util.js'
 import { lookupData } from '../common/content.js'
 import { statusCodes } from '../common/constants/status-codes.js'
 
+//Helper functions for processing item data for the List Item page
+function getLastUpdatedDate(item) {
+  const validDates = lookupData.countries
+    .map((country) => item[`${country.key}DateLastUpdated`])
+    .filter(Boolean)
+    .map((dateString) => new Date(dateString))
+    .filter((date) => !Number.isNaN(date.getTime()))
+    .sort((a, b) => b.getTime() - a.getTime())
+  return validDates.length > 0 ? validDates[0].toISOString() : null
+}
+
+function getCertification(item, content, language) {
+  const statusMap = {
+    Revoked: { label: content.status.revoked, colour: 'govuk-tag--red' },
+    Uncertified: {
+      label: content.status.unCertified,
+      colour: 'govuk-tag--grey'
+    },
+    Certified: {
+      label: content.status.certified,
+      colour: 'govuk-tag--green'
+    }
+  }
+  return lookupData.countries.map((country) => ({
+    name: country[language],
+    status: statusMap[item[`${country.key}Approval`]] || statusMap.Uncertified,
+    firstCertified:
+      item[`${country.key}Approval`] === 'Certified'
+        ? translate(
+            'dates',
+            item[`${country.key}DateFirstAuthorised`],
+            language
+          )
+        : null
+  }))
+}
+
 /**
  * List Item page controller.
  * Displays detailed information about a specific appliance/fuel.
@@ -13,52 +50,15 @@ export const listItemController = {
     const { type, id, language = 'en' } = request.params
     const content = listItemContent[language]
 
-    //NEEDTO: differenciated between fuel or applicance i.e. content.types[type]
     const singularType = singularize(type)
 
     const item = await fetchById(singularType, id)
-    console.log(`Fetched item for ${singularType} with ID ${id}:`, item) //NEEDTO: remove after testing fuel
 
     if (!item) {
       return h.response(`${singularType} not found`).code(statusCodes.notFound)
     }
-    const lastUpdatedDate = (() => {
-      const validDates = lookupData.countries
-        .map((country) => item[`${country.key}DateLastUpdated`])
-        .filter(Boolean) // Remove null/undefined
-        .map((dateString) => new Date(dateString)) // Convert to Date objects
-        .filter((date) => !Number.isNaN(date.getTime())) // Remove invalid dates
-        .sort((a, b) => b.getTime() - a.getTime()) // Sort descending (most recent first)
-
-      return validDates.length > 0 ? validDates[0].toISOString() : null
-    })()
-    const certification = lookupData.countries.map((country) => {
-      const statusMap = {
-        Revoked: { label: content.status.revoked, colour: 'govuk-tag--red' },
-        Uncertified: {
-          label: content.status.unCertified,
-          colour: 'govuk-tag--grey'
-        },
-        Certified: {
-          label: content.status.certified,
-          colour: 'govuk-tag--green'
-        }
-      }
-      // Display country name based on language and use country key to access DB fields e.g. walesApproval, walesDateFirstAuthorised
-      return {
-        name: country[language], //
-        status:
-          statusMap[item[`${country.key}Approval`]] || statusMap.Uncertified,
-        firstCertified:
-          item[`${country.key}Approval`] === 'Certified'
-            ? translate(
-                'dates',
-                item[`${country.key}DateFirstAuthorised`],
-                language
-              )
-            : null
-      }
-    })
+    const lastUpdatedDate = getLastUpdatedDate(item)
+    const certification = getCertification(item, content, language)
 
     const pageSpecificRecord = {
       appliances: () => ({
