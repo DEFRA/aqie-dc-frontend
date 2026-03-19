@@ -232,6 +232,71 @@ describe('finderController', () => {
     expect(model.pageEndRecord).toBe(0)
   })
 
+  it('sets previousPageUrl on middle/last pages and null on first page', async () => {
+    const records = Array.from({ length: 100 }, (_, i) => ({ id: i + 1 }))
+    const { fetchAll } = await import('../common/api/api.js')
+    fetchAll.mockResolvedValueOnce(records)
+
+    // Test page 1 – previousPageUrl should be null
+    let request = makeRequest({ page: '1' })
+    let h = makeH()
+    let resp = await finderController.handler(request, h)
+    expect(resp.model.previousPageUrl).toBe(null)
+
+    // Test page 2 – previousPageUrl should be set
+    fetchAll.mockResolvedValueOnce([...records])
+    request = makeRequest({ page: '2' })
+    h = makeH()
+    resp = await finderController.handler(request, h)
+    expect(resp.model.previousPageUrl).toBe('?page=1')
+  })
+
+  it('sets nextPageUrl on first/middle pages and null on last page', async () => {
+    const records = Array.from({ length: 50 }, (_, i) => ({ id: i + 1 }))
+    const { fetchAll } = await import('../common/api/api.js')
+    fetchAll.mockResolvedValueOnce(records)
+
+    // Test page 1 of 2 – nextPageUrl should be set
+    let request = makeRequest({ page: '1' })
+    let h = makeH()
+    let resp = await finderController.handler(request, h)
+    expect(resp.model.nextPageUrl).toBe('?page=2')
+
+    // Test page 2 of 2 – nextPageUrl should be null
+    fetchAll.mockResolvedValueOnce([...records])
+    request = makeRequest({ page: '2' })
+    h = makeH()
+    resp = await finderController.handler(request, h)
+    expect(resp.model.nextPageUrl).toBe(null)
+  })
+
+  it('preserves filter parameters in previousPageUrl and nextPageUrl', async () => {
+    const records = Array.from({ length: 100 }, (_, i) => ({ id: i + 1 }))
+    const { fetchAll } = await import('../common/api/api.js')
+    fetchAll.mockResolvedValueOnce(records)
+
+    const request = {
+      params: { type: 'appliances', language: 'en' },
+      query: {
+        page: '2',
+        search: 'pellet stove',
+        certifiedIn: 'GB',
+        fuelsAllowed: 'Wood'
+      }
+    }
+    const h = makeH()
+    const resp = await finderController.handler(request, h)
+
+    expect(resp.model.previousPageUrl).toContain('page=1')
+    expect(resp.model.previousPageUrl).toContain('certifiedIn=GB')
+    expect(resp.model.previousPageUrl).toContain('fuelsAllowed=Wood')
+    expect(resp.model.previousPageUrl).toContain('search=pellet')
+
+    expect(resp.model.nextPageUrl).toContain('page=3')
+    expect(resp.model.nextPageUrl).toContain('certifiedIn=GB')
+    expect(resp.model.nextPageUrl).toContain('fuelsAllowed=Wood')
+  })
+
   it('uses singularized type when calling fetchAll and wires searchFunctionality + filters', async () => {
     const { fetchAll } = await import('../common/api/api.js')
     const { singularize } = await import('../common/util.js')
@@ -275,7 +340,10 @@ describe('finderController', () => {
     const expectedSanitized = 'scriptalert1script stove,gas-model.900'
     expect(resp.model.sanitizedSearchQuery).toBe(expectedSanitized)
     const page3 = resp.model.paginationLinks.find((l) => l.text === 3)
-    expect(page3.href).toContain(expectedSanitized)
+    // URL encoding: spaces become +, commas become %2C
+    expect(page3.href).toContain(
+      'search=scriptalert1script+stove%2Cgas-model.900'
+    )
   })
 
   it('formats "appliances" correctly using translate + toProperCase', async () => {
