@@ -13,12 +13,32 @@ import { applyFinderFilters, buildFinderFilterState } from './filters.js'
 export const ITEMS_PER_PAGE = 25
 const EllipsicalPageLimit = 3 // Number of pages to show before and after current page when using ellipses
 
-const buildPaginationLinks = (currentPage, totalPages, searchQuery) => {
+const cleanQuery = (query) => {
+  const cleaned = { ...query }
+  Object.keys(cleaned).forEach((key) => {
+    if (cleaned[key] === undefined || cleaned[key] === '') {
+      delete cleaned[key]
+    }
+  })
+  return cleaned
+}
+
+const buildPaginationLinks = (
+  currentPage,
+  totalPages,
+  currentQuery,
+  searchQuery
+) => {
+  const buildUrl = (page) => {
+    const query = cleanQuery({ ...currentQuery, page, search: searchQuery })
+    return `?${new URLSearchParams(query).toString()}`
+  }
+
   const links = []
   const add = (page, text = page) => {
     links.push({
       text,
-      href: `?page=${page}&search=${searchQuery}`,
+      href: buildUrl(page),
       isCurrent: page === currentPage
     })
   }
@@ -48,7 +68,11 @@ const buildPaginationLinks = (currentPage, totalPages, searchQuery) => {
     add(totalPages)
   }
 
-  return links
+  return {
+    links,
+    previousPageUrl: currentPage > 1 ? buildUrl(currentPage - 1) : null,
+    nextPageUrl: currentPage < totalPages ? buildUrl(currentPage + 1) : null
+  }
 }
 /**
  * Controller for the authorised appliances/fuel finder page
@@ -73,7 +97,6 @@ export const finderController = {
 
     const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
     const totalResponse = await fetchAll(singularize(type))
-    console.log('Records returned from API:', totalResponse)
     const searchResponse = searchFunctionality(
       type,
       totalResponse,
@@ -103,9 +126,14 @@ export const finderController = {
     )
 
     handleTranslationAndCase(type, pageSpecificRecords, language)
-    const paginationLinks = buildPaginationLinks(
+    const {
+      links: paginationLinks,
+      previousPageUrl,
+      nextPageUrl
+    } = buildPaginationLinks(
       validPage,
       totalPages,
+      request.query,
       sanitizedSearchQuery
     )
     const pageEndRecord = Math.min(validPage * ITEMS_PER_PAGE, totalRecords)
@@ -121,6 +149,8 @@ export const finderController = {
       totalPages,
       paginationLinks,
       pageEndRecord,
+      previousPageUrl,
+      nextPageUrl,
       ITEMS_PER_PAGE,
       //backLinkHref: '#' //TODO: add correct back link once home page finalised
       // certifiedIn: finderContent.certifiedIn,
