@@ -1,4 +1,5 @@
-import { finderContent, filterOptions } from './content.js'
+import { finderContent } from './content.js'
+import { lookupData } from '../common/content.js'
 import { toProperCase } from '../common/util.js'
 
 // Build filter options with checked status
@@ -22,7 +23,7 @@ const getFilterOptions = (
       checked: selectedValues.includes(item.toLowerCase())
     }))
   } else {
-    return filterOptions[category].map((item) => ({
+    return lookupData[category].map((item) => ({
       value: item.key,
       text: item[language],
       checked: selectedValues.includes(item.key.toLowerCase())

@@ -1,0 +1,104 @@
+{% extends 'layouts/page.njk' %}
+
+{% set pageHeading = name %}
+{% set backLinkText = backLinkText %}
+
+{% block content %}
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <h1 class="govuk-heading-xl">{{ name }}</h1>
+    
+    <p class="govuk-body">{{ manufacturedByLabel }} {{ manufacturer }}</p>
+
+    <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+
+    <p class="govuk-body-s govuk-!-margin-bottom-2">
+      {{ departmentLabel }} <a href="{{ departmentInfo.url }}" class="govuk-link">{{ departmentInfo.name }}</a>
+    </p>
+
+    <p class="govuk-body-s govuk-!-margin-bottom-2">
+      {{ publishedLabel }} {{ publishedDate }}
+    </p>
+    <p class="govuk-body-s govuk-!-margin-bottom-9">
+      {{ updatedLabel }} {{ updatedDate }}
+    </p>
+
+      {# Certification Section #}
+    <h2 class="govuk-heading-m govuk-!-margin-top-6">{{ certificationHeading }}</h2>
+    
+    {% set countryRows = [] %}
+    {% for country in certification %}
+      {% set countryRows = (countryRows.push([
+        { text: country.name },
+        { html: govukTag({
+            text: country.status.label,
+            classes: country.status.colour
+            })
+        },
+        { html: (country.firstCertified) if country.firstCertified else notApplicable }
+      ]), countryRows) %}
+    {% endfor %}
+    
+    {{ govukTable({
+      firstCellIsHeader: true,
+      head: [
+        {
+          text: certificationTableHeaders.country
+        },
+        {
+          text: certificationTableHeaders.status
+        },
+        {
+          text: certificationTableHeaders.dateFirstCertified
+        }
+      ],
+      rows: countryRows
+      }) 
+    }}
+    
+    <p class="govuk-body govuk-!-margin-top-9 govuk-!-margin-bottom-9">
+        {{ legalBasisPrefix }}
+      <a href="{{ legalBasisHref }}" class="govuk-link">{{ legalBasisText }}</a>
+    </p>
+
+      {% if type === 'appliances' %}
+        {# Conditions for Use Section #}      
+        <h2 class="govuk-heading-m">{{ conditionsForUseHeading }}</h2>
+        <p class="govuk-!-margin-bottom-6">{{ conditionsForUse.airControlModifications | safe }}</p>
+
+        <h2 class="govuk-heading-s">{{instructionManualLabel }}</h2>
+        <p class="govuk-!-margin-bottom-2"> {{ conditionsForUse.instructionManual.title }} ({{ conditionsForUse.instructionManual.version }})</p>
+        <p class="govuk-!-margin-bottom-6">{{ publishedLabel }} {{ conditionsForUse.instructionManual.date }}</p>
+
+        <h2 class="govuk-heading-s">{{ additionalConditionsLabel }}</h2>
+        <p class="govuk-!-margin-bottom-9"> {{ conditionsForUse.instructionManual.additionalConditions }}</p>
+
+        {# Appliance Details Section #}
+        <h2 class="govuk-heading-m">{{ applianceDetailsHeading }}</h2>
+        {{ govukSummaryList({ rows: summaryListRows }) }}
+
+        {# Manufacturer Section - Heading only #}
+        <h2 class="govuk-heading-m govuk-!-margin-top-9">{{ manufacturerDetailsHeading }}</h2>
+      {% endif %}
+
+      {% if type === 'fuels' %}
+      {# Fuel Description Section #}
+        <h2 class="govuk-heading-m">{{ fuelDescriptionHeading }}</h2>
+          {{ govukSummaryList({ rows: fuelSummaryListRows }) }}
+
+          {# Company Section - Heading only #}
+          <h2 class="govuk-heading-m govuk-!-margin-top-9">{{ companyDetailsHeading }}</h2>
+
+      {% endif %}
+      {# Manufacturer/Company Section - Details only #}
+        <p class="govuk-body">{{ certifiedByLabel[type] }} {{ manufacturer }}.</p>
+        {% if isUkBased %}
+          <p class="govuk-body" style="white-space: pre-line">{{ formattedUkAddress | safe }}</p>
+        {% else %}
+          <p class="govuk-body">{{ companyAddress }}</p>
+        {% endif %}
+
+   
+  </div>
+</div>
+{% endblock %}
