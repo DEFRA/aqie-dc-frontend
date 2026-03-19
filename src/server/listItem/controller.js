@@ -81,7 +81,7 @@ function buildAppliancesRecord(item, content, language) {
   }
 }
 
-function buildFuelsRecord(item, content, language) {
+function buildFuelsRecord(item, content) {
   return {
     fuels: {
       fuelDescription: {
@@ -124,7 +124,7 @@ function buildFuelsRecord(item, content, language) {
 function buildPageSpecificRecord(item, content, language, type) {
   return type === 'appliances'
     ? buildAppliancesRecord(item, content, language)
-    : buildFuelsRecord(item, content, language)
+    : buildFuelsRecord(item, content)
 }
 
 /**
