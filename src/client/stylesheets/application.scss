@@ -1,6 +1,5 @@
-@use "govuk-frontend";
+@use "govuk-frontend" as *;
 @use '@ministryofjustice/frontend/moj/all';
-
 @use "variables";
 @use "helpers";
 @use "core";

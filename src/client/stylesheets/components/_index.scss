@@ -1,4 +1,6 @@
 // import custom component styles
+@use "govuk-frontend" as *;
 @use "heading/heading";
 @use "filter/filter";
+@import '@dwp/dwp-frontend/components/language-toggle/language-toggle';
 
