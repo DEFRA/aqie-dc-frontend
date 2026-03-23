@@ -12,7 +12,11 @@ vi.mock('../common/util.js', () => ({
   translate: vi.fn((data = '', language) => data),
   sanitizeText: vi.fn((v) => v),
   textFieldSchema: { validate: vi.fn(() => ({})) },
-  toProperCase: vi.fn((v) => v)
+  toProperCase: vi.fn((v) => v),
+  buildLanguageToggleHref: vi.fn((currentPath, currentLanguage) => {
+    const toggleLanguage = currentLanguage === 'en' ? 'cy' : 'en'
+    return currentPath.replace(`/${currentLanguage}`, `/${toggleLanguage}`)
+  })
 }))
 vi.mock('./search.js', () => ({
   searchFunctionality: vi.fn((_type, records, _query) => records)
@@ -45,7 +49,8 @@ const makeRequest = ({
   search = ''
 } = {}) => ({
   params: { type, language },
-  query: { page, search }
+  query: { page, search },
+  path: `/finder/${type}/${language}`
 })
 
 const makeH = () => {
@@ -277,6 +282,7 @@ describe('finderController', () => {
 
     const request = {
       params: { type: 'appliances', language: 'en' },
+      path: '/finder/appliances/en',
       query: {
         page: '2',
         search: 'pellet stove',
@@ -464,7 +470,11 @@ describe('finderController – filter state integration', () => {
       translate: vi.fn((data = '', language) => data),
       sanitizeText: vi.fn((v) => v),
       textFieldSchema: { validate: vi.fn(() => ({})) },
-      toProperCase: vi.fn((v) => v)
+      toProperCase: vi.fn((v) => v),
+      buildLanguageToggleHref: vi.fn((currentPath, currentLanguage) => {
+        const toggleLanguage = currentLanguage === 'en' ? 'cy' : 'en'
+        return currentPath.replace(`/${currentLanguage}`, `/${toggleLanguage}`)
+      })
     }))
 
     vi.doMock('../common/api/api.js', () => ({
@@ -489,6 +499,7 @@ describe('finderController – filter state integration', () => {
     const h = { view: vi.fn((template, model) => ({ template, model })) }
     const request = {
       params: { type: 'appliances', language: 'en' },
+      path: '/finder/appliances/en',
       query: { page: '1', search: '' }
     }
 
@@ -524,7 +535,14 @@ describe('finderController – search query validation error path', () => {
           validate: vi.fn(() => ({ error: new Error('bad input') }))
         },
         toProperCase: vi.fn((v) => v),
-        translate: vi.fn((data = '', _language) => data)
+        translate: vi.fn((data = '', _language) => data),
+        buildLanguageToggleHref: vi.fn((currentPath, currentLanguage) => {
+          const toggleLanguage = currentLanguage === 'en' ? 'cy' : 'en'
+          return currentPath.replace(
+            `/${currentLanguage}`,
+            `/${toggleLanguage}`
+          )
+        })
       }
     })
 
@@ -560,6 +578,7 @@ describe('finderController – search query validation error path', () => {
 
     const request = {
       params: { type: 'appliances', language: 'en' },
+      path: '/finder/appliances/en',
       query: { page: '1', search: '@@invalid@@' } // triggers validation path
     }
 
