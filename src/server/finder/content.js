@@ -35,7 +35,10 @@ export const finderContent = {
       fuelsAllowed: 'Fuels allowed',
       applianceType: 'Appliance type',
       authorisedIn: 'Certified in',
-      noResults: 'No item found matching your criteria.',
+      noResultsHeading:
+        'No results found. Check your search terms and applied filters.',
+      noResultsDetail:
+        "If an appliance doesn't appear on this list, it is not certified for use in smoke control areas.",
       showing: 'Showing ',
       to: 'to',
       of: 'of',
@@ -72,7 +75,10 @@ export const finderContent = {
       fuelsAllowed: 'Fuels allowed--CY',
       applianceType: 'Appliance type--CY',
       authorisedIn: 'Certified in--CY',
-      noResults: 'No item found matching your criteria.--CY',
+      noResultsHeading:
+        'No results found. Check your search terms and applied filters.--CY',
+      noResultsDetail:
+        "If an appliance doesn't appear on this list, it is not certified for use in smoke control areas.--CY",
       showing: 'Showing--CY',
       to: 'to--CY',
       of: 'of--CY',
@@ -111,7 +117,10 @@ export const finderContent = {
       fuelID: 'Fuels ID',
       authorisedIn: 'Certified in',
       manufacturer: 'Manufacturer',
-      noResults: 'No item found matching your criteria.',
+      noResultsHeading:
+        'No results found. Check your search terms and applied filters.',
+      noResultsDetail:
+        "If a fuel doesn't appear on this list, it is not certified for use in smoke control areas.",
       showing: 'Showing',
       to: 'to',
       of: 'of',
@@ -148,7 +157,10 @@ export const finderContent = {
       fuelID: 'Fuels ID--CY',
       authorisedIn: 'Certified in--CY',
       manufacturer: 'Manufacturer--CY',
-      noResults: 'No item found matching your criteria.--CY',
+      noResultsHeading:
+        'No results found. Check your search terms and applied filters.--CY',
+      noResultsDetail:
+        "If a fuel doesn't appear on this list, it is not certified for use in smoke control areas.--CY",
       showing: 'Showing--CY',
       to: 'to--CY',
       of: 'of--CY',

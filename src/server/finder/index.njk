@@ -182,7 +182,10 @@
         {% endif %}
       {% else %}
         <br>
-        <p class="govuk-body"><strong>{{noResults}}</strong></p>
+        {% if noResultsHeading and noResultsDetail %}
+          <p class="govuk-body">{{ noResultsHeading }}</p>
+          <p class="govuk-body">{{ noResultsDetail }}</p>
+        {% endif %}
       {% endif %}
     </div>
   </div>

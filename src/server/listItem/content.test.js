@@ -72,7 +72,6 @@ describe('listItemContent', async () => {
       expect(content.legalBasisText).toBe(
         'legal basis for certification in each UK country.'
       )
-      expect(content.legalBasisHref).toBe('/legal-basis-for-appliances')
     })
 
     it('should expose conditions for use content', () => {
@@ -212,7 +211,6 @@ describe('listItemContent', async () => {
         'notApplicable',
         'legalBasisPrefix',
         'legalBasisText',
-        'legalBasisHref',
         'conditionsForUseHeading',
         'instructionManualLabel',
         'additionalConditionsLabel',
