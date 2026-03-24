@@ -14,6 +14,10 @@ vi.mock('../common/util.js', () => ({
     }
     // Simple mock translation
     return language === 'cy' ? `${value}--CY` : value
+  }),
+  buildLanguageToggleHref: vi.fn((currentPath, currentLanguage) => {
+    const toggleLanguage = currentLanguage === 'en' ? 'cy' : 'en'
+    return currentPath.replace(`/${currentLanguage}`, `/${toggleLanguage}`)
   })
 }))
 
@@ -187,7 +191,8 @@ const makeRequest = ({
   id = '123',
   language = 'en'
 } = {}) => ({
-  params: { type, id, language }
+  params: { type, id, language },
+  path: `/details/${type}/${id}/${language}`
 })
 
 const makeH = () => {
@@ -646,7 +651,8 @@ describe('listItemController', () => {
         fetchById.mockResolvedValueOnce(makeMockItem())
 
         const request = {
-          params: { type: 'appliances', id: '123' }
+          params: { type: 'appliances', id: '123' },
+          path: '/details/appliances/123/en'
         }
         const h = makeH()
 
@@ -866,6 +872,86 @@ describe('listItemController', () => {
         const result = await listItemController.handler(request, h)
 
         expect(result.model.formattedUkAddress).toBeNull()
+      })
+    })
+
+    describe('language toggle', () => {
+      it('should pass selectedLanguage to view when language is en', async () => {
+        const { fetchById } = await import('../common/api/api.js')
+        fetchById.mockResolvedValueOnce(makeMockItem())
+
+        const request = makeRequest({ language: 'en' })
+        const h = makeH()
+
+        const result = await listItemController.handler(request, h)
+
+        expect(result.model.selectedLanguage).toBe('en')
+      })
+
+      it('should pass selectedLanguage to view when language is cy', async () => {
+        const { fetchById } = await import('../common/api/api.js')
+        fetchById.mockResolvedValueOnce(makeMockItem())
+
+        const request = makeRequest({ language: 'cy' })
+        const h = makeH()
+
+        const result = await listItemController.handler(request, h)
+
+        expect(result.model.selectedLanguage).toBe('cy')
+      })
+
+      it('should pass languageHref to view for English to Welsh toggle', async () => {
+        const { fetchById } = await import('../common/api/api.js')
+        fetchById.mockResolvedValueOnce(makeMockItem())
+
+        const request = makeRequest({ language: 'en' })
+        const h = makeH()
+
+        const result = await listItemController.handler(request, h)
+
+        expect(result.model.languageHref).toBe('/details/appliances/123/cy')
+      })
+
+      it('should pass languageHref to view for Welsh to English toggle', async () => {
+        const { fetchById } = await import('../common/api/api.js')
+        fetchById.mockResolvedValueOnce(makeMockItem())
+
+        const request = makeRequest({ language: 'cy' })
+        const h = makeH()
+
+        const result = await listItemController.handler(request, h)
+
+        expect(result.model.languageHref).toBe('/details/appliances/123/en')
+      })
+
+      it('should pass correct languageHref for fuels type', async () => {
+        const { fetchById } = await import('../common/api/api.js')
+        fetchById.mockResolvedValueOnce(makeMockItem())
+
+        const request = makeRequest({
+          type: 'fuels',
+          id: 'fuel-456',
+          language: 'en'
+        })
+        const h = makeH()
+
+        const result = await listItemController.handler(request, h)
+
+        expect(result.model.languageHref).toBe('/details/fuels/fuel-456/cy')
+      })
+
+      it('should provide languageHref for view to render toggle component', async () => {
+        const { fetchById } = await import('../common/api/api.js')
+        fetchById.mockResolvedValueOnce(makeMockItem())
+
+        const request = makeRequest()
+        const h = makeH()
+
+        const result = await listItemController.handler(request, h)
+
+        expect(result.model).toHaveProperty('languageHref')
+        expect(typeof result.model.languageHref).toBe('string')
+        expect(result.model.languageHref).toMatch(/\/(en|cy)$/)
       })
     })
   })

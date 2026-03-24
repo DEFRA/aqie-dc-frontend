@@ -5,7 +5,8 @@ import {
   sanitizeText,
   translate,
   textFieldSchema,
-  toProperCase
+  toProperCase,
+  buildLanguageToggleHref
 } from '../common/util.js'
 import { searchFunctionality } from './search.js'
 import { applyFinderFilters, buildFinderFilterState } from './filters.js'
@@ -23,20 +24,22 @@ const cleanQuery = (query) => {
   return cleaned
 }
 
-const buildPaginationLinks = (
+const buildLinks = (
   currentPage,
   totalPages,
   currentQuery,
-  searchQuery
+  searchQuery,
+  currentPath,
+  language
 ) => {
   const buildUrl = (page) => {
     const query = cleanQuery({ ...currentQuery, page, search: searchQuery })
     return `?${new URLSearchParams(query).toString()}`
   }
 
-  const links = []
+  const paginationLinks = []
   const add = (page, text = page) => {
-    links.push({
+    paginationLinks.push({
       text,
       href: buildUrl(page),
       isCurrent: page === currentPage
@@ -48,7 +51,7 @@ const buildPaginationLinks = (
 
   // Left ellipsis
   if (currentPage - 1 >= EllipsicalPageLimit) {
-    links.push({ text: '…' }) // No link
+    paginationLinks.push({ text: '…' }) // No link
   }
 
   // Middle range: current-1, current, current+1
@@ -60,7 +63,7 @@ const buildPaginationLinks = (
 
   // Right ellipsis
   if (currentPage + 1 < totalPages - 1) {
-    links.push({ text: '…' })
+    paginationLinks.push({ text: '…' })
   }
 
   // Always show last page
@@ -68,10 +71,14 @@ const buildPaginationLinks = (
     add(totalPages)
   }
 
+  const languageHref =
+    buildLanguageToggleHref(currentPath, language) + buildUrl(currentPage)
+
   return {
-    links,
+    paginationLinks,
     previousPageUrl: currentPage > 1 ? buildUrl(currentPage - 1) : null,
-    nextPageUrl: currentPage < totalPages ? buildUrl(currentPage + 1) : null
+    nextPageUrl: currentPage < totalPages ? buildUrl(currentPage + 1) : null,
+    languageHref
   }
 }
 /**
@@ -126,17 +133,17 @@ export const finderController = {
     )
 
     handleTranslationAndCase(type, pageSpecificRecords, language)
-    const {
-      links: paginationLinks,
-      previousPageUrl,
-      nextPageUrl
-    } = buildPaginationLinks(
-      validPage,
-      totalPages,
-      request.query,
-      sanitizedSearchQuery
-    )
+    const { paginationLinks, previousPageUrl, nextPageUrl, languageHref } =
+      buildLinks(
+        validPage,
+        totalPages,
+        request.query,
+        sanitizedSearchQuery,
+        request.path,
+        language
+      )
     const pageEndRecord = Math.min(validPage * ITEMS_PER_PAGE, totalRecords)
+
     return h.view('finder/index', {
       ...finderContent[type][language],
       type,
@@ -148,12 +155,13 @@ export const finderController = {
       currentPage: validPage,
       totalPages,
       paginationLinks,
-      pageEndRecord,
       previousPageUrl,
       nextPageUrl,
-      ITEMS_PER_PAGE,
+      pageEndRecord,
+      selectedLanguage: language,
+      languageHref,
       //backLinkHref: '#' //TODO: add correct back link once home page finalised
-      // certifiedIn: finderContent.certifiedIn,
+      ITEMS_PER_PAGE,
       selectedFilters: filterState.selectedFilters,
       certifiedInOptions: filterState.certifiedInOptions,
       fuelsAllowedOptions: filterState.fuelsAllowedOptions,
