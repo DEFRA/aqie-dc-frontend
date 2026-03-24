@@ -17,6 +17,7 @@
 {# Import custom components globally #}
 {% from "heading/macro.njk" import appHeading %}
 {% from "filter/macro.njk" import appFilter %}
+{% from "components/language-toggle/macro.njk" import dwpLanguageToggle %}
 
 {% block head %}
   <link href="{{ getAssetPath('stylesheets/application.scss') }}" rel="stylesheet">
@@ -44,11 +45,28 @@
     }) }} #} 
    {# not using breadcrumbs for now, but leaving the code incase we do want to add them in #}
    {% if backLinkHref %}
-    {{ govukBackLink({
-      text: backLinkText if backLinkText else "Back",
-      href: backLinkHref
-    }) }}
+      <div class="govuk-grid-column-one-half">
+        {{ govukBackLink({
+          text: backLinkText if backLinkText else "Back",
+          href: backLinkHref
+        }) }}
+      </div>
+      <div class="govuk-grid-column-one-half govuk-!-text-align-right">
+    {% else %} 
+      <div class="govuk-grid-column-full govuk-!-text-align-right">
     {% endif %}
+       {% if selectedLanguage and languageHref %}
+        {{
+            dwpLanguageToggle({
+                selectedLang: selectedLanguage,
+                href: {
+                    en: languageHref,
+                    cy: languageHref
+                }
+            })
+         }}
+       {% endif %}
+      </div>
 {% endblock %}
 
 {% block content %}

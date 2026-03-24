@@ -111,3 +111,9 @@ export const smartLowercase = (word) => {
   }
   return word.toLowerCase()
 }
+
+// Build language toggle href by swapping the language segment in the current path
+export const buildLanguageToggleHref = (currentPath, currentLanguage) => {
+  const toggleLanguage = currentLanguage === 'en' ? 'cy' : 'en'
+  return currentPath.replace(`/${currentLanguage}`, `/${toggleLanguage}`)
+}

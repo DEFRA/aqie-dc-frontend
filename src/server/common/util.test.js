@@ -6,7 +6,8 @@ import {
   toProperCase,
   sanitizeText,
   smartLowercase,
-  textFieldSchema
+  textFieldSchema,
+  buildLanguageToggleHref
 } from './util.js'
 import sanitizeHtml from 'sanitize-html'
 
@@ -433,5 +434,74 @@ describe('textFieldSchema', () => {
   it('rejects percentage signs', () => {
     const result = textFieldSchema.validate('100%')
     expect(result.error).toBeDefined()
+  })
+})
+
+// ------------------------
+// buildLanguageToggleHref
+// ------------------------
+describe('buildLanguageToggleHref', () => {
+  it('toggles from English to Welsh in simple path', () => {
+    const currentPath = '/finder/appliances/en'
+    const result = buildLanguageToggleHref(currentPath, 'en')
+    expect(result).toBe('/finder/appliances/cy')
+  })
+
+  it('toggles from Welsh to English in simple path', () => {
+    const currentPath = '/finder/appliances/cy'
+    const result = buildLanguageToggleHref(currentPath, 'cy')
+    expect(result).toBe('/finder/appliances/en')
+  })
+
+  it('toggles language in item detail path', () => {
+    const currentPath = '/finder/appliances/ABC123/en'
+    const result = buildLanguageToggleHref(currentPath, 'en')
+    expect(result).toBe('/finder/appliances/ABC123/cy')
+  })
+
+  it('toggles language in list item path', () => {
+    const currentPath = '/finder/fuels/fuel-345/cy'
+    const result = buildLanguageToggleHref(currentPath, 'cy')
+    expect(result).toBe('/finder/fuels/fuel-345/en')
+  })
+
+  it('toggles language with query parameters preserved', () => {
+    const currentPath = '/finder/appliances/en?page=2&search=boiler'
+    const result = buildLanguageToggleHref(currentPath, 'en')
+    expect(result).toBe('/finder/appliances/cy?page=2&search=boiler')
+  })
+
+  it('toggles language in legal basis paths', () => {
+    const currentPath = '/legal-basis-for-appliances/en'
+    const result = buildLanguageToggleHref(currentPath, 'en')
+    expect(result).toBe('/legal-basis-for-appliances/cy')
+  })
+
+  it('handles root path toggle', () => {
+    const currentPath = '/en'
+    const result = buildLanguageToggleHref(currentPath, 'en')
+    expect(result).toBe('/cy')
+  })
+
+  it('preserves path structure when toggling', () => {
+    const currentPath = '/finder/appliances/item-001/en/details'
+    const result = buildLanguageToggleHref(currentPath, 'en')
+    expect(result).toBe('/finder/appliances/item-001/cy/details')
+  })
+
+  it('correctly uses English language as toggle source', () => {
+    const currentPath = '/finder/appliances/en'
+    const currentLanguage = 'en'
+    const result = buildLanguageToggleHref(currentPath, currentLanguage)
+    expect(result).toContain('/cy')
+    expect(result).not.toContain('/en')
+  })
+
+  it('correctly uses Welsh language as toggle source', () => {
+    const currentPath = '/finder/appliances/cy'
+    const currentLanguage = 'cy'
+    const result = buildLanguageToggleHref(currentPath, currentLanguage)
+    expect(result).toContain('/en')
+    expect(result).not.toContain('/cy')
   })
 })

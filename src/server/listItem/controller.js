@@ -1,6 +1,10 @@
 import { listItemContent } from './content.js'
 import { fetchById } from '../common/api/api.js'
-import { singularize, translate } from '../common/util.js'
+import {
+  singularize,
+  translate,
+  buildLanguageToggleHref
+} from '../common/util.js'
 import { lookupData } from '../common/content.js'
 import { statusCodes } from '../common/constants/status-codes.js'
 
@@ -191,7 +195,9 @@ export const listItemController = {
       isUkBased,
       formattedUkAddress,
       backLinkText: content.backLinkText[`${type}`],
-      backLinkHref: `/finder/${type}/${language}`
+      backLinkHref: `/finder/${type}/${language}`,
+      selectedLanguage: language,
+      languageHref: buildLanguageToggleHref(request.path, language)
     })
   }
 }

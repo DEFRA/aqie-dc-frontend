@@ -1,6 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { legalBasisController } from './controller.js'
 
+vi.mock('../common/util.js', () => ({
+  buildLanguageToggleHref: vi.fn((currentPath, currentLanguage) => {
+    const toggleLanguage = currentLanguage === 'en' ? 'cy' : 'en'
+    return currentPath.replace(`/${currentLanguage}`, `/${toggleLanguage}`)
+  })
+}))
+
 describe('legalBasisController', () => {
   let mockH
 
@@ -104,6 +111,119 @@ describe('legalBasisController', () => {
 
       const viewCall = mockH.view.mock.calls[0][1]
       expect(viewCall.backLinkHref).toBe('/X')
+    })
+  })
+
+  describe('handler – language toggle', () => {
+    it('should pass selectedLanguage to view when language is en', () => {
+      const request = {
+        params: { type: 'appliances', language: 'en' },
+        path: '/legal-basis-for-appliances/en'
+      }
+
+      legalBasisController.handler(request, mockH)
+
+      const viewCall = mockH.view.mock.calls[0][1]
+      expect(viewCall.selectedLanguage).toBe('en')
+    })
+
+    it('should pass selectedLanguage to view when language is cy', () => {
+      const request = {
+        params: { type: 'appliances', language: 'cy' },
+        path: '/legal-basis-for-appliances/cy'
+      }
+
+      legalBasisController.handler(request, mockH)
+
+      const viewCall = mockH.view.mock.calls[0][1]
+      expect(viewCall.selectedLanguage).toBe('cy')
+    })
+
+    it('should default selectedLanguage to en when not provided', () => {
+      const request = {
+        params: { type: 'appliances' },
+        path: '/legal-basis-for-appliances/en'
+      }
+
+      legalBasisController.handler(request, mockH)
+
+      const viewCall = mockH.view.mock.calls[0][1]
+      expect(viewCall.selectedLanguage).toBe('en')
+    })
+
+    it('should pass languageHref to view for English to Welsh toggle on appliances', () => {
+      const request = {
+        params: { type: 'appliances', language: 'en' },
+        path: '/legal-basis-for-appliances/en'
+      }
+
+      legalBasisController.handler(request, mockH)
+
+      const viewCall = mockH.view.mock.calls[0][1]
+      expect(viewCall.languageHref).toBe('/legal-basis-for-appliances/cy')
+    })
+
+    it('should pass languageHref to view for Welsh to English toggle on appliances', () => {
+      const request = {
+        params: { type: 'appliances', language: 'cy' },
+        path: '/legal-basis-for-appliances/cy'
+      }
+
+      legalBasisController.handler(request, mockH)
+
+      const viewCall = mockH.view.mock.calls[0][1]
+      expect(viewCall.languageHref).toBe('/legal-basis-for-appliances/en')
+    })
+
+    it('should pass languageHref to view for English to Welsh toggle on fuels', () => {
+      const request = {
+        params: { type: 'fuels', language: 'en' },
+        path: '/legal-basis-for-fuels/en'
+      }
+
+      legalBasisController.handler(request, mockH)
+
+      const viewCall = mockH.view.mock.calls[0][1]
+      expect(viewCall.languageHref).toBe('/legal-basis-for-fuels/cy')
+    })
+
+    it('should pass languageHref to view for Welsh to English toggle on fuels', () => {
+      const request = {
+        params: { type: 'fuels', language: 'cy' },
+        path: '/legal-basis-for-fuels/cy'
+      }
+
+      legalBasisController.handler(request, mockH)
+
+      const viewCall = mockH.view.mock.calls[0][1]
+      expect(viewCall.languageHref).toBe('/legal-basis-for-fuels/en')
+    })
+
+    it('should provide languageHref for view to render toggle component', () => {
+      const request = {
+        params: { type: 'appliances', language: 'en' },
+        path: '/legal-basis-for-appliances/en'
+      }
+
+      legalBasisController.handler(request, mockH)
+
+      const viewCall = mockH.view.mock.calls[0][1]
+      expect(viewCall).toHaveProperty('languageHref')
+      expect(typeof viewCall.languageHref).toBe('string')
+      expect(viewCall.languageHref).toMatch(/\/(en|cy)$/)
+    })
+
+    it('should pass both selectedLanguage and languageHref in same view call', () => {
+      const request = {
+        params: { type: 'appliances', language: 'cy' },
+        path: '/legal-basis-for-appliances/cy'
+      }
+
+      legalBasisController.handler(request, mockH)
+
+      const viewCall = mockH.view.mock.calls[0][1]
+      expect(viewCall.selectedLanguage).toBe('cy')
+      expect(viewCall.languageHref).toBe('/legal-basis-for-appliances/en')
     })
   })
 })

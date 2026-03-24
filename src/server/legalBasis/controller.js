@@ -1,5 +1,6 @@
 import { legalBasisContent } from './content.js'
 import { lookupData } from '../common/content.js'
+import { buildLanguageToggleHref } from '../common/util.js'
 
 /**
  * Legal basis page controller.
@@ -10,6 +11,7 @@ export const legalBasisController = {
     const { type, language = 'en' } = request.params // 'appliances' or 'fuels' and optional language parameter
     const content = legalBasisContent[language]
     const { pageTitle, heading, plural } = content.types[type]
+    const requestPath = `/legal-basis-for-${type}/${language}`
 
     // Build countries object for template
     const countries = {
@@ -53,7 +55,9 @@ export const legalBasisController = {
       departmentLabel: content.departmentLabel,
       requirementsText: content.requirementsText,
       requirements: content.requirements,
-      countries
+      countries,
+      selectedLanguage: language,
+      languageHref: buildLanguageToggleHref(requestPath, language)
     })
   }
 }
