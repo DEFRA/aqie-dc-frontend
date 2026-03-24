@@ -35,7 +35,12 @@ describe('finderContent', async () => {
     // Navigation link between finder types is static
     const last = c.descriptions.at(-1)
     expect(last.linkHref).toBe('/finder/fuels/en')
-    expect(c.noResults).toBe('No item found matching your criteria.')
+    expect(c.noResultsHeading).toBe(
+      'No results found. Check your search terms and applied filters.'
+    )
+    expect(c.noResultsDetail).toBe(
+      "If an appliance doesn't appear on this list, it is not certified for use in smoke control areas."
+    )
   })
 
   it('exposes fuels/en content with resolved config links', () => {
