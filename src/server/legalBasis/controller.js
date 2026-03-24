@@ -10,7 +10,7 @@ export const legalBasisController = {
   handler(request, h) {
     const { type, language = 'en' } = request.params // 'appliances' or 'fuels' and optional language parameter
     const content = legalBasisContent[language]
-    const { pageTitle, heading, plural } = content.types[type]
+    const { pageTitle, heading } = content.types[type]
     const requestPath = `/legal-basis-for-${type}/${language}`
 
     // Build countries object for template
@@ -46,9 +46,9 @@ export const legalBasisController = {
     return h.view('legalBasis/index', {
       pageTitle,
       heading,
-      itemType: plural,
-      listHref: `/finder/${plural}/${language}`,
-      backLinkHref: '/X', //TODO: add correct back link once other page finalised
+      itemType: type,
+      listHref: `/finder/${type}/${language}`,
+      backLinkHref: `/finder/${type}/${language}`,
       publishedDate: content.publishedDate, //NEEDTO: make dynamic
       publishedLabel: content.publishedLabel,
       departmentInfo: content.departmentInfo,

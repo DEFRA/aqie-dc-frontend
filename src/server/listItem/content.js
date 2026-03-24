@@ -33,7 +33,6 @@ export const listItemContent = {
 
     legalBasisPrefix: 'See the ',
     legalBasisText: 'legal basis for certification in each UK country.',
-    legalBasisHref: '/legal-basis-for-appliances',
 
     conditionsForUseHeading: 'Conditions for use',
     instructionManualLabel: 'Instruction manual details',
@@ -93,7 +92,6 @@ export const listItemContent = {
 
     legalBasisPrefix: 'See the--CY ',
     legalBasisText: 'legal basis for certification in each UK country.--CY',
-    legalBasisHref: '/legal-basis-for-appliances',
 
     conditionsForUseHeading: 'Conditions for use--CY',
     instructionManualLabel: 'Instruction manual details--CY',

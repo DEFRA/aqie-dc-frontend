@@ -197,7 +197,8 @@ export const listItemController = {
       backLinkText: content.backLinkText[`${type}`],
       backLinkHref: `/finder/${type}/${language}`,
       selectedLanguage: language,
-      languageHref: buildLanguageToggleHref(request.path, language)
+      languageHref: buildLanguageToggleHref(request.path, language),
+      legalBasisHref: `/legal-basis-for-${type}/${language}`
     })
   }
 }
