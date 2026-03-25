@@ -102,15 +102,53 @@ describe('legalBasisController', () => {
       expect(viewCall.listHref).toBe('/finder/fuels/en')
     })
 
-    it('should set backLinkHref to the finder list page for appliances', () => {
+    it('should prioritize itemId in back link when provided', () => {
       const request = {
-        params: { type: 'appliances' }
+        params: { type: 'appliances', language: 'en' },
+        query: { itemId: 'abc-123' },
+        headers: { referer: 'http://localhost/some-other-page' }
+      }
+
+      legalBasisController.handler(request, mockH)
+
+      const viewCall = mockH.view.mock.calls[0][1]
+      expect(viewCall.backLinkHref).toBe('/details/appliances/abc-123/en')
+    })
+
+    it('should use referer when itemId is not provided', () => {
+      const request = {
+        params: { type: 'appliances', language: 'en' },
+        headers: { referer: 'http://localhost/details/appliances/xyz-999/en' }
+      }
+
+      legalBasisController.handler(request, mockH)
+
+      const viewCall = mockH.view.mock.calls[0][1]
+      expect(viewCall.backLinkHref).toBe('/details/appliances/xyz-999/en')
+    })
+
+    it('should fall back to finder list when no itemId or referer', () => {
+      const request = {
+        params: { type: 'appliances' },
+        headers: {}
       }
 
       legalBasisController.handler(request, mockH)
 
       const viewCall = mockH.view.mock.calls[0][1]
       expect(viewCall.backLinkHref).toBe('/finder/appliances/en')
+    })
+
+    it('should use itemId with correct language parameter', () => {
+      const request = {
+        params: { type: 'fuels', language: 'cy' },
+        query: { itemId: 'fuel-456' }
+      }
+
+      legalBasisController.handler(request, mockH)
+
+      const viewCall = mockH.view.mock.calls[0][1]
+      expect(viewCall.backLinkHref).toBe('/details/fuels/fuel-456/cy')
     })
   })
 

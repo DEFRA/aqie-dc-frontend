@@ -9,9 +9,21 @@ import { buildLanguageToggleHref } from '../common/util.js'
 export const legalBasisController = {
   handler(request, h) {
     const { type, language = 'en' } = request.params // 'appliances' or 'fuels' and optional language parameter
+    const itemId = request.query?.itemId
     const content = legalBasisContent[language]
     const { pageTitle, heading } = content.types[type]
     const requestPath = `/legal-basis-for-${type}/${language}`
+
+    // Determine back link: itemId > referer > finder list
+    let backLinkHref
+    if (itemId) {
+      backLinkHref = `/details/${type}/${itemId}/${language}`
+    } else {
+      const referer = request.headers?.referer
+      backLinkHref = referer
+        ? new URL(referer).pathname
+        : `/finder/${type}/${language}`
+    }
 
     // Build countries object for template
     const countries = {
@@ -48,7 +60,7 @@ export const legalBasisController = {
       heading,
       itemType: type,
       listHref: `/finder/${type}/${language}`,
-      backLinkHref: `/finder/${type}/${language}`,
+      backLinkHref,
       publishedDate: content.publishedDate, //NEEDTO: make dynamic
       publishedLabel: content.publishedLabel,
       departmentInfo: content.departmentInfo,
