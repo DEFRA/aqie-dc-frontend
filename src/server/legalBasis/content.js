@@ -29,6 +29,8 @@ export const legalBasisContent = {
       url: 'https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs'
     },
 
+    backLinkText: 'Back',
+
     // Requirements for authorisation
     requirements: [
       {
@@ -115,6 +117,7 @@ export const legalBasisContent = {
       name: 'Department for Environment, Food and Rural Affairs--CY',
       url: 'https://www.gov.uk/government/organisations/department-for-environment-food-rural-affairs'
     },
+    backLinkText: 'Back--CY',
 
     // Requirements for authorisation
     requirements: [
