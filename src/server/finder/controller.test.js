@@ -9,7 +9,7 @@ vi.mock('../common/api/api.js', () => ({
 }))
 vi.mock('../common/util.js', () => ({
   singularize: vi.fn((x) => (x.endsWith('s') ? x.slice(0, -1) : x)),
-  translate: vi.fn((data = '', language) => data),
+  translate: vi.fn((data, language) => data),
   sanitizeText: vi.fn((v) => v),
   textFieldSchema: { validate: vi.fn(() => ({})) },
   toProperCase: vi.fn((v) => v),
@@ -33,12 +33,12 @@ vi.mock('./filters.js', () => ({
     selectedCertifiedIn: 'GB',
     selectedFuelsAllowed: ['Wood'],
     selectedApplianceType: 'Boiler',
-    selectedManufacturer: undefined,
+    selectedManufacturer: null,
     selectedFilters: { a: 1 },
     certifiedInOptions: ['GB', 'Wales'],
     fuelsAllowedOptions: ['Wood', 'Peat'],
     applianceTypeOptions: ['Boiler', 'Oven'],
-    manufacturerOptions: undefined
+    manufacturerOptions: null
   }))
 }))
 
@@ -525,7 +525,7 @@ describe('finderController – search query validation error path', () => {
     vi.resetModules()
   })
 
-  it('returns error view when textFieldSchema.validate reports an error', async () => {
+  it('returns finder view with searchError when textFieldSchema.validate reports an error', async () => {
     // Mock the util module to export textFieldSchema as an OBJECT returning an error
     vi.doMock('../common/util.js', () => {
       return {
@@ -557,10 +557,10 @@ describe('finderController – search query validation error path', () => {
     vi.doMock('../finder/filters.js', () => ({
       applyFinderFilters: vi.fn((records) => records),
       buildFinderFilterState: vi.fn(() => ({
-        selectedCertifiedIn: undefined,
-        selectedFuelsAllowed: undefined,
-        selectedApplianceType: undefined,
-        selectedManufacturer: undefined,
+        selectedCertifiedIn: null,
+        selectedFuelsAllowed: null,
+        selectedApplianceType: null,
+        selectedManufacturer: null,
         selectedFilters: {},
         certifiedInOptions: [],
         fuelsAllowedOptions: [],
@@ -568,9 +568,6 @@ describe('finderController – search query validation error path', () => {
         manufacturerOptions: []
       }))
     }))
-
-    // Spy on console.error
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     // Import the controller AFTER setting mocks
     const { finderController } = await import('../finder/controller.js')
@@ -586,18 +583,12 @@ describe('finderController – search query validation error path', () => {
 
     const resp = await finderController.handler(request, h)
 
-    expect(resp.template).toBe('error/index')
-    expect(resp.model?.message).toBe('Invalid search query')
-    expect(resp.model?.details).toBeInstanceOf(Error)
-
-    expect(errorSpy).toHaveBeenCalledTimes(1)
-    const [msg, err] = errorSpy.mock.calls[0]
-    expect(msg).toBe('Search query validation error:')
-    expect(err).toBe(resp.model.details)
+    expect(resp.template).toBe('finder/index')
+    expect(resp.model?.searchError).toBe(true)
+    expect(resp.model?.sanitizedSearchQuery).toBe('')
+    expect(resp.model?.totalRecords).toBe(0)
 
     // Early return happened
     expect(fetchAll).not.toHaveBeenCalled()
-
-    errorSpy.mockRestore()
   })
 })

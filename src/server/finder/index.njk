@@ -182,7 +182,9 @@
         {% endif %}
       {% else %}
         <br>
-        {% if noResultsHeading and noResultsDetail %}
+        {% if searchError %}
+          <p class="govuk-body govuk-error-message">{{ searchErrorMessage }}</p>
+        {% elif noResultsHeading and noResultsDetail %}
           <p class="govuk-body">{{ noResultsHeading }}</p>
           <p class="govuk-body">{{ noResultsDetail }}</p>
         {% endif %}

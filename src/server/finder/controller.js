@@ -89,21 +89,23 @@ export const finderController = {
   async handler(request, h) {
     const { type, language = 'en' } = request.params
     const searchQuery = request.query.search || ''
+    let searchError = false
+    let sanitizedSearchQuery = ''
 
-    // Validate search query against schema to prevent malicious input (e.g. excessively long input, or input with disallowed characters)
     if (searchQuery !== '') {
       const { error } = textFieldSchema.validate(searchQuery)
       if (error) {
-        return handleValidationError(error, h)
+        searchError = true
+      } else {
+        // Sanitize text from XSS
+        const clean = sanitizeText(searchQuery)
+        // Remove any characters that are not letters, numbers, spaces, commas, dots or hyphens
+        sanitizedSearchQuery = clean.replaceAll(/[^a-zA-Z0-9\s.,-]/g, '')
       }
     }
-    // Sanitize text from XSS
-    const clean = sanitizeText(searchQuery)
-    // Remove any characters that are not letters, numbers, spaces, commas, dots or hyphens
-    const sanitizedSearchQuery = clean.replaceAll(/[^a-zA-Z0-9\s.,-]/g, '')
 
     const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
-    const totalResponse = await fetchAll(singularize(type))
+    const totalResponse = searchError ? [] : await fetchAll(singularize(type))
     const searchResponse = searchFunctionality(
       type,
       totalResponse,
@@ -148,6 +150,7 @@ export const finderController = {
       ...finderContent[type][language],
       type,
       language,
+      searchError,
       search: finderContent.search, //need to update while handling search options
       sanitizedSearchQuery,
       pageSpecificRecords,
@@ -202,14 +205,4 @@ const handleTranslationAndCase = (type, pageSpecificRecords, language) => {
       item.authorisedIn = translate('countries', item.authorisedIn, language)
     })
   }
-}
-
-const handleValidationError = (error, h) => {
-  console.error('Search query validation error:', error)
-  // update the logic here when we have a design for how to handle validation errors on the front end - e.g. do we want to show an error message on the page, or just ignore the search query and show all results? For now, we will just ignore the search query and show all results if there is a validation error
-  //TODO - if we want to show an error message on the page, we will need to update the view to display the error message, and pass the error message in the context when rendering the view here
-  return h.view('error/index', {
-    message: 'Invalid search query',
-    details: error
-  })
 }

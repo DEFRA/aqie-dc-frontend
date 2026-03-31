@@ -35,6 +35,8 @@ export const finderContent = {
       fuelsAllowed: 'Fuels allowed',
       applianceType: 'Appliance type',
       authorisedIn: 'Certified in',
+      searchErrorMessage:
+        'TODO: Enter only letters, numbers, spaces, commas, full stops and hyphens. Special characters and scripts are not allowed.',
       noResultsHeading:
         'No results found. Check your search terms and applied filters.',
       noResultsDetail:
@@ -75,6 +77,8 @@ export const finderContent = {
       fuelsAllowed: 'Fuels allowed--CY',
       applianceType: 'Appliance type--CY',
       authorisedIn: 'Certified in--CY',
+      searchErrorMessage:
+        'Enter only letters, numbers, spaces, commas, full stops and hyphens. Special characters and scripts are not allowed.--CY',
       noResultsHeading:
         'No results found. Check your search terms and applied filters.--CY',
       noResultsDetail:
@@ -117,6 +121,8 @@ export const finderContent = {
       fuelID: 'Fuels ID',
       authorisedIn: 'Certified in',
       manufacturer: 'Manufacturer',
+      searchErrorMessage:
+        'Enter only letters, numbers, spaces, commas, full stops and hyphens. Special characters and scripts are not allowed.',
       noResultsHeading:
         'No results found. Check your search terms and applied filters.',
       noResultsDetail:
@@ -157,6 +163,8 @@ export const finderContent = {
       fuelID: 'Fuels ID--CY',
       authorisedIn: 'Certified in--CY',
       manufacturer: 'Manufacturer--CY',
+      searchErrorMessage:
+        'Enter only letters, numbers, spaces, commas, full stops and hyphens. Special characters and scripts are not allowed.--CY',
       noResultsHeading:
         'No results found. Check your search terms and applied filters.--CY',
       noResultsDetail:
