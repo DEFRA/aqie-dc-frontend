@@ -22,7 +22,7 @@ export const searchFunctionality = (
             item.name.toLowerCase().includes(name)
           ) ||
           lowerSearchQuery.some((manufacturer) =>
-            item.manufacturer.toLowerCase().includes(manufacturer)
+            item.companyName.toLowerCase().includes(manufacturer)
           ) ||
           lowerSearchQuery.some((modelNumber) =>
             item.modelNumber.toString().toLowerCase().includes(modelNumber)
@@ -40,7 +40,7 @@ export const searchFunctionality = (
             item.name.toLowerCase().includes(name)
           ) ||
           lowerSearchQuery.some((manufacturer) =>
-            item.manufacturer.toLowerCase().includes(manufacturer)
+            item.companyName.toLowerCase().includes(manufacturer)
           ) ||
           lowerSearchQuery.some((id) =>
             item.id.toString().toLowerCase().includes(id)

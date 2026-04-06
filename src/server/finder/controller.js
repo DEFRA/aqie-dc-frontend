@@ -5,7 +5,6 @@ import {
   sanitizeText,
   translate,
   textFieldSchema,
-  toProperCase,
   buildLanguageToggleHref
 } from '../common/util.js'
 import { searchFunctionality } from './search.js'
@@ -195,13 +194,11 @@ const handleTranslationAndCase = (type, pageSpecificRecords, language) => {
   if (type === 'appliances') {
     pageSpecificRecords.forEach((item) => {
       item.fuels = translate('fuels', item.fuels, language)
-      item.manufacturer = toProperCase(item.manufacturer)
       item.type = translate('applianceTypes', item.type, language)
       item.authorisedIn = translate('countries', item.authorisedIn, language)
     })
   } else {
     pageSpecificRecords.forEach((item) => {
-      item.manufacturer = toProperCase(item.manufacturer)
       item.authorisedIn = translate('countries', item.authorisedIn, language)
     })
   }

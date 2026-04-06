@@ -12,7 +12,7 @@ const getFilterOptions = (
   if (category === 'manufacturers') {
     const manufacturerSet = []
     for (const item of totalResponse || []) {
-      const trimmedVal = item.manufacturer?.trim()
+      const trimmedVal = item.companyName?.trim()
       if (trimmedVal && !manufacturerSet.includes(trimmedVal)) {
         manufacturerSet.push(trimmedVal)
       }
@@ -265,18 +265,18 @@ export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
 
   if (selectedManufacturer.length > 0) {
     filteredResponse = filteredResponse.filter((item) => {
-      if (Array.isArray(item.manufacturer)) {
-        throw new TypeError('manufacturer must be a string')
+      if (Array.isArray(item.companyName)) {
+        throw new TypeError('companyName must be a string')
       }
-      if (!item.manufacturer) {
+      if (!item.companyName) {
         return false
       }
-      if (Array.isArray(item.manufacturer)) {
+      if (Array.isArray(item.companyName)) {
         return selectedManufacturer.some((value) =>
-          item.manufacturer.includes((m) => m === value)
+          item.companyName.includes((company) => company === value)
         )
       }
-      return selectedManufacturer.includes(String(item.manufacturer))
+      return selectedManufacturer.includes(String(item.companyName))
     })
   }
 

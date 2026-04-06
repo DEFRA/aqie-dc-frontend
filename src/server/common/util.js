@@ -65,41 +65,6 @@ export const textFieldSchema = Joi.string()
       'Enter only letters, numbers, spaces, commas, dots and hyphens.'
   })
 
-export const toProperCase = (value) => {
-  const formatString = (str) => {
-    if (typeof str !== 'string') {
-      return str
-    }
-    if (str.length === 0) {
-      return ''
-    }
-    // Assumption: input is already normalized in api.js, e.g., 'ALLCAPS company', not 'ALLCAPS Company'.
-    // Only the first word may need capitalization, all-caps words are preserved.
-    const s = str.replaceAll(/\s+/g, ' ').trim()
-    const words = s.split(' ')
-    const result = words.map((w, i) => {
-      if (/^[A-Z]+$/.test(w)) {
-        // All caps word, preserve as is
-        return w
-      }
-      if (i === 0) {
-        // Capitalize first word if not all-caps
-        return w.length > 0 ? w[0].toUpperCase() + w.slice(1) : w
-      }
-      // All other non-all-caps words, force lowercase
-      return w.toLowerCase()
-    })
-    return result.join(' ')
-  }
-  if (typeof value === 'string') {
-    return formatString(value)
-  }
-  if (Array.isArray(value)) {
-    return value.map(formatString)
-  }
-  return value
-}
-
 // Converts a word to lowercase unless it is all caps (E.g. manufacturer's name might be in all caps )
 export const smartLowercase = (word) => {
   if (typeof word !== 'string') {

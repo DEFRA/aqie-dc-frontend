@@ -157,6 +157,7 @@ export const listItemController = {
     )
 
     const {
+      companyName,
       companyAddress,
       isUkBased,
       companyAddressLine1,
@@ -188,7 +189,7 @@ export const listItemController = {
         ? translate('dates', lastUpdatedDate, language)
         : translate('dates', publishedDate, language),
       ...pageSpecificRecord[type],
-      manufacturer: item.manufacturerName,
+      companyName,
       certification,
 
       companyAddress,

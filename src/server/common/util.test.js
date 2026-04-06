@@ -3,7 +3,6 @@ import { describe, it, test, expect, vi } from 'vitest'
 import {
   singularize,
   translate,
-  toProperCase,
   sanitizeText,
   smartLowercase,
   textFieldSchema,
@@ -177,32 +176,6 @@ describe('translate (countries)', () => {
   })
 })
 
-// ------------------------
-// toProperCase
-// ------------------------
-describe('toProperCase', () => {
-  it('skips all-caps words, capitalizes first non-all-caps word, keeps other non-all-caps words lowercase', () => {
-    expect(toProperCase('hello world')).toBe('Hello world')
-    expect(toProperCase('a')).toBe('A')
-    expect(toProperCase('')).toBe('') // empty string remains empty
-    expect(toProperCase('BMW')).toBe('BMW')
-    expect(toProperCase('NASA rocket')).toBe('NASA rocket')
-    expect(toProperCase('HELLO WORLD')).toBe('HELLO WORLD')
-    expect(toProperCase('BMW NASA car ROCKET')).toBe('BMW NASA car ROCKET')
-    expect(toProperCase('BMW NASA')).toBe('BMW NASA')
-    expect(toProperCase('bmw car NASA rocket')).toBe('Bmw car NASA rocket')
-  })
-  // No test for mixed or camel case, as function will never receive such input
-
-  it('leaves non-string, non-array values unchanged', () => {
-    const obj = { x: 'y' }
-    const num = 42
-    const bool = false
-    expect(toProperCase(obj)).toBe(obj)
-    expect(toProperCase(num)).toBe(num)
-    expect(toProperCase(bool)).toBe(bool)
-  })
-})
 describe('sanitizeText', () => {
   it('removes all HTML tags', () => {
     sanitizeHtml.mockReturnValue('Hello world')
@@ -345,33 +318,6 @@ describe('translate edge cases', () => {
   })
 })
 
-// ------------------------
-// toProperCase with arrays
-// ------------------------
-describe('toProperCase with arrays', () => {
-  it('applies proper case to each element in array', () => {
-    const input = ['hello world', 'BMW rocket', 'test space']
-    const expected = ['Hello world', 'BMW rocket', 'Test space']
-    expect(toProperCase(input)).toEqual(expected)
-  })
-
-  it('returns empty array unchanged', () => {
-    expect(toProperCase([])).toEqual([])
-  })
-
-  it('handles array with empty strings', () => {
-    const input = ['', 'hello', '']
-    const expected = ['', 'Hello', '']
-    expect(toProperCase(input)).toEqual(expected)
-  })
-
-  it('applies proper case transformation to array elements', () => {
-    const input = ['ALLCAPS text', 'lower case', 'Mixed Case']
-    const result = toProperCase(input)
-    expect(Array.isArray(result)).toBe(true)
-    expect(result.length).toBe(3)
-  })
-})
 
 // ------------------------
 // textFieldSchema

@@ -17,10 +17,10 @@ beforeEach(async () => {
 // SECTION 1 — MANUFACTURER FILTER TESTS
 // -----------------------------------------------------
 describe('finder filters – manufacturer behaviour', () => {
-  it('throws if item.manufacturer is an array', () => {
+  it('throws if item.companyName is an array', () => {
     const data = [
-      { id: 1, manufacturer: ['acme'] },
-      { id: 2, manufacturer: 'testco' }
+      { id: 1, companyName: ['acme'] },
+      { id: 2, companyName: 'testco' }
     ]
 
     expect(() =>
@@ -35,10 +35,10 @@ describe('finder filters – manufacturer behaviour', () => {
 
   it('excludes items with null/undefined/empty-string manufacturer', () => {
     const data = [
-      { id: 1, manufacturer: null },
-      { id: 2, manufacturer: undefined },
-      { id: 3, manufacturer: '' },
-      { id: 4, manufacturer: 'acme' }
+      { id: 1, companyName: null },
+      { id: 2, companyName: undefined },
+      { id: 3, companyName: '' },
+      { id: 4, companyName: 'acme' }
     ]
 
     const filtered = applyFinderFilters(data, {
@@ -53,8 +53,8 @@ describe('finder filters – manufacturer behaviour', () => {
 
   it('returns no items when manufacturer does not match', () => {
     const data = [
-      { id: 1, manufacturer: 'acme' },
-      { id: 2, manufacturer: 'testco' }
+      { id: 1, companyName: 'acme' },
+      { id: 2, companyName: 'testco' }
     ]
 
     const result = applyFinderFilters(data, {
