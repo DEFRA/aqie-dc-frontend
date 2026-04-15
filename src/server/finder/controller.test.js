@@ -94,7 +94,7 @@ describe('finderController', () => {
     expect(pageEndRecord).toBe(chunk)
 
     const texts = paginationLinks.map((l) => l.text)
-    expect(texts).toEqual([1, 2]) // 50 records, 25 per page => 2 pages, no ellipses
+    expect(texts).toEqual([1, 2, '…', 5]) // 50 records, 10 per page => 5 pages
   })
 
   it('shows middle page with ellipses on both sides when appropriate', async () => {
@@ -112,7 +112,7 @@ describe('finderController', () => {
     expect(totalPages).toBe(Math.ceil(520 / chunk))
 
     const texts = paginationLinks.map((l) => l.text)
-    expect(texts).toEqual([1, '…', 7, 8, 9, '…', 21])
+    expect(texts).toEqual([1, '…', 7, 8, 9, '…', 52])
 
     const current = paginationLinks.find((l) => l.text === 8)
     expect(current?.isCurrent).toBe(true)
@@ -192,7 +192,7 @@ describe('finderController', () => {
     const resp = await finderController.handler(request, h)
     const { paginationLinks } = resp.model
 
-    expect(paginationLinks.map((l) => l.text)).toEqual([1, '…', 19, 20, 21])
+    expect(paginationLinks.map((l) => l.text)).toEqual([1, '…', 19, 20, 21, '…', 52])
   })
 
   it('caps invalid page numbers to the nearest valid page (too large)', async () => {
@@ -269,7 +269,7 @@ describe('finderController', () => {
 
     // Test page 2 of 2 – nextPageUrl should be null
     fetchAll.mockResolvedValueOnce([...records])
-    request = makeRequest({ page: '2' })
+    request = makeRequest({ page: '5' })
     h = makeH()
     resp = await finderController.handler(request, h)
     expect(resp.model.nextPageUrl).toBe(null)
@@ -418,7 +418,7 @@ describe('finderController', () => {
     const { fetchAll } = await import('../common/api/api.js')
     fetchAll.mockResolvedValueOnce(records)
 
-    const request = makeRequest({ page: '3' }) // 25 per page => page 3 has 2 items
+    const request = makeRequest({ page: '6' }) // 25 per page => page 3 has 2 items
     const h = makeH()
 
     const resp = await finderController.handler(request, h)
@@ -570,7 +570,7 @@ describe('finderController – search query validation error path', () => {
     }))
 
     // Spy on console.error
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
 
     // Import the controller AFTER setting mocks
     const { finderController } = await import('../finder/controller.js')
