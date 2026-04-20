@@ -11,7 +11,7 @@ import {
 import { searchFunctionality } from './search.js'
 import { applyFinderFilters, buildFinderFilterState } from './filters.js'
 
-export const ITEMS_PER_PAGE = 25
+export const ITEMS_PER_PAGE = 10
 const EllipsicalPageLimit = 3 // Number of pages to show before and after current page when using ellipses
 
 const cleanQuery = (query) => {
