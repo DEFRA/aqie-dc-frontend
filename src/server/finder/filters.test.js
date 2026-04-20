@@ -14,105 +14,6 @@ beforeEach(async () => {
 })
 
 // -----------------------------------------------------
-// SECTION 1 — MANUFACTURER FILTER TESTS
-// -----------------------------------------------------
-describe('finder filters – manufacturer behaviour', () => {
-  it('throws if item.manufacturer is an array', () => {
-    const data = [
-      { id: 1, manufacturer: ['acme'] },
-      { id: 2, manufacturer: 'testco' }
-    ]
-
-    expect(() =>
-      applyFinderFilters(data, {
-        selectedCertifiedIn: [],
-        selectedFuelsAllowed: [],
-        selectedApplianceType: [],
-        selectedManufacturer: ['acme']
-      })
-    ).toThrow('manufacturer must be a string')
-  })
-
-  it('excludes items with null/undefined/empty-string manufacturer', () => {
-    const data = [
-      { id: 1, manufacturer: null },
-      { id: 2, manufacturer: undefined },
-      { id: 3, manufacturer: '' },
-      { id: 4, manufacturer: 'acme' }
-    ]
-
-    const filtered = applyFinderFilters(data, {
-      selectedCertifiedIn: [],
-      selectedFuelsAllowed: [],
-      selectedApplianceType: [],
-      selectedManufacturer: ['acme']
-    })
-
-    expect(filtered.map((i) => i.id)).toEqual([4])
-  })
-
-  it('returns no items when manufacturer does not match', () => {
-    const data = [
-      { id: 1, manufacturer: 'acme' },
-      { id: 2, manufacturer: 'testco' }
-    ]
-
-    const result = applyFinderFilters(data, {
-      selectedCertifiedIn: [],
-      selectedFuelsAllowed: [],
-      selectedApplianceType: [],
-      selectedManufacturer: ['other']
-    })
-
-    expect(result).toEqual([])
-  })
-
-  it('correctly marks manufacturer options as selected in buildFinderFilterState', () => {
-    const state = buildFinderFilterState({
-      query: { manufacturer: ['Acme'] }, // mixed-case query
-      type: 'fuels',
-      language: 'en',
-      totalResponse: [
-        { manufacturer: 'acme' },
-        { manufacturer: 'testco' },
-        { manufacturer: 'acme' }
-      ]
-    })
-
-    expect(state.manufacturerOptions).toEqual([
-      {
-        value: 'acme',
-        text: expect.any(String),
-        checked: true
-      },
-      {
-        value: 'testco',
-        text: expect.any(String),
-        checked: false
-      }
-    ])
-  })
-
-  it('manufacturer values are unique and trimmed before mapping', () => {
-    const state = buildFinderFilterState({
-      query: {},
-      type: 'appliances',
-      language: 'en',
-      totalResponse: [
-        { manufacturer: ' acme ' },
-        { manufacturer: 'acme' },
-        { manufacturer: ' testco ' }
-      ]
-    })
-
-    expect(state.manufacturerOptions.map((m) => m.value)).toEqual([
-      'acme',
-      'testco'
-    ])
-  })
-})
-
-// -----------------------------------------------------
 // SECTION 2 — CERTIFIED IN / FUELS / APPLIANCE TYPE
 // -----------------------------------------------------
 describe('finder filters – certifiedIn, fuels, applianceType', () => {
@@ -196,8 +97,7 @@ describe('finder filters – certifiedIn, fuels, applianceType', () => {
       applyFinderFilters(data, {
         selectedCertifiedIn: [],
         selectedFuelsAllowed: [],
-        selectedApplianceType: [],
-        selectedManufacturer: []
+        selectedApplianceType: []
       })
     ).toEqual(data)
   })

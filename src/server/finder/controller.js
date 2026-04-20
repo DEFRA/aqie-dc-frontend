@@ -110,7 +110,6 @@ export const finderController = {
       sanitizedSearchQuery
     )
     const filterState = buildFinderFilterState({
-      totalResponse,
       query: request.query,
       type,
       language
@@ -166,7 +165,7 @@ export const finderController = {
       certifiedInOptions: filterState.certifiedInOptions,
       fuelsAllowedOptions: filterState.fuelsAllowedOptions,
       applianceTypeOptions: filterState.applianceTypeOptions,
-      manufacturerOptions: filterState.manufacturerOptions
+      //manufacturerOptions: filterState.manufacturerOptions
     })
   }
 }
@@ -176,14 +175,12 @@ function filterSearchResults(searchResponse, filterState) {
   const {
     selectedCertifiedIn,
     selectedFuelsAllowed,
-    selectedApplianceType,
-    selectedManufacturer
+    selectedApplianceType
   } = filterState
   return applyFinderFilters(searchResponse, {
     selectedCertifiedIn,
     selectedFuelsAllowed,
-    selectedApplianceType,
-    selectedManufacturer
+    selectedApplianceType
   })
 }
 

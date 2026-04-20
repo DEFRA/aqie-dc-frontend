@@ -1,34 +1,17 @@
 import { finderContent } from './content.js'
 import { lookupData } from '../common/content.js'
-import { toProperCase } from '../common/util.js'
-
 // Build filter options with checked status
 const getFilterOptions = (
   category,
   language,
-  totalResponse,
   selectedValues = []
 ) => {
-  if (category === 'manufacturers') {
-    const manufacturerSet = []
-    for (const item of totalResponse || []) {
-      const trimmedVal = item.manufacturer?.trim()
-      if (trimmedVal && !manufacturerSet.includes(trimmedVal)) {
-        manufacturerSet.push(trimmedVal)
-      }
-    }
-    return manufacturerSet.map((item) => ({
-      value: item,
-      text: toProperCase(item),
-      checked: selectedValues.includes(item.toLowerCase())
-    }))
-  } else {
-    return lookupData[category].map((item) => ({
-      value: item.key,
-      text: item[language],
-      checked: selectedValues.includes(item.key.toLowerCase())
-    }))
-  }
+  console.log('getFilterOptions', category, language, selectedValues);
+  return lookupData[category].map((item) => ({
+    value: item.key,
+    text: item[language],
+    checked: selectedValues.includes(item.key.toLowerCase())
+  }))
 }
 
 // Get selected values from query
@@ -85,11 +68,9 @@ const buildSelectedFilters = ({
   certifiedInOptions,
   fuelsAllowedOptions,
   applianceTypeOptions,
-  manufacturerOptions,
   selectedCertifiedIn,
   selectedFuelsAllowed,
   selectedApplianceType,
-  selectedManufacturer
 }) => {
   const certifiedInSelectedItems = buildSelectedItems(
     certifiedInOptions,
@@ -108,12 +89,6 @@ const buildSelectedFilters = ({
     selectedApplianceType,
     query,
     'applianceType'
-  )
-  const manufacturerSelectedItems = buildSelectedItems(
-    manufacturerOptions,
-    selectedManufacturer,
-    query,
-    'manufacturer'
   )
   const categories = []
   if (certifiedInSelectedItems.length > 0) {
@@ -134,12 +109,7 @@ const buildSelectedFilters = ({
       items: applianceTypeSelectedItems
     })
   }
-  if (manufacturerSelectedItems.length > 0) {
-    categories.push({
-      heading: { text: finderContent[type][language].manufacturer },
-      items: manufacturerSelectedItems
-    })
-  }
+
   return {
     clearLink: {
       text: finderContent[type][language].clearFilters,
@@ -151,7 +121,6 @@ const buildSelectedFilters = ({
 
 // Build filter state (selected filter values and checkboxoptions) for finder page
 export const buildFinderFilterState = ({
-  totalResponse,
   query,
   type,
   language
@@ -159,30 +128,20 @@ export const buildFinderFilterState = ({
   const selectedCertifiedIn = getSelectedValues(query.certifiedIn)
   const selectedFuelsAllowed = getSelectedValues(query.fuelsAllowed)
   const selectedApplianceType = getSelectedValues(query.applianceType)
-  const selectedManufacturer = getSelectedValues(query.manufacturer)
   const certifiedInOptions = getFilterOptions(
     'countries',
     language,
-    totalResponse,
     selectedCertifiedIn
   )
   const fuelsAllowedOptions = getFilterOptions(
     'fuels',
     language,
-    totalResponse,
     selectedFuelsAllowed
   )
   const applianceTypeOptions = getFilterOptions(
     'applianceTypes',
     language,
-    totalResponse,
     selectedApplianceType
-  )
-  const manufacturerOptions = getFilterOptions(
-    'manufacturers',
-    language,
-    totalResponse,
-    selectedManufacturer
   )
   const selectedFilters = buildSelectedFilters({
     type,
@@ -191,22 +150,18 @@ export const buildFinderFilterState = ({
     certifiedInOptions,
     fuelsAllowedOptions,
     applianceTypeOptions,
-    manufacturerOptions,
     selectedCertifiedIn,
     selectedFuelsAllowed,
     selectedApplianceType,
-    selectedManufacturer
   })
   return {
     selectedCertifiedIn,
     selectedFuelsAllowed,
     selectedApplianceType,
-    selectedManufacturer,
     selectedFilters,
     certifiedInOptions,
     fuelsAllowedOptions,
     applianceTypeOptions,
-    manufacturerOptions
   }
 }
 // Filter results based on selected filters
@@ -215,7 +170,6 @@ export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
     selectedCertifiedIn = [],
     selectedFuelsAllowed = [],
     selectedApplianceType = [],
-    selectedManufacturer = []
   } = selectedFilterValues
 
   let filteredResponse = totalResponse
@@ -260,23 +214,6 @@ export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
         )
       }
       return selectedApplianceType.includes(String(item.type))
-    })
-  }
-
-  if (selectedManufacturer.length > 0) {
-    filteredResponse = filteredResponse.filter((item) => {
-      if (Array.isArray(item.manufacturer)) {
-        throw new TypeError('manufacturer must be a string')
-      }
-      if (!item.manufacturer) {
-        return false
-      }
-      if (Array.isArray(item.manufacturer)) {
-        return selectedManufacturer.some((value) =>
-          item.manufacturer.includes((m) => m === value)
-        )
-      }
-      return selectedManufacturer.includes(String(item.manufacturer))
     })
   }
 
