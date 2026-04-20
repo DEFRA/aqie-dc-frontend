@@ -192,7 +192,15 @@ describe('finderController', () => {
     const resp = await finderController.handler(request, h)
     const { paginationLinks } = resp.model
 
-    expect(paginationLinks.map((l) => l.text)).toEqual([1, '…', 19, 20, 21, '…', 52])
+    expect(paginationLinks.map((l) => l.text)).toEqual([
+      1,
+      '…',
+      19,
+      20,
+      21,
+      '…',
+      52
+    ])
   })
 
   it('caps invalid page numbers to the nearest valid page (too large)', async () => {
@@ -570,7 +578,7 @@ describe('finderController – search query validation error path', () => {
     }))
 
     // Spy on console.error
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     // Import the controller AFTER setting mocks
     const { finderController } = await import('../finder/controller.js')

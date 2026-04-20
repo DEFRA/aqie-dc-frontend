@@ -3,5 +3,5 @@ export default {
   semi: false,
   singleQuote: true,
   trailingComma: 'none',
-  endOfLine: "lf"
+  endOfLine: 'auto'
 }
