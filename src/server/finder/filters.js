@@ -1,12 +1,8 @@
 import { finderContent } from './content.js'
 import { lookupData } from '../common/content.js'
 // Build filter options with checked status
-const getFilterOptions = (
-  category,
-  language,
-  selectedValues = []
-) => {
-  console.log('getFilterOptions', category, language, selectedValues);
+const getFilterOptions = (category, language, selectedValues = []) => {
+  console.log('getFilterOptions', category, language, selectedValues)
   return lookupData[category].map((item) => ({
     value: item.key,
     text: item[language],
@@ -70,7 +66,7 @@ const buildSelectedFilters = ({
   applianceTypeOptions,
   selectedCertifiedIn,
   selectedFuelsAllowed,
-  selectedApplianceType,
+  selectedApplianceType
 }) => {
   const certifiedInSelectedItems = buildSelectedItems(
     certifiedInOptions,
@@ -120,11 +116,7 @@ const buildSelectedFilters = ({
 }
 
 // Build filter state (selected filter values and checkboxoptions) for finder page
-export const buildFinderFilterState = ({
-  query,
-  type,
-  language
-}) => {
+export const buildFinderFilterState = ({ query, type, language }) => {
   const selectedCertifiedIn = getSelectedValues(query.certifiedIn)
   const selectedFuelsAllowed = getSelectedValues(query.fuelsAllowed)
   const selectedApplianceType = getSelectedValues(query.applianceType)
@@ -152,7 +144,7 @@ export const buildFinderFilterState = ({
     applianceTypeOptions,
     selectedCertifiedIn,
     selectedFuelsAllowed,
-    selectedApplianceType,
+    selectedApplianceType
   })
   return {
     selectedCertifiedIn,
@@ -161,7 +153,7 @@ export const buildFinderFilterState = ({
     selectedFilters,
     certifiedInOptions,
     fuelsAllowedOptions,
-    applianceTypeOptions,
+    applianceTypeOptions
   }
 }
 // Filter results based on selected filters
@@ -169,7 +161,7 @@ export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
   const {
     selectedCertifiedIn = [],
     selectedFuelsAllowed = [],
-    selectedApplianceType = [],
+    selectedApplianceType = []
   } = selectedFilterValues
 
   let filteredResponse = totalResponse

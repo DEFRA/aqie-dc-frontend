@@ -164,7 +164,7 @@ export const finderController = {
       selectedFilters: filterState.selectedFilters,
       certifiedInOptions: filterState.certifiedInOptions,
       fuelsAllowedOptions: filterState.fuelsAllowedOptions,
-      applianceTypeOptions: filterState.applianceTypeOptions,
+      applianceTypeOptions: filterState.applianceTypeOptions
       //manufacturerOptions: filterState.manufacturerOptions
     })
   }
@@ -172,11 +172,8 @@ export const finderController = {
 
 // Extracted filtering logic
 function filterSearchResults(searchResponse, filterState) {
-  const {
-    selectedCertifiedIn,
-    selectedFuelsAllowed,
-    selectedApplianceType
-  } = filterState
+  const { selectedCertifiedIn, selectedFuelsAllowed, selectedApplianceType } =
+    filterState
   return applyFinderFilters(searchResponse, {
     selectedCertifiedIn,
     selectedFuelsAllowed,

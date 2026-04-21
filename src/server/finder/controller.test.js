@@ -465,7 +465,7 @@ describe('finderController – filter state integration', () => {
         selectedFilters: { a: 1 },
         certifiedInOptions: ['GB', 'Wales'],
         fuelsAllowedOptions: ['Wood', 'Peat'],
-        applianceTypeOptions: ['Boiler', 'Oven'],
+        applianceTypeOptions: ['Boiler', 'Oven']
       }))
     }))
 
@@ -567,12 +567,12 @@ describe('finderController – search query validation error path', () => {
         selectedFilters: {},
         certifiedInOptions: [],
         fuelsAllowedOptions: [],
-        applianceTypeOptions: [],
+        applianceTypeOptions: []
       }))
     }))
 
     // Spy on console.error
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
     // Import the controller AFTER setting mocks
     const { finderController } = await import('../finder/controller.js')
