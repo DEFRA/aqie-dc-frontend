@@ -165,7 +165,6 @@ export const finderController = {
       certifiedInOptions: filterState.certifiedInOptions,
       fuelsAllowedOptions: filterState.fuelsAllowedOptions,
       applianceTypeOptions: filterState.applianceTypeOptions
-      //manufacturerOptions: filterState.manufacturerOptions
     })
   }
 }
