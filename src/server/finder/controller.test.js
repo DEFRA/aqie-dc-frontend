@@ -33,12 +33,10 @@ vi.mock('./filters.js', () => ({
     selectedCertifiedIn: 'GB',
     selectedFuelsAllowed: ['Wood'],
     selectedApplianceType: 'Boiler',
-    selectedManufacturer: undefined,
     selectedFilters: { a: 1 },
     certifiedInOptions: ['GB', 'Wales'],
     fuelsAllowedOptions: ['Wood', 'Peat'],
-    applianceTypeOptions: ['Boiler', 'Oven'],
-    manufacturerOptions: undefined
+    applianceTypeOptions: ['Boiler', 'Oven']
   }))
 }))
 
@@ -464,12 +462,10 @@ describe('finderController – filter state integration', () => {
         selectedCertifiedIn: 'GB',
         selectedFuelsAllowed: ['Wood'],
         selectedApplianceType: 'Boiler',
-        selectedManufacturer: undefined,
         selectedFilters: { a: 1 },
         certifiedInOptions: ['GB', 'Wales'],
         fuelsAllowedOptions: ['Wood', 'Peat'],
-        applianceTypeOptions: ['Boiler', 'Oven'],
-        manufacturerOptions: undefined
+        applianceTypeOptions: ['Boiler', 'Oven']
       }))
     }))
 
@@ -568,12 +564,10 @@ describe('finderController – search query validation error path', () => {
         selectedCertifiedIn: undefined,
         selectedFuelsAllowed: undefined,
         selectedApplianceType: undefined,
-        selectedManufacturer: undefined,
         selectedFilters: {},
         certifiedInOptions: [],
         fuelsAllowedOptions: [],
-        applianceTypeOptions: [],
-        manufacturerOptions: []
+        applianceTypeOptions: []
       }))
     }))
 
