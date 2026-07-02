@@ -49,7 +49,7 @@ function buildAppliancesRecord(item, content, language) {
   return {
     appliances: {
       conditionsForUse: {
-        airControlModifications: item.airControlModifications.replaceAll(
+        airControlModifications: (item.airControlModifications || '').replaceAll(
           '\n',
           '<br><br>'
         ),
@@ -145,7 +145,7 @@ export const listItemController = {
     const item = await fetchById(singularType, id)
 
     if (!item) {
-      return h.response(`${singularType} not found`).code(statusCodes.notFound)
+        return h.redirect(`/error/${statusCodes.notFound}`)
     }
     const lastUpdatedDate = getLastUpdatedDate(item)
     const certification = getCertification(item, content, language)
@@ -188,7 +188,7 @@ export const listItemController = {
         ? translate('dates', lastUpdatedDate, language)
         : translate('dates', publishedDate, language),
       ...pageSpecificRecord[type],
-      manufacturer: item.manufacturerName,
+      manufacturer: item.manufacturer,
       certification,
 
       companyAddress,

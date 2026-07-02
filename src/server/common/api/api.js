@@ -11,7 +11,7 @@ const logger = createLogger()
  */
 export async function fetchAll(type) {
   const base = config.get('backend.url').replace(/\/$/, '')
-  const url = `${base}/get-all/${encodeURIComponent(type)}`
+  const url = `${base}/${encodeURIComponent(type)}s`
   logger.info(
     `API-URL: Fetching all records of type "${type}" from backend at ${url}`
   )
@@ -71,7 +71,7 @@ export async function fetchAll(type) {
 
 export async function fetchById(type, applicationId) {
   const base = config.get('backend.url').replace(/\/$/, '')
-  const url = `${base}/get/${encodeURIComponent(type)}/${encodeURIComponent(applicationId)}`
+ const url = `${base}/${encodeURIComponent(type)}s/${encodeURIComponent(applicationId)}`
 
   try {
     const res = await fetch(url, {
