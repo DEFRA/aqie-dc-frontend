@@ -192,13 +192,13 @@ const handleTranslationAndCase = (type, pageSpecificRecords, language) => {
   if (type === 'appliances') {
     pageSpecificRecords.forEach((item) => {
       item.items = translate('fuels', item.items, language)
-      item.company = toProperCase(item.company)
+      item.companyName = toProperCase(item.companyName)
       item.type = translate('applianceTypes', item.type, language)
       item.certifiedIn = translate('countries', item.certifiedIn, language)
     })
   } else {
     pageSpecificRecords.forEach((item) => {
-      item.company = toProperCase(item.company)
+      item.companyName = toProperCase(item.companyName)
       item.certifiedIn = translate('countries', item.certifiedIn, language)
     })
   }

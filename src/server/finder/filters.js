@@ -12,7 +12,7 @@ const getFilterOptions = (
   if (category === 'manufacturers') {
     const manufacturerSet = []
     for (const item of totalResponse || []) {
-      const trimmedVal = item.company?.trim()
+      const trimmedVal = item.companyName?.trim()
       if (trimmedVal && !manufacturerSet.includes(trimmedVal)) {
         manufacturerSet.push(trimmedVal)
       }
@@ -265,13 +265,13 @@ export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
 
   if (selectedManufacturer.length > 0) {
     filteredResponse = filteredResponse.filter((item) => {
-      if (Array.isArray(item.company)) {
-        throw new TypeError('company must be a string')
+      if (Array.isArray(item.companyName)) {
+        throw new TypeError('companyName must be a string')
       }
-      if (!item.company) {
+      if (!item.companyName) {
         return false
       }
-      return selectedManufacturer.includes(String(item.company))
+      return selectedManufacturer.includes(String(item.companyName))
     })
   }
 

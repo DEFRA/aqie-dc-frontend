@@ -44,7 +44,7 @@ export async function fetchAll(type) {
       if (type === 'appliance' || type === 'appliances') {
         return {
           ...item,
-          company: smartLowercase(item.companyName || '').trim(),
+          companyName: smartLowercase(item.companyName || '').trim(),
           items: (item.permittedFuels || '').toLowerCase().trim(),
           type: (item.type || '').toLowerCase().trim(),
           modelNumber: item.modelNumber ?? '',
@@ -56,7 +56,7 @@ export async function fetchAll(type) {
       if (type === 'fuel' || type === 'fuels') {
         return {
           ...item,
-          company: smartLowercase(item.companyName || '').trim(),
+          companyName: smartLowercase(item.companyName || '').trim(),
           certifiedIn: Array.isArray(item.certifiedCountries)
             ? item.certifiedCountries.map((country) => country.toLowerCase().trim())
             : []

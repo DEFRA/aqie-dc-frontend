@@ -58,9 +58,8 @@ describe('fetchAll', () => {
       {
         id: 2,
         name: 'PelletBrand',
-        companyName: ' FuelCo ',
         certifiedCountries: [' Wales ', ' Scotland '],
-        company: 'fuelco',
+        companyName: 'fuelco',
         certifiedIn: ['wales', 'scotland']
       }
     ])
@@ -103,7 +102,7 @@ describe('fetchAll', () => {
         }
       })
     )
-    expect(result).toEqual([{ ...mockData.data[0], company: 'tesla', items: 'wood pellets', certifiedIn: ['england', 'scotland'] }])
+    expect(result).toEqual([{ ...mockData.data[0], companyName: 'tesla', items: 'wood pellets', certifiedIn: ['england', 'scotland'] }])
   })
 
   it('normalises manufacturer, fuels, type and certifiedIn fields', async () => {
@@ -134,11 +133,10 @@ describe('fetchAll', () => {
       {
         id: 1,
         name: 'Model X',
-        companyName: '  TESLA  ',
         permittedFuels: '  Wood Pellets ',
         modelNumber: 'M1',
         certifiedCountries: [' England ', ' Scotland '],
-        company: 'tesla',
+        companyName: 'tesla',
         items: 'wood pellets',
         type: 'boiler',
         certifiedIn: ['england', 'scotland']
@@ -192,10 +190,9 @@ describe('fetchAll', () => {
       {
         id: 42,
         name: 'Test Model',
-        companyName: 'testcorp',
         permittedFuels: 'wood pellets',
         modelNumber: '',
-        company: 'testcorp',
+        companyName: 'testcorp',
         items: 'wood pellets',
         type: 'heat',
         certifiedIn: []

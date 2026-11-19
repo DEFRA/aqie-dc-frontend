@@ -17,10 +17,10 @@ beforeEach(async () => {
 // SECTION 1 — MANUFACTURER FILTER TESTS
 // -----------------------------------------------------
 describe('finder filters – manufacturer behaviour', () => {
-  it('throws if item.company is an array', () => {
+  it('throws if item.companyName is an array', () => {
     const data = [
-      { id: 1, company: ['acme'] },
-      { id: 2, company: 'testco' }
+      { id: 1, companyName: ['acme'] },
+      { id: 2, companyName: 'testco' }
     ]
 
     expect(() =>
@@ -30,15 +30,15 @@ describe('finder filters – manufacturer behaviour', () => {
         selectedApplianceType: [],
         selectedManufacturer: ['acme']
       })
-    ).toThrow('company must be a string')
+    ).toThrow('companyName must be a string')
   })
 
   it('excludes items with null/undefined/empty-string manufacturer', () => {
     const data = [
-      { id: 1, company: null },
-      { id: 2, company: undefined },
-      { id: 3, company: '' },
-      { id: 4, company: 'acme' }
+      { id: 1, companyName: null },
+      { id: 2, companyName: undefined },
+      { id: 3, companyName: '' },
+      { id: 4, companyName: 'acme' }
     ]
 
     const filtered = applyFinderFilters(data, {
@@ -53,8 +53,8 @@ describe('finder filters – manufacturer behaviour', () => {
 
   it('returns no items when manufacturer does not match', () => {
     const data = [
-      { id: 1, company: 'acme' },
-      { id: 2, company: 'testco' }
+      { id: 1, companyName: 'acme' },
+      { id: 2, companyName: 'testco' }
     ]
 
     const result = applyFinderFilters(data, {
@@ -73,9 +73,9 @@ describe('finder filters – manufacturer behaviour', () => {
       type: 'fuels',
       language: 'en',
       totalResponse: [
-        { company: 'acme' },
-        { company: 'testco' },
-        { company: 'acme' }
+        { companyName: 'acme' },
+        { companyName: 'testco' },
+        { companyName: 'acme' }
       ]
     })
 
@@ -99,9 +99,9 @@ describe('finder filters – manufacturer behaviour', () => {
       type: 'appliances',
       language: 'en',
       totalResponse: [
-        { company: ' acme ' },
-        { company: 'acme' },
-        { company: ' testco ' }
+        { companyName: ' acme ' },
+        { companyName: 'acme' },
+        { companyName: ' testco ' }
       ]
     })
 

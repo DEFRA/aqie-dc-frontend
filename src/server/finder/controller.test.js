@@ -369,7 +369,7 @@ describe('finderController', () => {
       {
         id: 1,
         items: 'Wood, Peat',
-        company: 'acme',
+        companyName: 'acme',
         type: 'range',
         certifiedIn: 'uk'
       }
@@ -399,8 +399,8 @@ describe('finderController', () => {
       return data
     })
     fetchAll.mockResolvedValueOnce([
-      { id: 1, company: 'Maker', certifiedIn: ['England', 'Wales'] },
-      { id: 2, company: 'Other', certifiedIn: 'Scotland' }
+      { id: 1, companyName: 'Maker', certifiedIn: ['England', 'Wales'] },
+      { id: 2, companyName: 'Other', certifiedIn: 'Scotland' }
     ])
     const request = makeRequest({ type: 'fuels' })
     const h = makeH()
