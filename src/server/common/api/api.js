@@ -49,7 +49,9 @@ export async function fetchAll(type) {
           type: (item.type || '').toLowerCase().trim(),
           modelNumber: item.modelNumber ?? '',
           certifiedIn: Array.isArray(item.certifiedCountries)
-            ? item.certifiedCountries.map((country) => country.toLowerCase().trim())
+            ? item.certifiedCountries.map((country) =>
+                country.toLowerCase().trim()
+              )
             : []
         }
       }
@@ -58,7 +60,9 @@ export async function fetchAll(type) {
           ...item,
           companyName: smartLowercase(item.companyName || '').trim(),
           certifiedIn: Array.isArray(item.certifiedCountries)
-            ? item.certifiedCountries.map((country) => country.toLowerCase().trim())
+            ? item.certifiedCountries.map((country) =>
+                country.toLowerCase().trim()
+              )
             : []
         }
       }
@@ -72,7 +76,7 @@ export async function fetchAll(type) {
 
 export async function fetchById(type, applicationId) {
   const base = config.get('backend.url').replace(/\/$/, '')
- const url = `${base}/${encodeURIComponent(type)}s/${encodeURIComponent(applicationId)}`
+  const url = `${base}/${encodeURIComponent(type)}s/${encodeURIComponent(applicationId)}`
 
   try {
     const res = await fetch(url, {

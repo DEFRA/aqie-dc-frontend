@@ -102,7 +102,14 @@ describe('fetchAll', () => {
         }
       })
     )
-    expect(result).toEqual([{ ...mockData.data[0], companyName: 'tesla', items: 'wood pellets', certifiedIn: ['england', 'scotland'] }])
+    expect(result).toEqual([
+      {
+        ...mockData.data[0],
+        companyName: 'tesla',
+        items: 'wood pellets',
+        certifiedIn: ['england', 'scotland']
+      }
+    ])
   })
 
   it('normalises manufacturer, fuels, type and certifiedIn fields', async () => {
