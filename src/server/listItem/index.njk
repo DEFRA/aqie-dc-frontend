@@ -5,7 +5,7 @@
   <div class="govuk-grid-column-two-thirds">
     <h1 class="govuk-heading-xl">{{ name }}</h1>
     
-    <p class="govuk-body">{{ manufacturedByLabel }} {{ manufacturer }}</p>
+    <p class="govuk-body">{{ manufacturedByLabel }} {{ companyName }}</p>
 
     <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
 
@@ -61,14 +61,17 @@
       {% if type === 'appliances' %}
         {# Conditions for Use Section #}      
         <h2 class="govuk-heading-m">{{ conditionsForUseHeading }}</h2>
-        <p class="govuk-!-margin-bottom-6">{{ conditionsForUse.airControlModifications | safe }}</p>
+        <p class="govuk-!-margin-bottom-6">{{ conditionsForUse.additionalConditions | safe }}</p>
 
         <h2 class="govuk-heading-s">{{instructionManualLabel }}</h2>
         <p class="govuk-!-margin-bottom-2"> {{ conditionsForUse.instructionManual.title }} ({{ conditionsForUse.instructionManual.version }})</p>
-        <p class="govuk-!-margin-bottom-6">{{ publishedLabel }} {{ conditionsForUse.instructionManual.date }}</p>
+        {% set manualAdditionalInfo = conditionsForUse.instructionManual.additionalInfo %}
+        <p class="govuk-!-margin-bottom-{{ 6 if manualAdditionalInfo else 9 }}">{{ publishedLabel }} {{ conditionsForUse.instructionManual.date }}</p>
 
-        <h2 class="govuk-heading-s">{{ additionalConditionsLabel }}</h2>
-        <p class="govuk-!-margin-bottom-9"> {{ conditionsForUse.instructionManual.additionalConditions }}</p>
+        {% if manualAdditionalInfo %}
+          <h2 class="govuk-heading-s">{{ additionalConditionsLabel }}</h2>
+          <p class="govuk-!-margin-bottom-9"> {{ manualAdditionalInfo }}</p>
+        {% endif %}
 
         {# Appliance Details Section #}
         <h2 class="govuk-heading-m">{{ applianceDetailsHeading }}</h2>
@@ -88,11 +91,11 @@
 
       {% endif %}
       {# Manufacturer/Company Section - Details only #}
-        <p class="govuk-body">{{ certifiedByLabel[type] }} {{ manufacturer }}.</p>
-        {% if isUkBased %}
-          <p class="govuk-body" style="white-space: pre-line">{{ formattedUkAddress | safe }}</p>
-        {% else %}
-          <p class="govuk-body">{{ companyAddress }}</p>
+        <p class="govuk-body">{{ certifiedByLabel[type] }} {{ companyName }}.</p>
+        {% if fullAddress.length %}
+          <p class="govuk-body">
+            {% for line in fullAddress %}{{ line }}{% if not loop.last %}<br>{% endif %}{% endfor %}
+          </p>
         {% endif %}
 
    

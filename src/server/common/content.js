@@ -8,13 +8,29 @@
  */
 export const lookupData = {
   countries: [
-    { key: 'england', en: 'England', cy: 'England--CY' },
-    { key: 'scotland', en: 'Scotland', cy: 'Scotland--CY' },
-    { key: 'wales', en: 'Wales', cy: 'Wales--CY' },
+    {
+      key: 'england',
+      en: 'England',
+      cy: 'England--CY',
+      certificationField: 'englandCertification'
+    },
+    {
+      key: 'scotland',
+      en: 'Scotland',
+      cy: 'Scotland--CY',
+      certificationField: 'scotlandCertification'
+    },
+    {
+      key: 'wales',
+      en: 'Wales',
+      cy: 'Wales--CY',
+      certificationField: 'walesCertification'
+    },
     {
       key: 'northern ireland',
       en: 'Northern Ireland',
-      cy: 'Northern Ireland--CY'
+      cy: 'Northern Ireland--CY',
+      certificationField: 'nIrelandCertification'
     }
   ],
   fuels: [

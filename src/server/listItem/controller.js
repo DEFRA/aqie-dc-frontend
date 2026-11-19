@@ -9,9 +9,12 @@ import { lookupData } from '../common/content.js'
 import { statusCodes } from '../common/constants/status-codes.js'
 
 //Helper functions for processing item data for the List Item page
+const getCountryCertification = (item, country) =>
+  item[country.certificationField] || {}
+
 function getLastUpdatedDate(item) {
   const validDates = lookupData.countries
-    .map((country) => item[`${country.key}DateLastUpdated`])
+    .map((country) => getCountryCertification(item, country).decidedAt)
     .filter(Boolean)
     .map((dateString) => new Date(dateString))
     .filter((date) => !Number.isNaN(date.getTime()))
@@ -21,60 +24,60 @@ function getLastUpdatedDate(item) {
 
 function getCertification(item, content, language) {
   const statusMap = {
-    Revoked: { label: content.status.revoked, colour: 'govuk-tag--red' },
-    Uncertified: {
+    revoked: { label: content.status.revoked, colour: 'govuk-tag--red' },
+    uncertified: {
       label: content.status.unCertified,
       colour: 'govuk-tag--grey'
     },
-    Certified: {
+    certified: {
       label: content.status.certified,
       colour: 'govuk-tag--green'
     }
   }
-  return lookupData.countries.map((country) => ({
-    name: country[language],
-    status: statusMap[item[`${country.key}Approval`]] || statusMap.Uncertified,
-    firstCertified:
-      item[`${country.key}Approval`] === 'Certified'
-        ? translate(
-            'dates',
-            item[`${country.key}DateFirstAuthorised`],
-            language
-          )
-        : null
-  }))
+  return lookupData.countries.map((country) => {
+    const { status, firstCertifiedAt } = getCountryCertification(item, country)
+    const statusKey = String(status || '').toLowerCase()
+    return {
+      name: country[language],
+      status: statusMap[statusKey] || statusMap.uncertified,
+      firstCertified:
+        statusKey === 'certified'
+          ? translate('dates', firstCertifiedAt, language)
+          : null
+    }
+  })
 }
 
 function buildAppliancesRecord(item, content, language) {
+  const manual = item.instructionManual || {}
+  const fuels = translate('fuels', item.permittedFuels, language)
+  const applianceType = translate(
+    'applianceTypes',
+    item.applianceType,
+    language
+  )
   return {
     appliances: {
       conditionsForUse: {
-        airControlModifications: (item.airControlModifications || '').replaceAll(
+        additionalConditions: (item.additionalConditions || '').replaceAll(
           '\n',
           '<br><br>'
         ),
         instructionManual: {
-          title: item.instructionManualTitle,
-          date: translate('dates', item.instructionManualDate, language),
-          version: item.instructionManualVersion,
-          additionalConditions: item.instructionManualAdditionalInfo
+          title: manual.title,
+          date: translate('dates', manual.publicationDate, language),
+          version: manual.version,
+          additionalInfo: manual.additionalInfo
         }
-      },
-      applianceDetails: {
-        fuelsAllowed: translate('fuels', item.allowedFuels, language),
-        type: translate('applianceTypes', item.applianceType, language),
-        output: item.nominalOutput
       },
       summaryListRows: [
         {
           key: { text: content.applianceDetailsLabels.fuelsAllowed },
-          value: { html: translate('fuels', item.allowedFuels, language) }
+          value: { html: fuels }
         },
         {
           key: { text: content.applianceDetailsLabels.type },
-          value: {
-            html: translate('applianceTypes', item.applianceType, language)
-          }
+          value: { html: applianceType }
         },
         {
           key: { text: content.applianceDetailsLabels.output },
@@ -145,7 +148,7 @@ export const listItemController = {
     const item = await fetchById(singularType, id)
 
     if (!item) {
-        return h.redirect(`/error/${statusCodes.notFound}`)
+      return h.redirect(`/error/${statusCodes.notFound}`)
     }
     const lastUpdatedDate = getLastUpdatedDate(item)
     const certification = getCertification(item, content, language)
@@ -156,28 +159,10 @@ export const listItemController = {
       type
     )
 
-    const {
-      companyAddress,
-      isUkBased,
-      companyAddressLine1,
-      companyAddressLine2,
-      companyAddressCity,
-      companyAddressCounty,
-      companyAddressPostcode,
-      publishedDate
-    } = item
-
-    const formattedUkAddress = isUkBased
-      ? [
-          companyAddressLine1,
-          companyAddressLine2,
-          companyAddressCity,
-          companyAddressCounty,
-          companyAddressPostcode
-        ]
-          .filter(Boolean)
-          .join('<br>')
-      : null
+    const { publishedDate } = item
+    const fullAddress = Array.isArray(item.fullAddress)
+      ? item.fullAddress.filter(Boolean)
+      : []
 
     return h.view('listItem/index', {
       ...content,
@@ -188,12 +173,10 @@ export const listItemController = {
         ? translate('dates', lastUpdatedDate, language)
         : translate('dates', publishedDate, language),
       ...pageSpecificRecord[type],
-      manufacturer: item.manufacturer,
+      companyName: item.companyName,
       certification,
 
-      companyAddress,
-      isUkBased,
-      formattedUkAddress,
+      fullAddress,
       backLinkText: content.backLinkText[`${type}`],
       backLinkHref: `/finder/${type}/${language}`,
       selectedLanguage: language,
