@@ -191,15 +191,15 @@ function filterSearchResults(searchResponse, filterState) {
 const handleTranslationAndCase = (type, pageSpecificRecords, language) => {
   if (type === 'appliances') {
     pageSpecificRecords.forEach((item) => {
-      item.fuels = translate('fuels', item.fuels, language)
-      item.manufacturer = toProperCase(item.manufacturer)
+      item.items = translate('fuels', item.items, language)
+      item.company = toProperCase(item.company)
       item.type = translate('applianceTypes', item.type, language)
-      item.authorisedIn = translate('countries', item.authorisedIn, language)
+      item.certifiedIn = translate('countries', item.certifiedIn, language)
     })
   } else {
     pageSpecificRecords.forEach((item) => {
-      item.manufacturer = toProperCase(item.manufacturer)
-      item.authorisedIn = translate('countries', item.authorisedIn, language)
+      item.company = toProperCase(item.company)
+      item.certifiedIn = translate('countries', item.certifiedIn, language)
     })
   }
 }

@@ -44,20 +44,21 @@ export async function fetchAll(type) {
       if (type === 'appliance' || type === 'appliances') {
         return {
           ...item,
-          manufacturer: smartLowercase(item.manufacturer).trim(),
-          fuels: item.fuels.toLowerCase().trim(),
-          type: item.type.toLowerCase().trim(),
-          authorisedIn: Array.isArray(item.authorisedIn)
-            ? item.authorisedIn.map((country) => country.toLowerCase().trim())
+          company: smartLowercase(item.companyName || '').trim(),
+          items: (item.permittedFuels || '').toLowerCase().trim(),
+          type: (item.type || '').toLowerCase().trim(),
+          modelNumber: item.modelNumber ?? '',
+          certifiedIn: Array.isArray(item.certifiedCountries)
+            ? item.certifiedCountries.map((country) => country.toLowerCase().trim())
             : []
         }
       }
       if (type === 'fuel' || type === 'fuels') {
         return {
           ...item,
-          manufacturer: smartLowercase(item.manufacturer).trim(),
-          authorisedIn: Array.isArray(item.authorisedIn)
-            ? item.authorisedIn.map((country) => country.toLowerCase().trim())
+          company: smartLowercase(item.companyName || '').trim(),
+          certifiedIn: Array.isArray(item.certifiedCountries)
+            ? item.certifiedCountries.map((country) => country.toLowerCase().trim())
             : []
         }
       }

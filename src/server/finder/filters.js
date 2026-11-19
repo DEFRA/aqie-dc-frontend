@@ -12,7 +12,7 @@ const getFilterOptions = (
   if (category === 'manufacturers') {
     const manufacturerSet = []
     for (const item of totalResponse || []) {
-      const trimmedVal = item.manufacturer?.trim()
+      const trimmedVal = item.company?.trim()
       if (trimmedVal && !manufacturerSet.includes(trimmedVal)) {
         manufacturerSet.push(trimmedVal)
       }
@@ -223,22 +223,22 @@ export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
   if (selectedCertifiedIn.length > 0) {
     filteredResponse = filteredResponse.filter(
       (item) =>
-        item.authorisedIn &&
+        item.certifiedIn &&
         selectedCertifiedIn.some((value) =>
-          Array.isArray(item.authorisedIn)
-            ? item.authorisedIn.includes(value)
-            : String(item.authorisedIn) === value
+          Array.isArray(item.certifiedIn)
+            ? item.certifiedIn.includes(value)
+            : String(item.certifiedIn) === value
         )
     )
   }
 
   if (selectedFuelsAllowed.length > 0) {
     filteredResponse = filteredResponse.filter((item) => {
-      if (!item.fuels) {
+      if (!item.items) {
         return false
       }
       const fuels = new Set(
-        String(item.fuels)
+        String(item.items)
           .split(',')
           .map((fuel) => fuel.trim())
       )
@@ -265,18 +265,13 @@ export const applyFinderFilters = (totalResponse, selectedFilterValues) => {
 
   if (selectedManufacturer.length > 0) {
     filteredResponse = filteredResponse.filter((item) => {
-      if (Array.isArray(item.manufacturer)) {
-        throw new TypeError('manufacturer must be a string')
+      if (Array.isArray(item.company)) {
+        throw new TypeError('company must be a string')
       }
-      if (!item.manufacturer) {
+      if (!item.company) {
         return false
       }
-      if (Array.isArray(item.manufacturer)) {
-        return selectedManufacturer.some((value) =>
-          item.manufacturer.includes((m) => m === value)
-        )
-      }
-      return selectedManufacturer.includes(String(item.manufacturer))
+      return selectedManufacturer.includes(String(item.company))
     })
   }
 

@@ -17,10 +17,10 @@ beforeEach(async () => {
 // SECTION 1 — MANUFACTURER FILTER TESTS
 // -----------------------------------------------------
 describe('finder filters – manufacturer behaviour', () => {
-  it('throws if item.manufacturer is an array', () => {
+  it('throws if item.company is an array', () => {
     const data = [
-      { id: 1, manufacturer: ['acme'] },
-      { id: 2, manufacturer: 'testco' }
+      { id: 1, company: ['acme'] },
+      { id: 2, company: 'testco' }
     ]
 
     expect(() =>
@@ -30,15 +30,15 @@ describe('finder filters – manufacturer behaviour', () => {
         selectedApplianceType: [],
         selectedManufacturer: ['acme']
       })
-    ).toThrow('manufacturer must be a string')
+    ).toThrow('company must be a string')
   })
 
   it('excludes items with null/undefined/empty-string manufacturer', () => {
     const data = [
-      { id: 1, manufacturer: null },
-      { id: 2, manufacturer: undefined },
-      { id: 3, manufacturer: '' },
-      { id: 4, manufacturer: 'acme' }
+      { id: 1, company: null },
+      { id: 2, company: undefined },
+      { id: 3, company: '' },
+      { id: 4, company: 'acme' }
     ]
 
     const filtered = applyFinderFilters(data, {
@@ -53,8 +53,8 @@ describe('finder filters – manufacturer behaviour', () => {
 
   it('returns no items when manufacturer does not match', () => {
     const data = [
-      { id: 1, manufacturer: 'acme' },
-      { id: 2, manufacturer: 'testco' }
+      { id: 1, company: 'acme' },
+      { id: 2, company: 'testco' }
     ]
 
     const result = applyFinderFilters(data, {
@@ -73,9 +73,9 @@ describe('finder filters – manufacturer behaviour', () => {
       type: 'fuels',
       language: 'en',
       totalResponse: [
-        { manufacturer: 'acme' },
-        { manufacturer: 'testco' },
-        { manufacturer: 'acme' }
+        { company: 'acme' },
+        { company: 'testco' },
+        { company: 'acme' }
       ]
     })
 
@@ -99,9 +99,9 @@ describe('finder filters – manufacturer behaviour', () => {
       type: 'appliances',
       language: 'en',
       totalResponse: [
-        { manufacturer: ' acme ' },
-        { manufacturer: 'acme' },
-        { manufacturer: ' testco ' }
+        { company: ' acme ' },
+        { company: 'acme' },
+        { company: ' testco ' }
       ]
     })
 
@@ -173,12 +173,12 @@ describe('finder filters – certifiedIn, fuels, applianceType', () => {
     const data = [
       {
         id: 1,
-        authorisedIn: ['england', 'wales'],
-        fuels: 'wood pellets, wood chips',
+        certifiedIn: ['england', 'wales'],
+        items: 'wood pellets, wood chips',
         type: 'pizza oven'
       },
-      { id: 2, authorisedIn: ['scotland'], fuels: 'peat', type: 'boiler' },
-      { id: 3, authorisedIn: ['england'], fuels: 'wood chips', type: 'boiler' }
+      { id: 2, certifiedIn: ['scotland'], items: 'peat', type: 'boiler' },
+      { id: 3, certifiedIn: ['england'], items: 'wood chips', type: 'boiler' }
     ]
 
     const filtered = applyFinderFilters(data, {
@@ -261,9 +261,9 @@ describe('applyFinderFilters – fuels edge cases', () => {
   it('excludes empty fuels values', () => {
     const result = applyFinderFilters(
       [
-        { id: 1, fuels: '' },
-        { id: 2, fuels: null },
-        { id: 3, fuels: 'wood pellets' }
+        { id: 1, items: '' },
+        { id: 2, items: null },
+        { id: 3, items: 'wood pellets' }
       ],
       {
         selectedCertifiedIn: [],
@@ -276,8 +276,8 @@ describe('applyFinderFilters – fuels edge cases', () => {
 
   it('matches fuels despite spacing inconsistencies', () => {
     const data = [
-      { id: 1, fuels: 'wood pellets , wood chips' },
-      { id: 2, fuels: '  wood pellets' }
+      { id: 1, items: 'wood pellets , wood chips' },
+      { id: 2, items: '  wood pellets' }
     ]
     const result = applyFinderFilters(data, {
       selectedCertifiedIn: [],
