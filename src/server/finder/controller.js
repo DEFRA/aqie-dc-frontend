@@ -11,7 +11,7 @@ import {
 import { searchFunctionality } from './search.js'
 import { applyFinderFilters, buildFinderFilterState } from './filters.js'
 
-export const ITEMS_PER_PAGE = 25
+export const ITEMS_PER_PAGE = 10
 const EllipsicalPageLimit = 3 // Number of pages to show before and after current page when using ellipses
 
 const cleanQuery = (query) => {
@@ -110,7 +110,6 @@ export const finderController = {
       sanitizedSearchQuery
     )
     const filterState = buildFinderFilterState({
-      totalResponse,
       query: request.query,
       type,
       language
@@ -165,25 +164,19 @@ export const finderController = {
       selectedFilters: filterState.selectedFilters,
       certifiedInOptions: filterState.certifiedInOptions,
       fuelsAllowedOptions: filterState.fuelsAllowedOptions,
-      applianceTypeOptions: filterState.applianceTypeOptions,
-      manufacturerOptions: filterState.manufacturerOptions
+      applianceTypeOptions: filterState.applianceTypeOptions
     })
   }
 }
 
 // Extracted filtering logic
 function filterSearchResults(searchResponse, filterState) {
-  const {
-    selectedCertifiedIn,
-    selectedFuelsAllowed,
-    selectedApplianceType,
-    selectedManufacturer
-  } = filterState
+  const { selectedCertifiedIn, selectedFuelsAllowed, selectedApplianceType } =
+    filterState
   return applyFinderFilters(searchResponse, {
     selectedCertifiedIn,
     selectedFuelsAllowed,
-    selectedApplianceType,
-    selectedManufacturer
+    selectedApplianceType
   })
 }
 

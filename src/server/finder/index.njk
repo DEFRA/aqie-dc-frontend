@@ -67,19 +67,6 @@
             })
             }) }}
           {% endif %}
-
-          {% if type === 'fuels' %}
-            {{ govukDetails({
-              summaryText: manufacturer,
-              open: false,
-              html: govukCheckboxes({
-                idPrefix: "manufacturer",
-                name: "manufacturer",
-                classes: "govuk-checkboxes--small",
-                items: manufacturerOptions
-              })
-            }) }}
-          {% endif %}
         {% endset -%}
 
         {{ appFilter({
