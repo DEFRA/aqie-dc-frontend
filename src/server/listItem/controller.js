@@ -24,7 +24,6 @@ function getLastUpdatedDate(item) {
 
 function getCertification(item, content, language) {
   const statusMap = {
-    revoked: { label: content.status.revoked, colour: 'govuk-tag--red' },
     uncertified: {
       label: content.status.unCertified,
       colour: 'govuk-tag--grey'
@@ -41,7 +40,7 @@ function getCertification(item, content, language) {
       name: country[language],
       status: statusMap[statusKey] || statusMap.uncertified,
       firstCertified:
-        statusKey === 'certified'
+        statusKey === 'certified' && firstCertifiedAt
           ? translate('dates', firstCertifiedAt, language)
           : null
     }
@@ -89,37 +88,39 @@ function buildAppliancesRecord(item, content, language) {
 }
 
 function buildFuelsRecord(item, content) {
+  const description = item.fuelDescription || {}
+  const fuelDescription = {
+    appearance: description.appearance,
+    weight: description.weight,
+    composition: description.composition,
+    manufacturingProcess: item.manufacturingProcess,
+    sulphurContent: description.sulphurContent
+  }
   return {
     fuels: {
-      fuelDescription: {
-        appearance: item.fuelDescription,
-        weight: item.fuelWeight,
-        composition: item.fuelComposition,
-        manufacturingProcess: item.manufacturingProcess,
-        sulphurContent: item.sulphurContent
-      },
+      fuelDescription,
       fuelSummaryListRows: [
         {
           key: { text: content.fuelDescriptionLabels.appearance },
-          value: { text: item.fuelDescription }
+          value: { text: fuelDescription.appearance }
         },
         {
           key: { text: content.fuelDescriptionLabels.weight },
-          value: { text: item.fuelWeight }
+          value: { text: fuelDescription.weight }
         },
         {
           key: { text: content.fuelDescriptionLabels.composition },
-          value: { text: item.fuelComposition }
+          value: { text: fuelDescription.composition }
         },
         {
           key: { text: content.fuelDescriptionLabels.manufacturing },
-          value: { text: item.manufacturingProcess }
+          value: { text: fuelDescription.manufacturingProcess }
         },
         {
           key: { text: content.fuelDescriptionLabels.sulphurContent },
           value: {
             html:
-              item.sulphurContent +
+              fuelDescription.sulphurContent +
               content.fuelDescriptionLabels.sulphurContentUnit
           }
         }
@@ -159,7 +160,8 @@ export const listItemController = {
       type
     )
 
-    const { publishedDate } = item
+    // TODO: remove updatedAt fallback once the fuels backend sends publishedDate
+    const publishedDate = item.publishedDate ?? item.updatedAt
     const fullAddress = Array.isArray(item.fullAddress)
       ? item.fullAddress.filter(Boolean)
       : []

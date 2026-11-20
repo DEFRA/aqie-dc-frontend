@@ -193,6 +193,10 @@ const handleTranslationAndCase = (type, pageSpecificRecords, language) => {
     pageSpecificRecords.forEach((item) => {
       item.companyName = toProperCase(item.companyName)
       item.certifiedIn = translate('countries', item.certifiedIn, language)
+      item.lastUpdatedDate = item.lastUpdatedDate
+        ? translate('dates', item.lastUpdatedDate, language)
+        : ''
+      //TODO: what should come here if no updatedDate if a legacy record?
     })
   }
 }

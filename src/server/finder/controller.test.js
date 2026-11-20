@@ -419,6 +419,25 @@ describe('finderController', () => {
     expect(records[1].certifiedIn).toBe('Scotland')
   })
 
+  it('formats fuel lastUpdatedDate and leaves it empty when missing', async () => {
+    const { fetchAll } = await import('../common/api/api.js')
+    const { translate } = await import('../common/util.js')
+    translate.mockImplementation((category, data) =>
+      category === 'dates' ? `date:${data}` : data
+    )
+    fetchAll.mockResolvedValueOnce([
+      { id: 1, companyName: 'Maker', lastUpdatedDate: '2024-05-01T00:00:00Z' },
+      { id: 2, companyName: 'Other' }
+    ])
+    const resp = await finderController.handler(
+      makeRequest({ type: 'fuels' }),
+      makeH()
+    )
+    const records = resp.model.pageSpecificRecords
+    expect(records[0].lastUpdatedDate).toBe('date:2024-05-01T00:00:00Z')
+    expect(records[1].lastUpdatedDate).toBe('')
+  })
+
   it('computes pageEndRecord correctly for partially-filled last page', async () => {
     const records = Array.from({ length: 52 }, (_, i) => ({ id: i + 1 }))
     const { fetchAll } = await import('../common/api/api.js')

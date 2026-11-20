@@ -181,11 +181,13 @@ const makeMockItem = (overrides = {}) => ({
     version: '1.0',
     additionalInfo: 'Additional info here'
   },
-  fuelDescription: 'Light mineral oil',
-  fuelWeight: '0.84 kg/l',
-  fuelComposition: 'Paraffinic',
+  fuelDescription: {
+    appearance: 'Light mineral oil',
+    weight: '0.84 kg/l',
+    composition: 'Paraffinic',
+    sulphurContent: '0.2'
+  },
   manufacturingProcess: 'Distillation',
-  sulphurContent: '0.2',
 
   // Country approval statuses
   englandCertification: {
@@ -523,28 +525,6 @@ describe('listItemController', () => {
         expect(walesCert.firstCertified).toBeNull()
       })
 
-      it('should map Revoked status correctly with red tag', async () => {
-        const { fetchById } = await import('../common/api/api.js')
-        const mockItem = makeMockItem({
-          nIrelandCertification: {
-            status: 'Revoked',
-            firstCertifiedAt: '2022-05-15'
-          }
-        })
-        fetchById.mockResolvedValueOnce(mockItem)
-
-        const request = makeRequest()
-        const h = makeH()
-
-        const result = await listItemController.handler(request, h)
-
-        const niCert = result.model.certification.find(
-          (c) => c.name === 'Northern Ireland'
-        )
-        expect(niCert.status.label).toBe('Revoked')
-        expect(niCert.status.colour).toBe('govuk-tag--red')
-      })
-
       it('should match lowercase status case-insensitively', async () => {
         const { fetchById } = await import('../common/api/api.js')
         const mockItem = makeMockItem({
@@ -824,7 +804,9 @@ describe('listItemController', () => {
 
       it('should include sulphur content with unit in fuelSummaryListRows', async () => {
         const { fetchById } = await import('../common/api/api.js')
-        const mockItem = makeMockItem({ sulphurContent: '0.5' })
+        const mockItem = makeMockItem({
+          fuelDescription: { sulphurContent: '0.5' }
+        })
         fetchById.mockResolvedValueOnce(mockItem)
 
         const request = makeRequest({ type: 'fuels' })
