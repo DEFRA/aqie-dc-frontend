@@ -11,7 +11,7 @@ const logger = createLogger()
  */
 export async function fetchAll(type) {
   const base = config.get('backend.url').replace(/\/$/, '')
-  const url = `${base}/get-all/${encodeURIComponent(type)}`
+  const url = `${base}/${encodeURIComponent(type)}s`
   logger.info(
     `API-URL: Fetching all records of type "${type}" from backend at ${url}`
   )
@@ -44,20 +44,25 @@ export async function fetchAll(type) {
       if (type === 'appliance' || type === 'appliances') {
         return {
           ...item,
-          manufacturer: smartLowercase(item.manufacturer).trim(),
-          fuels: item.fuels.toLowerCase().trim(),
-          type: item.type.toLowerCase().trim(),
-          authorisedIn: Array.isArray(item.authorisedIn)
-            ? item.authorisedIn.map((country) => country.toLowerCase().trim())
+          companyName: smartLowercase(item.companyName || '').trim(),
+          items: (item.permittedFuels || '').toLowerCase().trim(),
+          type: (item.type || '').toLowerCase().trim(),
+          modelNumber: item.modelNumber ?? '',
+          certifiedIn: Array.isArray(item.certifiedCountries)
+            ? item.certifiedCountries.map((country) =>
+                country.toLowerCase().trim()
+              )
             : []
         }
       }
       if (type === 'fuel' || type === 'fuels') {
         return {
           ...item,
-          manufacturer: smartLowercase(item.manufacturer).trim(),
-          authorisedIn: Array.isArray(item.authorisedIn)
-            ? item.authorisedIn.map((country) => country.toLowerCase().trim())
+          companyName: smartLowercase(item.companyName || '').trim(),
+          certifiedIn: Array.isArray(item.certifiedCountries)
+            ? item.certifiedCountries.map((country) =>
+                country.toLowerCase().trim()
+              )
             : []
         }
       }
@@ -71,7 +76,7 @@ export async function fetchAll(type) {
 
 export async function fetchById(type, applicationId) {
   const base = config.get('backend.url').replace(/\/$/, '')
-  const url = `${base}/get/${encodeURIComponent(type)}/${encodeURIComponent(applicationId)}`
+  const url = `${base}/${encodeURIComponent(type)}s/${encodeURIComponent(applicationId)}`
 
   try {
     const res = await fetch(url, {

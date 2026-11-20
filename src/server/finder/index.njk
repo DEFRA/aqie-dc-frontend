@@ -99,10 +99,10 @@
               <h3 class="govuk-heading-m govuk-!-margin-top-1">
                 <a href="/details/appliances/{{pageSpecificRecord.id}}/{{language}}" class="govuk-link">{{ pageSpecificRecord.name }}</a>
               </h3>
-              <p class="govuk-body"><strong>{{manufacturedBy}} {{ pageSpecificRecord.manufacturer }}</strong></p>
-              <p class="govuk-body">{{fuelsAllowed}}: {{ pageSpecificRecord.fuels }} </p>
+              <p class="govuk-body"><strong>{{manufacturedBy}} {{ pageSpecificRecord.companyName }}</strong></p>
+              <p class="govuk-body">{{fuelsAllowed}}: {{ pageSpecificRecord.items }} </p>
               <p class="govuk-body">{{applianceType}}: {{ pageSpecificRecord.type }}</p>
-              <p class="govuk-body">{{authorisedIn}}: {{ pageSpecificRecord.authorisedIn }}</p>
+              <p class="govuk-body">{{authorisedIn}}: {{ pageSpecificRecord.certifiedIn }}</p>
             </div>
             <hr class="govuk-section-break govuk-section-break--visible">
           {% endfor %}
@@ -112,9 +112,12 @@
               <h3 class="govuk-heading-m govuk-!-margin-top-1">
                 <a href="/details/fuels/{{pageSpecificRecord.id}}/{{language}}" class="govuk-link">{{ pageSpecificRecord.name }}</a>
               </h3>
-              <p class="govuk-body"><strong>{{manufacturedBy}} {{ pageSpecificRecord.manufacturer }}</strong></p>
+              <p class="govuk-body"><strong>{{manufacturedBy}} {{ pageSpecificRecord.companyName }}</strong></p>
               <p class="govuk-body">{{fuelID}}: {{ pageSpecificRecord.id }}</p>
-              <p class="govuk-body">{{authorisedIn}}: {{ pageSpecificRecord.authorisedIn }}</p>
+              <p class="govuk-body">{{authorisedIn}}: {{ pageSpecificRecord.certifiedIn }}</p>
+              {% if pageSpecificRecord.lastUpdatedDate %}
+                <p class="govuk-body">{{lastUpdated}}: {{ pageSpecificRecord.lastUpdatedDate }}</p>
+              {% endif %}
             </div>
             <hr class="govuk-section-break govuk-section-break--visible">
           {% endfor %}

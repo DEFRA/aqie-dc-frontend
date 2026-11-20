@@ -33,15 +33,15 @@ vi.mock('../../../config/config.js', () => ({
 }))
 
 describe('fetchAll', () => {
-  it('normalises manufacturer and authorisedIn for fuel type', async () => {
+  it('normalises manufacturer and certifiedIn for fuel type', async () => {
     const mockData = {
       msg: 'OK',
       data: [
         {
           id: 2,
           name: 'PelletBrand',
-          manufacturer: ' FuelCo ',
-          authorisedIn: [' Wales ', ' Scotland ']
+          companyName: ' FuelCo ',
+          certifiedCountries: [' Wales ', ' Scotland ']
         }
       ]
     }
@@ -58,8 +58,9 @@ describe('fetchAll', () => {
       {
         id: 2,
         name: 'PelletBrand',
-        manufacturer: 'fuelco',
-        authorisedIn: ['wales', 'scotland']
+        certifiedCountries: [' Wales ', ' Scotland '],
+        companyName: 'fuelco',
+        certifiedIn: ['wales', 'scotland']
       }
     ])
   })
@@ -74,10 +75,11 @@ describe('fetchAll', () => {
         {
           id: 1,
           name: 'Model X',
-          manufacturer: 'tesla',
-          fuels: 'wood pellets',
+          companyName: 'tesla',
+          permittedFuels: 'wood pellets',
           type: 'boiler',
-          authorisedIn: ['england', 'scotland']
+          modelNumber: 'M1',
+          certifiedCountries: ['england', 'scotland']
         }
       ]
     }
@@ -88,10 +90,10 @@ describe('fetchAll', () => {
       json: async () => mockData
     })
 
-    const result = await fetchAll('appliances')
+    const result = await fetchAll('appliance')
 
     expect(fetch).toHaveBeenCalledWith(
-      'http://localhost:3001/get-all/appliances',
+      'http://localhost:3001/appliances',
       expect.objectContaining({
         method: 'GET',
         headers: {
@@ -100,20 +102,28 @@ describe('fetchAll', () => {
         }
       })
     )
-    expect(result).toEqual(mockData.data)
+    expect(result).toEqual([
+      {
+        ...mockData.data[0],
+        companyName: 'tesla',
+        items: 'wood pellets',
+        certifiedIn: ['england', 'scotland']
+      }
+    ])
   })
 
-  it('normalises manufacturer, fuels, type and authorisedIn fields', async () => {
+  it('normalises manufacturer, fuels, type and certifiedIn fields', async () => {
     const mockData = {
       msg: 'OK',
       data: [
         {
           id: 1,
           name: 'Model X',
-          manufacturer: '  TESLA  ',
-          fuels: '  Wood Pellets ',
+          companyName: '  TESLA  ',
+          permittedFuels: '  Wood Pellets ',
           type: ' boiler ',
-          authorisedIn: [' England ', ' Scotland ']
+          modelNumber: 'M1',
+          certifiedCountries: [' England ', ' Scotland ']
         }
       ]
     }
@@ -124,16 +134,19 @@ describe('fetchAll', () => {
       json: async () => mockData
     })
 
-    const result = await fetchAll('appliances')
+    const result = await fetchAll('appliance')
 
     expect(result).toEqual([
       {
         id: 1,
         name: 'Model X',
-        manufacturer: 'tesla',
-        fuels: 'wood pellets',
+        permittedFuels: '  Wood Pellets ',
+        modelNumber: 'M1',
+        certifiedCountries: [' England ', ' Scotland '],
+        companyName: 'tesla',
+        items: 'wood pellets',
         type: 'boiler',
-        authorisedIn: ['england', 'scotland']
+        certifiedIn: ['england', 'scotland']
       }
     ])
   })
@@ -147,27 +160,27 @@ describe('fetchAll', () => {
       json: async () => badData
     })
 
-    const result = await fetchAll('appliances')
+    const result = await fetchAll('appliance')
 
     expect(result).toEqual([])
 
     expect(mockLogger.warn).toHaveBeenCalledWith(
-      'Expected array in response data for type "appliances", got:',
+      'Expected array in response data for type "appliance", got:',
       badData.data
     )
   })
 
-  it('handles items missing authorisedIn by returning an empty array', async () => {
+  it('handles items missing certifiedIn by returning an empty array', async () => {
     const mockData = {
       msg: 'OK',
       data: [
         {
           id: 42,
           name: 'Test Model',
-          manufacturer: 'testcorp',
-          fuels: 'wood pellets',
+          companyName: 'testcorp',
+          permittedFuels: 'wood pellets',
           type: 'heat'
-          // authorisedIn is intentionally missing
+          // certifiedCountries is intentionally missing
         }
       ]
     }
@@ -178,16 +191,18 @@ describe('fetchAll', () => {
       json: async () => mockData
     })
 
-    const result = await fetchAll('appliances')
+    const result = await fetchAll('appliance')
 
     expect(result).toEqual([
       {
         id: 42,
         name: 'Test Model',
-        manufacturer: 'testcorp',
-        fuels: 'wood pellets',
+        permittedFuels: 'wood pellets',
+        modelNumber: '',
+        companyName: 'testcorp',
+        items: 'wood pellets',
         type: 'heat',
-        authorisedIn: []
+        certifiedIn: []
       }
     ])
   })
@@ -249,7 +264,7 @@ describe('fetchAll', () => {
     await fetchAll('special/type?query=1')
 
     const callUrl = fetch.mock.calls[0][0]
-    expect(callUrl).toContain('get-all')
+    expect(callUrl).toMatch(/\/special%2Ftype%3Fquery%3D1s$/)
     expect(callUrl).not.toContain('?query')
     expect(callUrl).toContain('%2F') // forward slash encoded
   })
@@ -271,7 +286,7 @@ describe('fetchAll', () => {
     await fetchAll('test')
 
     const urlUsed = fetch.mock.calls[0][0]
-    expect(urlUsed).toBe('http://api.example.com/get-all/test')
+    expect(urlUsed).toBe('http://api.example.com/tests')
   })
 
   it('sends correct headers including API key', async () => {
@@ -288,7 +303,7 @@ describe('fetchAll', () => {
       json: async () => mockData
     })
 
-    await fetchAll('appliances')
+    await fetchAll('appliance')
 
     expect(fetch).toHaveBeenCalledWith(
       expect.any(String),
@@ -370,7 +385,7 @@ describe('fetchById', () => {
     await fetchById('special/type', 'id?with=special')
 
     const urlUsed = fetch.mock.calls[0][0]
-    expect(urlUsed).toContain('get/')
+    expect(urlUsed).toContain('/special%2Ftypes/id%3Fwith%3Dspecial')
     expect(urlUsed).not.toContain('?')
   })
 

@@ -184,15 +184,19 @@ function filterSearchResults(searchResponse, filterState) {
 const handleTranslationAndCase = (type, pageSpecificRecords, language) => {
   if (type === 'appliances') {
     pageSpecificRecords.forEach((item) => {
-      item.fuels = translate('fuels', item.fuels, language)
-      item.manufacturer = toProperCase(item.manufacturer)
+      item.items = translate('fuels', item.items, language)
+      item.companyName = toProperCase(item.companyName)
       item.type = translate('applianceTypes', item.type, language)
-      item.authorisedIn = translate('countries', item.authorisedIn, language)
+      item.certifiedIn = translate('countries', item.certifiedIn, language)
     })
   } else {
     pageSpecificRecords.forEach((item) => {
-      item.manufacturer = toProperCase(item.manufacturer)
-      item.authorisedIn = translate('countries', item.authorisedIn, language)
+      item.companyName = toProperCase(item.companyName)
+      item.certifiedIn = translate('countries', item.certifiedIn, language)
+      item.lastUpdatedDate = item.lastUpdatedDate
+        ? translate('dates', item.lastUpdatedDate, language)
+        : ''
+      //TODO: what should come here if no updatedDate if a legacy record?
     })
   }
 }

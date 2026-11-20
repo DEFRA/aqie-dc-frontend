@@ -374,29 +374,29 @@ describe('finderController', () => {
     fetchAll.mockResolvedValueOnce([
       {
         id: 1,
-        fuels: 'Wood, Peat',
-        manufacturer: 'acme',
+        items: 'Wood, Peat',
+        companyName: 'acme',
         type: 'range',
-        authorisedIn: 'uk'
+        certifiedIn: 'uk'
       }
     ])
     const request = makeRequest({ language: 'cy', type: 'appliances' })
     const h = makeH()
     const resp = await finderController.handler(request, h)
     const row = resp.model.pageSpecificRecords[0]
-    // translate used for fuels, type, and authorisedIn
+    // translate used for fuels, type, and certifiedIn
     expect(translate).toHaveBeenCalledWith('fuels', 'Wood, Peat', 'cy')
     expect(translate).toHaveBeenCalledWith('applianceTypes', 'range', 'cy')
     expect(translate).toHaveBeenCalledWith('countries', 'uk', 'cy')
     // toProperCase called on manufacturer
     expect(toProperCase).toHaveBeenCalledWith('acme')
     // The output uses our mocked translate format: item--language
-    expect(row.fuels).toBe('Wood--cy, Peat--cy')
+    expect(row.items).toBe('Wood--cy, Peat--cy')
     expect(row.type).toBe('range--cy')
-    expect(row.authorisedIn).toBe('uk--cy')
+    expect(row.certifiedIn).toBe('uk--cy')
   })
 
-  it('formats "fuels" without translate, but still proper cases manufacturer and normalizes authorisedIn', async () => {
+  it('formats "fuels" without translate, but still proper cases manufacturer and normalizes certifiedIn', async () => {
     const { fetchAll } = await import('../common/api/api.js')
     const { toProperCase, translate } = await import('../common/util.js')
     // Patch translate to join arrays for this test
@@ -405,8 +405,8 @@ describe('finderController', () => {
       return data
     })
     fetchAll.mockResolvedValueOnce([
-      { id: 1, manufacturer: 'Maker', authorisedIn: ['England', 'Wales'] },
-      { id: 2, manufacturer: 'Other', authorisedIn: 'Scotland' }
+      { id: 1, companyName: 'Maker', certifiedIn: ['England', 'Wales'] },
+      { id: 2, companyName: 'Other', certifiedIn: 'Scotland' }
     ])
     const request = makeRequest({ type: 'fuels' })
     const h = makeH()
@@ -415,8 +415,27 @@ describe('finderController', () => {
     // Proper case applied to manufacturer
     expect(toProperCase).toHaveBeenCalledWith('Maker')
     expect(toProperCase).toHaveBeenCalledWith('Other')
-    expect(records[0].authorisedIn).toBe('England, Wales')
-    expect(records[1].authorisedIn).toBe('Scotland')
+    expect(records[0].certifiedIn).toBe('England, Wales')
+    expect(records[1].certifiedIn).toBe('Scotland')
+  })
+
+  it('formats fuel lastUpdatedDate and leaves it empty when missing', async () => {
+    const { fetchAll } = await import('../common/api/api.js')
+    const { translate } = await import('../common/util.js')
+    translate.mockImplementation((category, data) =>
+      category === 'dates' ? `date:${data}` : data
+    )
+    fetchAll.mockResolvedValueOnce([
+      { id: 1, companyName: 'Maker', lastUpdatedDate: '2024-05-01T00:00:00Z' },
+      { id: 2, companyName: 'Other' }
+    ])
+    const resp = await finderController.handler(
+      makeRequest({ type: 'fuels' }),
+      makeH()
+    )
+    const records = resp.model.pageSpecificRecords
+    expect(records[0].lastUpdatedDate).toBe('date:2024-05-01T00:00:00Z')
+    expect(records[1].lastUpdatedDate).toBe('')
   })
 
   it('computes pageEndRecord correctly for partially-filled last page', async () => {

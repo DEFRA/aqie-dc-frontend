@@ -24,13 +24,29 @@ vi.mock('../common/util.js', () => ({
 vi.mock('../common/content.js', () => ({
   lookupData: {
     countries: [
-      { key: 'england', en: 'England', cy: 'England--CY' },
-      { key: 'scotland', en: 'Scotland', cy: 'Scotland--CY' },
-      { key: 'wales', en: 'Wales', cy: 'Wales--CY' },
+      {
+        key: 'england',
+        en: 'England',
+        cy: 'England--CY',
+        certificationField: 'englandCertification'
+      },
+      {
+        key: 'scotland',
+        en: 'Scotland',
+        cy: 'Scotland--CY',
+        certificationField: 'scotlandCertification'
+      },
+      {
+        key: 'wales',
+        en: 'Wales',
+        cy: 'Wales--CY',
+        certificationField: 'walesCertification'
+      },
       {
         key: 'northern ireland',
         en: 'Northern Ireland',
-        cy: 'Northern Ireland--CY'
+        cy: 'Northern Ireland--CY',
+        certificationField: 'nIrelandCertification'
       }
     ],
     fuels: [{ key: 'wood logs', en: 'Wood logs', cy: 'Wood logs--CY' }],
@@ -153,36 +169,51 @@ const makeMockItem = (overrides = {}) => ({
   name: 'Test Appliance Model',
   publishedDate: '2024-01-15',
   submittedDate: '2024-02-20',
-  manufacturerName: 'Test Manufacturer Ltd',
-  companyAddress: '123 Test Street, Test City, TE1 1ST',
-  allowedFuels: 'Wood logs',
+  companyName: 'Test Manufacturer Ltd',
+  fullAddress: ['123 Test Street', 'Test City', 'TE1 1ST'],
+  permittedFuels: 'Wood logs',
   applianceType: 'Boiler',
   nominalOutput: '5kW',
-  airControlModifications: 'Line 1\nLine 2',
-  instructionManualTitle: 'Manual Title',
-  instructionManualDate: '2024-01-01',
-  instructionManualVersion: '1.0',
-  instructionManualAdditionalInfo: 'Additional info here',
-  fuelDescription: 'Light mineral oil',
-  fuelWeight: '0.84 kg/l',
-  fuelComposition: 'Paraffinic',
+  additionalConditions: 'Line 1\nLine 2',
+  instructionManual: {
+    title: 'Manual Title',
+    publicationDate: '2024-01-01',
+    version: '1.0',
+    additionalInfo: 'Additional info here'
+  },
+  fuelDescription: {
+    appearance: 'Light mineral oil',
+    weight: '0.84 kg/l',
+    composition: 'Paraffinic',
+    sulphurContent: '0.2'
+  },
   manufacturingProcess: 'Distillation',
-  sulphurContent: '0.2',
-  isUkBased: false,
 
   // Country approval statuses
-  englandApproval: 'Certified',
-  englandDateFirstAuthorised: '2023-06-01',
-  englandDateLastUpdated: '2024-01-10',
-  scotlandApproval: 'Certified',
-  scotlandDateFirstAuthorised: '2023-07-01',
-  scotlandDateLastUpdated: '2024-02-15',
-  walesApproval: 'Uncertified',
-  walesDateFirstAuthorised: null,
-  walesDateLastUpdated: null,
-  'northern irelandApproval': 'Revoked',
-  'northern irelandDateFirstAuthorised': '2022-01-01',
-  'northern irelandDateLastUpdated': '2024-03-20',
+  englandCertification: {
+    status: 'Certified',
+    firstCertifiedAt: '2023-06-01',
+    lastCertifiedAt: null,
+    decidedAt: '2024-01-10'
+  },
+  scotlandCertification: {
+    status: 'Certified',
+    firstCertifiedAt: '2023-07-01',
+    lastCertifiedAt: null,
+    decidedAt: '2024-02-15'
+  },
+  walesCertification: {
+    status: 'Uncertified',
+    firstCertifiedAt: null,
+    lastCertifiedAt: null,
+    decidedAt: null
+  },
+  nIrelandCertification: {
+    status: 'Revoked',
+    firstCertifiedAt: '2022-01-01',
+    lastCertifiedAt: null,
+    decidedAt: '2024-03-20'
+  },
   ...overrides
 })
 
@@ -200,7 +231,8 @@ const makeH = () => {
   const response = vi.fn((msg) => ({
     code: vi.fn((statusCode) => ({ message: msg, statusCode }))
   }))
-  return { view, response }
+  const redirect = vi.fn((url) => ({ redirectedTo: url }))
+  return { view, response, redirect }
 }
 
 describe('listItemController', () => {
@@ -219,8 +251,8 @@ describe('listItemController', () => {
       const result = await listItemController.handler(request, h)
 
       expect(fetchById).toHaveBeenCalledWith('appliance', '123')
-      expect(h.response).toHaveBeenCalledWith('appliance not found')
-      expect(result.statusCode).toBe(404)
+      expect(h.redirect).toHaveBeenCalledWith('/error/404')
+      expect(result.redirectedTo).toBe('/error/404')
     })
 
     it('should render list item view with correct template', async () => {
@@ -277,10 +309,10 @@ describe('listItemController', () => {
       const { fetchById } = await import('../common/api/api.js')
       const mockItem = makeMockItem({
         publishedDate: '2024-03-15',
-        englandDateLastUpdated: '2024-04-10',
-        scotlandDateLastUpdated: '2024-05-20',
-        walesDateLastUpdated: '2024-04-15',
-        northernIrelandDateLastUpdated: '2024-03-01'
+        englandCertification: { status: 'Certified', decidedAt: '2024-04-10' },
+        scotlandCertification: { status: 'Certified', decidedAt: '2024-05-20' },
+        walesCertification: { status: 'Certified', decidedAt: '2024-04-15' },
+        nIrelandCertification: { status: 'Certified', decidedAt: '2024-03-01' }
       })
       fetchById.mockResolvedValueOnce(mockItem)
 
@@ -294,9 +326,9 @@ describe('listItemController', () => {
       expect(result.model.updatedDate).toBe('2024-05-20T00:00:00.000Z')
     })
 
-    it('should pass manufacturer name to the view model', async () => {
+    it('should pass company name to the view model', async () => {
       const { fetchById } = await import('../common/api/api.js')
-      const mockItem = makeMockItem({ manufacturerName: 'ACME Corp' })
+      const mockItem = makeMockItem({ companyName: 'ACME Corp' })
       fetchById.mockResolvedValueOnce(mockItem)
 
       const request = makeRequest()
@@ -304,12 +336,14 @@ describe('listItemController', () => {
 
       const result = await listItemController.handler(request, h)
 
-      expect(result.model.manufacturer).toBe('ACME Corp')
+      expect(result.model.companyName).toBe('ACME Corp')
     })
 
-    it('should pass company address to the view model', async () => {
+    it('should pass full address lines to the view model', async () => {
       const { fetchById } = await import('../common/api/api.js')
-      const mockItem = makeMockItem({ companyAddress: '456 Factory Lane' })
+      const mockItem = makeMockItem({
+        fullAddress: ['456 Factory Lane', 'Leeds']
+      })
       fetchById.mockResolvedValueOnce(mockItem)
 
       const request = makeRequest()
@@ -317,7 +351,7 @@ describe('listItemController', () => {
 
       const result = await listItemController.handler(request, h)
 
-      expect(result.model.companyAddress).toBe('456 Factory Lane')
+      expect(result.model.fullAddress).toEqual(['456 Factory Lane', 'Leeds'])
     })
 
     describe('translate function usage', () => {
@@ -325,7 +359,7 @@ describe('listItemController', () => {
         const { fetchById } = await import('../common/api/api.js')
         const { translate } = await import('../common/util.js')
         const mockItem = makeMockItem({
-          allowedFuels: 'Wood logs, Wood pellets'
+          permittedFuels: 'Wood logs, Wood pellets'
         })
         fetchById.mockResolvedValueOnce(mockItem)
 
@@ -379,50 +413,11 @@ describe('listItemController', () => {
       })
     })
 
-    describe('appliance details', () => {
-      it('should include fuelsAllowed in applianceDetails', async () => {
-        const { fetchById } = await import('../common/api/api.js')
-        fetchById.mockResolvedValueOnce(makeMockItem())
-
-        const request = makeRequest()
-        const h = makeH()
-
-        const result = await listItemController.handler(request, h)
-
-        expect(result.model.applianceDetails).toHaveProperty('fuelsAllowed')
-      })
-
-      it('should include type in applianceDetails', async () => {
-        const { fetchById } = await import('../common/api/api.js')
-        fetchById.mockResolvedValueOnce(makeMockItem())
-
-        const request = makeRequest()
-        const h = makeH()
-
-        const result = await listItemController.handler(request, h)
-
-        expect(result.model.applianceDetails).toHaveProperty('type')
-      })
-
-      it('should include output (nominalOutput) in applianceDetails', async () => {
-        const { fetchById } = await import('../common/api/api.js')
-        const mockItem = makeMockItem({ nominalOutput: '10kW' })
-        fetchById.mockResolvedValueOnce(mockItem)
-
-        const request = makeRequest()
-        const h = makeH()
-
-        const result = await listItemController.handler(request, h)
-
-        expect(result.model.applianceDetails.output).toBe('10kW')
-      })
-    })
-
     describe('conditions for use', () => {
-      it('should replace newlines with <br><br> in airControlModifications', async () => {
+      it('should replace newlines with <br><br> in additionalConditions', async () => {
         const { fetchById } = await import('../common/api/api.js')
         const mockItem = makeMockItem({
-          airControlModifications: 'First line\nSecond line\nThird line'
+          additionalConditions: 'First line\nSecond line\nThird line'
         })
         fetchById.mockResolvedValueOnce(mockItem)
 
@@ -431,7 +426,7 @@ describe('listItemController', () => {
 
         const result = await listItemController.handler(request, h)
 
-        expect(result.model.conditionsForUse.airControlModifications).toBe(
+        expect(result.model.conditionsForUse.additionalConditions).toBe(
           'First line<br><br>Second line<br><br>Third line'
         )
       })
@@ -439,10 +434,12 @@ describe('listItemController', () => {
       it('should include instruction manual details', async () => {
         const { fetchById } = await import('../common/api/api.js')
         const mockItem = makeMockItem({
-          instructionManualTitle: 'Test Manual',
-          instructionManualDate: '2024-05-01',
-          instructionManualVersion: '2.0',
-          instructionManualAdditionalInfo: 'Some conditions'
+          instructionManual: {
+            title: 'Test Manual',
+            publicationDate: '2024-05-01',
+            version: '2.0',
+            additionalInfo: 'Some conditions'
+          }
         })
         fetchById.mockResolvedValueOnce(mockItem)
 
@@ -455,7 +452,20 @@ describe('listItemController', () => {
         expect(manual.title).toBe('Test Manual')
         expect(manual.date).toBe('2024-05-01')
         expect(manual.version).toBe('2.0')
-        expect(manual.additionalConditions).toBe('Some conditions')
+        expect(manual.additionalInfo).toBe('Some conditions')
+      })
+
+      it('should tolerate a missing instructionManual', async () => {
+        const { fetchById } = await import('../common/api/api.js')
+        fetchById.mockResolvedValueOnce(
+          makeMockItem({ instructionManual: undefined })
+        )
+
+        const result = await listItemController.handler(makeRequest(), makeH())
+
+        expect(
+          result.model.conditionsForUse.instructionManual.title
+        ).toBeUndefined()
       })
     })
 
@@ -475,8 +485,10 @@ describe('listItemController', () => {
       it('should map Certified status correctly with green tag', async () => {
         const { fetchById } = await import('../common/api/api.js')
         const mockItem = makeMockItem({
-          englandApproval: 'Certified',
-          englandDateFirstAuthorised: '2023-01-01'
+          englandCertification: {
+            status: 'Certified',
+            firstCertifiedAt: '2023-01-01'
+          }
         })
         fetchById.mockResolvedValueOnce(mockItem)
 
@@ -496,8 +508,7 @@ describe('listItemController', () => {
       it('should map Uncertified status correctly with grey tag', async () => {
         const { fetchById } = await import('../common/api/api.js')
         const mockItem = makeMockItem({
-          walesApproval: 'Uncertified',
-          walesDateFirstAuthorised: null
+          walesCertification: { status: 'Uncertified', firstCertifiedAt: null }
         })
         fetchById.mockResolvedValueOnce(mockItem)
 
@@ -514,30 +525,29 @@ describe('listItemController', () => {
         expect(walesCert.firstCertified).toBeNull()
       })
 
-      it('should map Revoked status correctly with red tag', async () => {
+      it('should match lowercase status case-insensitively', async () => {
         const { fetchById } = await import('../common/api/api.js')
         const mockItem = makeMockItem({
-          'northern irelandApproval': 'Revoked',
-          'northern irelandDateFirstAuthorised': '2022-05-15'
+          englandCertification: {
+            status: 'certified',
+            firstCertifiedAt: '2023-01-01'
+          }
         })
         fetchById.mockResolvedValueOnce(mockItem)
 
-        const request = makeRequest()
-        const h = makeH()
+        const result = await listItemController.handler(makeRequest(), makeH())
 
-        const result = await listItemController.handler(request, h)
-
-        const niCert = result.model.certification.find(
-          (c) => c.name === 'Northern Ireland'
+        const englandCert = result.model.certification.find(
+          (c) => c.name === 'England'
         )
-        expect(niCert.status.label).toBe('Revoked')
-        expect(niCert.status.colour).toBe('govuk-tag--red')
+        expect(englandCert.status.label).toBe('Certified')
+        expect(englandCert.status.colour).toBe('govuk-tag--green')
       })
 
       it('should default to Uncertified status for unknown approval values', async () => {
         const { fetchById } = await import('../common/api/api.js')
         const mockItem = makeMockItem({
-          englandApproval: 'SomeUnknownStatus'
+          englandCertification: { status: 'SomeUnknownStatus' }
         })
         fetchById.mockResolvedValueOnce(mockItem)
 
@@ -556,10 +566,14 @@ describe('listItemController', () => {
       it('should only include firstCertified date when status is Certified', async () => {
         const { fetchById } = await import('../common/api/api.js')
         const mockItem = makeMockItem({
-          englandApproval: 'Certified',
-          englandDateFirstAuthorised: '2023-01-01',
-          scotlandApproval: 'Revoked',
-          scotlandDateFirstAuthorised: '2022-06-01'
+          englandCertification: {
+            status: 'Certified',
+            firstCertifiedAt: '2023-01-01'
+          },
+          scotlandCertification: {
+            status: 'Revoked',
+            firstCertifiedAt: '2022-06-01'
+          }
         })
         fetchById.mockResolvedValueOnce(mockItem)
 
@@ -677,7 +691,7 @@ describe('listItemController', () => {
       it('should use Welsh status labels when language is cy', async () => {
         const { fetchById } = await import('../common/api/api.js')
         const mockItem = makeMockItem({
-          englandApproval: 'Certified'
+          englandCertification: { status: 'Certified' }
         })
         fetchById.mockResolvedValueOnce(mockItem)
 
@@ -790,7 +804,9 @@ describe('listItemController', () => {
 
       it('should include sulphur content with unit in fuelSummaryListRows', async () => {
         const { fetchById } = await import('../common/api/api.js')
-        const mockItem = makeMockItem({ sulphurContent: '0.5' })
+        const mockItem = makeMockItem({
+          fuelDescription: { sulphurContent: '0.5' }
+        })
         fetchById.mockResolvedValueOnce(mockItem)
 
         const request = makeRequest({ type: 'fuels' })
@@ -809,69 +825,32 @@ describe('listItemController', () => {
       })
     })
 
-    describe('formatted UK address', () => {
-      it('should format UK address when isUkBased is true', async () => {
+    describe('full address', () => {
+      it('should drop empty address lines', async () => {
         const { fetchById } = await import('../common/api/api.js')
-        const mockItem = makeMockItem({
-          isUkBased: true,
-          companyAddressLine1: '123 Main Street',
-          companyAddressLine2: 'Suite 100',
-          companyAddressCity: 'London',
-          companyAddressCounty: 'Greater London',
-          companyAddressPostcode: 'SW1A 1AA'
-        })
-        fetchById.mockResolvedValueOnce(mockItem)
-
-        const request = makeRequest()
-        const h = makeH()
-
-        const result = await listItemController.handler(request, h)
-
-        expect(result.model.formattedUkAddress).toBe(
-          '123 Main Street<br>Suite 100<br>London<br>Greater London<br>SW1A 1AA'
+        fetchById.mockResolvedValueOnce(
+          makeMockItem({
+            fullAddress: ['123 Main Street', '', null, 'SW1A 1AA']
+          })
         )
+
+        const result = await listItemController.handler(makeRequest(), makeH())
+
+        expect(result.model.fullAddress).toEqual([
+          '123 Main Street',
+          'SW1A 1AA'
+        ])
       })
 
-      it('should filter out empty address lines', async () => {
+      it('should return an empty array when fullAddress is missing', async () => {
         const { fetchById } = await import('../common/api/api.js')
-        const mockItem = makeMockItem({
-          isUkBased: true,
-          companyAddressLine1: '123 Main Street',
-          companyAddressLine2: null,
-          companyAddressCity: 'London',
-          companyAddressCounty: null,
-          companyAddressPostcode: 'SW1A 1AA'
-        })
-        fetchById.mockResolvedValueOnce(mockItem)
-
-        const request = makeRequest()
-        const h = makeH()
-
-        const result = await listItemController.handler(request, h)
-
-        expect(result.model.formattedUkAddress).toBe(
-          '123 Main Street<br>London<br>SW1A 1AA'
+        fetchById.mockResolvedValueOnce(
+          makeMockItem({ fullAddress: undefined })
         )
-      })
 
-      it('should return null for formattedUkAddress when isUkBased is false', async () => {
-        const { fetchById } = await import('../common/api/api.js')
-        const mockItem = makeMockItem({
-          isUkBased: false,
-          companyAddressLine1: '123 Main Street',
-          companyAddressLine2: 'Suite 100',
-          companyAddressCity: 'London',
-          companyAddressCounty: 'Greater London',
-          companyAddressPostcode: 'SW1A 1AA'
-        })
-        fetchById.mockResolvedValueOnce(mockItem)
+        const result = await listItemController.handler(makeRequest(), makeH())
 
-        const request = makeRequest()
-        const h = makeH()
-
-        const result = await listItemController.handler(request, h)
-
-        expect(result.model.formattedUkAddress).toBeNull()
+        expect(result.model.fullAddress).toEqual([])
       })
     })
 

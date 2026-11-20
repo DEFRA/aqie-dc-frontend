@@ -5,21 +5,21 @@ describe('searchFunctionality', () => {
   const appliancesData = [
     {
       name: 'Washing Machine',
-      manufacturer: 'Bosch',
+      companyName: 'Bosch',
       modelNumber: 'WM123',
       type: 'Laundry'
     },
     {
       name: 'Dish Washer',
-      manufacturer: 'Samsung',
+      companyName: 'Samsung',
       modelNumber: 'DW200',
       type: 'Kitchen'
     }
   ]
 
   const defaultData = [
-    { name: 'Alpha', manufacturer: 'BrandA', id: 101 },
-    { name: 'Beta', manufacturer: 'BrandB', id: 202 }
+    { name: 'Alpha', companyName: 'BrandA', id: 101 },
+    { name: 'Beta', companyName: 'BrandB', id: 202 }
   ]
 
   // ------------------------------
@@ -52,7 +52,7 @@ describe('searchFunctionality', () => {
     )
 
     expect(result.length).toBe(1)
-    expect(result[0].manufacturer).toBe('Samsung')
+    expect(result[0].companyName).toBe('Samsung')
   })
 
   it('should return empty array if no appliance matches', () => {
