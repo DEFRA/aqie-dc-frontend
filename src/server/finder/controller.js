@@ -1,4 +1,4 @@
-import { fetchAll } from '../common/api/api.js'
+import { fetchAll, searchAppliances } from '../common/api/api.js'
 import { finderContent } from './content.js'
 import {
   singularize,
@@ -103,33 +103,75 @@ export const finderController = {
     const sanitizedSearchQuery = clean.replaceAll(/[^a-zA-Z0-9\s.,-]/g, '')
 
     const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
-    const totalResponse = await fetchAll(singularize(type))
-    const searchResponse = searchFunctionality(
-      type,
-      totalResponse,
-      sanitizedSearchQuery
-    )
+
+    let pageSpecificRecords, totalRecords, totalPages, validPage
+
+    if (type === 'appliances') {
+      // Use the backend search endpoint with pagination
+      const certifiedIn = Array.isArray(request.query.certifiedIn)
+        ? request.query.certifiedIn
+        : request.query.certifiedIn
+          ? [request.query.certifiedIn]
+          : []
+      const fuelsAllowed = Array.isArray(request.query.fuelsAllowed)
+        ? request.query.fuelsAllowed
+        : request.query.fuelsAllowed
+          ? [request.query.fuelsAllowed]
+          : []
+      const applianceType = Array.isArray(request.query.applianceType)
+        ? request.query.applianceType
+        : request.query.applianceType
+          ? [request.query.applianceType]
+          : []
+
+      const result = await searchAppliances({
+        query: sanitizedSearchQuery,
+        certifiedIn,
+        fuelsAllowed,
+        applianceType,
+        page: currentPage,
+        limit: ITEMS_PER_PAGE
+      })
+
+      pageSpecificRecords = result.data
+      totalRecords = result.pagination.total
+      totalPages = result.pagination.totalPages
+      validPage = result.pagination.page
+    } else {
+      // Legacy path for fuels: fetch all and filter locally
+      const totalResponse = await fetchAll(singularize(type))
+      const searchResponse = searchFunctionality(
+        type,
+        totalResponse,
+        sanitizedSearchQuery
+      )
+      const filterState = buildFinderFilterState({
+        query: request.query,
+        type,
+        language
+      })
+      const searchAndFilteredResponse = filterSearchResults(
+        searchResponse,
+        filterState
+      )
+
+      totalRecords = searchAndFilteredResponse.length
+      totalPages =
+        totalRecords > 0 ? Math.ceil(totalRecords / ITEMS_PER_PAGE) : 0
+      validPage =
+        totalPages > 0 ? Math.min(currentPage, Math.max(1, totalPages)) : 1
+      const startIndex = (validPage - 1) * ITEMS_PER_PAGE
+      pageSpecificRecords = searchAndFilteredResponse.slice(
+        startIndex,
+        startIndex + ITEMS_PER_PAGE
+      )
+    }
+
     const filterState = buildFinderFilterState({
       query: request.query,
       type,
       language
     })
-    const searchAndFilteredResponse = filterSearchResults(
-      searchResponse,
-      filterState
-    )
-
-    // Calculate pagination
-    const totalRecords = searchAndFilteredResponse.length
-    const totalPages =
-      totalRecords > 0 ? Math.ceil(totalRecords / ITEMS_PER_PAGE) : 0
-    const validPage =
-      totalPages > 0 ? Math.min(currentPage, Math.max(1, totalPages)) : 1
-    const startIndex = (validPage - 1) * ITEMS_PER_PAGE
-    const pageSpecificRecords = searchAndFilteredResponse.slice(
-      startIndex,
-      startIndex + ITEMS_PER_PAGE
-    )
 
     handleTranslationAndCase(type, pageSpecificRecords, language)
     const { paginationLinks, previousPageUrl, nextPageUrl, languageHref } =
