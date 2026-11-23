@@ -1,7 +1,7 @@
 // src/server/common/api/api.test.js
 import { describe, it, expect, vi, beforeEach, test } from 'vitest'
 import fetch from 'node-fetch'
-import { fetchAll } from './api.js'
+import { fetchAll, searchAppliances } from './api.js'
 
 // --- 1) HOISTED VALUES FOR MOCK FACTORIES ---
 // Anything used *inside* vi.mock factories must be defined with vi.hoisted
@@ -455,5 +455,88 @@ describe('fetchById', () => {
         }
       })
     )
+  })
+})
+
+describe('searchAppliances', () => {
+  beforeEach(() => {
+    fetch.mockReset()
+  })
+
+  it('builds the query string and normalises results', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: [
+          {
+            id: 'A1',
+            companyName: '  TESLA ',
+            permittedFuels: ' Wood Logs ',
+            type: ' Boiler ',
+            certifiedCountries: ['England']
+          }
+        ],
+        pagination: { page: 2, limit: 10, total: 11, totalPages: 2 }
+      })
+    })
+
+    const result = await searchAppliances({
+      query: 'stove',
+      certifiedIn: ['england', 'wales'],
+      fuelsAllowed: ['wood logs'],
+      page: 2
+    })
+
+    const url = new URL(fetch.mock.calls[0][0])
+    expect(url.origin + url.pathname).toBe(
+      'http://localhost:3001/appliances/search'
+    )
+    expect(url.searchParams.get('q')).toBe('stove')
+    expect(url.searchParams.getAll('certifiedIn')).toEqual(['england', 'wales'])
+    expect(url.searchParams.getAll('fuelsAllowed')).toEqual(['wood logs'])
+    expect(url.searchParams.get('page')).toBe('2')
+    expect(result.data[0]).toMatchObject({
+      companyName: 'tesla',
+      items: 'wood logs',
+      type: 'boiler',
+      certifiedIn: ['england']
+    })
+    expect(result.pagination.total).toBe(11)
+  })
+
+  it('omits optional params when not provided', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: [],
+        pagination: { page: 1, limit: 10, total: 0, totalPages: 0 }
+      })
+    })
+
+    await searchAppliances()
+
+    const { searchParams } = new URL(fetch.mock.calls[0][0])
+    expect([...searchParams.keys()].sort()).toEqual(['limit', 'page'])
+  })
+
+  it('returns an empty result on a non-ok response', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      text: async () => 'boom'
+    })
+
+    const result = await searchAppliances({ query: 'x' })
+
+    expect(result.data).toEqual([])
+    expect(result.pagination.total).toBe(0)
+  })
+
+  it('returns an empty result when the request throws', async () => {
+    fetch.mockRejectedValueOnce(new Error('network'))
+
+    const result = await searchAppliances()
+
+    expect(result.data).toEqual([])
   })
 })
