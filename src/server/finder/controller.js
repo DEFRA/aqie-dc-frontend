@@ -1,4 +1,4 @@
-import { fetchAll, searchAppliances } from '../common/api/api.js'
+import { fetchAll, searchAppliances, searchFuels } from '../common/api/api.js'
 import { finderContent } from './content.js'
 import {
   singularize,
@@ -8,7 +8,6 @@ import {
   toProperCase,
   buildLanguageToggleHref
 } from '../common/util.js'
-import { searchFunctionality } from './search.js'
 import { applyFinderFilters, buildFinderFilterState } from './filters.js'
 
 export const ITEMS_PER_PAGE = 10
@@ -138,33 +137,17 @@ export const finderController = {
       totalPages = result.pagination.totalPages
       validPage = result.pagination.page
     } else {
-      // Legacy path for fuels: fetch all and filter locally
-      const totalResponse = await fetchAll(singularize(type))
-      const searchResponse = searchFunctionality(
-        type,
-        totalResponse,
-        sanitizedSearchQuery
-      )
-      const filterState = buildFinderFilterState({
-        query: request.query,
-        type,
-        language
+      // Use the backend search endpoint for fuels with pagination
+      const result = await searchFuels({
+        query: sanitizedSearchQuery,
+        page: currentPage,
+        limit: ITEMS_PER_PAGE
       })
-      const searchAndFilteredResponse = filterSearchResults(
-        searchResponse,
-        filterState
-      )
 
-      totalRecords = searchAndFilteredResponse.length
-      totalPages =
-        totalRecords > 0 ? Math.ceil(totalRecords / ITEMS_PER_PAGE) : 0
-      validPage =
-        totalPages > 0 ? Math.min(currentPage, Math.max(1, totalPages)) : 1
-      const startIndex = (validPage - 1) * ITEMS_PER_PAGE
-      pageSpecificRecords = searchAndFilteredResponse.slice(
-        startIndex,
-        startIndex + ITEMS_PER_PAGE
-      )
+      pageSpecificRecords = result.data
+      totalRecords = result.pagination.total
+      totalPages = result.pagination.totalPages
+      validPage = result.pagination.page
     }
 
     const filterState = buildFinderFilterState({
@@ -209,17 +192,6 @@ export const finderController = {
       applianceTypeOptions: filterState.applianceTypeOptions
     })
   }
-}
-
-// Extracted filtering logic
-function filterSearchResults(searchResponse, filterState) {
-  const { selectedCertifiedIn, selectedFuelsAllowed, selectedApplianceType } =
-    filterState
-  return applyFinderFilters(searchResponse, {
-    selectedCertifiedIn,
-    selectedFuelsAllowed,
-    selectedApplianceType
-  })
 }
 
 // Apply proper case formatting for display

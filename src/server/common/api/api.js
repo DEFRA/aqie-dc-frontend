@@ -136,6 +136,53 @@ export async function searchAppliances({
   }
 }
 
+export async function searchFuels({
+  query = '',
+  page = 1,
+  limit = 10
+} = {}) {
+  const base = config.get('backend.url').replace(/\/$/, '')
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit)
+  })
+  if (query) {
+    params.set('q', query)
+  }
+  const url = `${base}/fuels/search?${params.toString()}`
+
+  try {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'x-api-key': config.get('cdpXApiKey'),
+        'Content-Type': 'application/json'
+      }
+    })
+
+    if (!res.ok) {
+      logger.error(
+        `Failed to fetch ${url} (${res.status}): ${await res.text()}`
+      )
+      return EMPTY_SEARCH_RESULT
+    }
+
+    const json = await res.json()
+    if (!Array.isArray(json.data) || !json.pagination) {
+      logger.warn('Unexpected fuels search response shape from backend')
+      return EMPTY_SEARCH_RESULT
+    }
+
+    return {
+      data: json.data.map((item) => normaliseItem('fuel', item)),
+      pagination: json.pagination
+    }
+  } catch (err) {
+    logger.error('Error searching fuels from backend:', err)
+    return EMPTY_SEARCH_RESULT
+  }
+}
+
 export async function fetchById(type, applicationId) {
   const base = config.get('backend.url').replace(/\/$/, '')
   const url = `${base}/${encodeURIComponent(type)}s/${encodeURIComponent(applicationId)}`

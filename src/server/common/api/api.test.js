@@ -1,7 +1,7 @@
 // src/server/common/api/api.test.js
 import { describe, it, expect, vi, beforeEach, test } from 'vitest'
 import fetch from 'node-fetch'
-import { fetchAll, searchAppliances } from './api.js'
+import { fetchAll, searchAppliances, searchFuels } from './api.js'
 
 // --- 1) HOISTED VALUES FOR MOCK FACTORIES ---
 // Anything used *inside* vi.mock factories must be defined with vi.hoisted
@@ -536,6 +536,82 @@ describe('searchAppliances', () => {
     fetch.mockRejectedValueOnce(new Error('network'))
 
     const result = await searchAppliances()
+
+    expect(result.data).toEqual([])
+  })
+})
+
+describe('searchFuels', () => {
+  beforeEach(() => {
+    fetch.mockReset()
+  })
+
+  it('builds the query string and normalises results', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: [
+          {
+            id: 'F1',
+            name: 'Test Fuel',
+            companyName: 'TEST COMPANY',
+            certifiedCountries: ['England', 'Wales']
+          }
+        ],
+        pagination: { page: 2, limit: 10, total: 11, totalPages: 2 }
+      })
+    })
+
+    const result = await searchFuels({
+      query: 'wood',
+      page: 2
+    })
+
+    const url = new URL(fetch.mock.calls[0][0])
+    expect(url.origin + url.pathname).toBe('http://localhost:3001/fuels/search')
+    expect(url.searchParams.get('q')).toBe('wood')
+    expect(url.searchParams.get('page')).toBe('2')
+    // For fuels, normaliseItem only processes companyName and certifiedCountries
+    expect(result.data[0]).toMatchObject({
+      name: 'Test Fuel',
+      companyName: 'test company',
+      certifiedIn: ['england', 'wales']
+    })
+    expect(result.pagination.total).toBe(11)
+  })
+
+  it('omits optional query param when not provided', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        data: [],
+        pagination: { page: 1, limit: 10, total: 0, totalPages: 0 }
+      })
+    })
+
+    await searchFuels()
+
+    const { searchParams } = new URL(fetch.mock.calls[0][0])
+    expect([...searchParams.keys()].sort()).toEqual(['limit', 'page'])
+  })
+
+  it('returns an empty result on a non-ok response', async () => {
+    fetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      text: async () => 'boom'
+    })
+
+    const result = await searchFuels({ query: 'x' })
+
+    expect(result.data).toEqual([])
+    expect(result.pagination.total).toBe(0)
+  })
+
+  it('returns an empty result when the request throws', async () => {
+    fetch.mockRejectedValueOnce(new Error('network'))
+
+    const result = await searchFuels()
 
     expect(result.data).toEqual([])
   })

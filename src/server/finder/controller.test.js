@@ -6,7 +6,8 @@ import { finderController, ITEMS_PER_PAGE } from './controller.js'
 // Mock dependencies before importing the controller
 vi.mock('../common/api/api.js', () => ({
   fetchAll: vi.fn(),
-  searchAppliances: vi.fn()
+  searchAppliances: vi.fn(),
+  searchFuels: vi.fn()
 }))
 vi.mock('../common/util.js', () => ({
   singularize: vi.fn((x) => (x.endsWith('s') ? x.slice(0, -1) : x)),
@@ -185,31 +186,39 @@ describe('finderController – appliances', () => {
   })
 })
 
-describe('finderController – fuels (legacy local filtering)', () => {
+describe('finderController – fuels (backend search)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
-  it('fetches all fuels and applies local filtering for paging', async () => {
-    const records = Array.from({ length: 100 }, (_, i) => ({ id: i + 1 }))
-    const { fetchAll } = await import('../common/api/api.js')
-    fetchAll.mockResolvedValueOnce(records)
+  it('searches fuels using backend API with pagination', async () => {
+    const { searchFuels } = await import('../common/api/api.js')
+    searchFuels.mockResolvedValueOnce({
+      data: Array.from({ length: 10 }, (_, i) => ({ id: i + 1 })),
+      pagination: { page: 1, limit: 10, total: 100, totalPages: 10 }
+    })
 
     const request = makeRequest({ type: 'fuels' })
     const h = makeH()
 
     const resp = await finderController.handler(request, h)
 
-    expect(fetchAll).toHaveBeenCalledWith('fuel')
+    expect(searchFuels).toHaveBeenCalledWith({
+      query: '',
+      page: 1,
+      limit: ITEMS_PER_PAGE
+    })
     expect(resp.model.totalRecords).toBe(100)
     expect(resp.model.totalPages).toBe(10)
     expect(resp.model.pageSpecificRecords).toHaveLength(10)
   })
 
   it('caps invalid page numbers to the nearest valid page for fuels', async () => {
-    const records = Array.from({ length: 3 }, (_, i) => ({ id: i + 1 }))
-    const { fetchAll } = await import('../common/api/api.js')
-    fetchAll.mockResolvedValueOnce(records)
+    const { searchFuels } = await import('../common/api/api.js')
+    searchFuels.mockResolvedValueOnce({
+      data: Array.from({ length: 3 }, (_, i) => ({ id: i + 1 })),
+      pagination: { page: 1, limit: 10, total: 3, totalPages: 1 }
+    })
 
     const request = makeRequest({ type: 'fuels', page: '999' })
     const h = makeH()
