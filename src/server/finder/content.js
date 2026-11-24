@@ -115,7 +115,6 @@ export const finderContent = {
       ],
       manufacturedBy: 'Manufactured by',
       fuelID: 'Fuels ID',
-      lastUpdated: 'Last updated',
       authorisedIn: 'Certified in',
       noResultsHeading:
         'No results found. Check your search terms and applied filters.',
@@ -155,7 +154,6 @@ export const finderContent = {
       ],
       manufacturedBy: 'Manufactured by--CY',
       fuelID: 'Fuels ID--CY',
-      lastUpdated: 'Last updated--CY',
       authorisedIn: 'Certified in--CY',
       noResultsHeading:
         'No results found. Check your search terms and applied filters.--CY',

@@ -115,9 +115,6 @@
               <p class="govuk-body"><strong>{{manufacturedBy}} {{ pageSpecificRecord.companyName }}</strong></p>
               <p class="govuk-body">{{fuelID}}: {{ pageSpecificRecord.id }}</p>
               <p class="govuk-body">{{authorisedIn}}: {{ pageSpecificRecord.certifiedIn }}</p>
-              {% if pageSpecificRecord.lastUpdatedDate %}
-                <p class="govuk-body">{{lastUpdated}}: {{ pageSpecificRecord.lastUpdatedDate }}</p>
-              {% endif %}
             </div>
             <hr class="govuk-section-break govuk-section-break--visible">
           {% endfor %}

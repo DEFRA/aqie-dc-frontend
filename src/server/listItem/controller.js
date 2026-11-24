@@ -12,16 +12,6 @@ import { statusCodes } from '../common/constants/status-codes.js'
 const getCountryCertification = (item, country) =>
   item[country.certificationField] || {}
 
-function getLastUpdatedDate(item) {
-  const validDates = lookupData.countries
-    .map((country) => getCountryCertification(item, country).decidedAt)
-    .filter(Boolean)
-    .map((dateString) => new Date(dateString))
-    .filter((date) => !Number.isNaN(date.getTime()))
-    .sort((a, b) => b.getTime() - a.getTime())
-  return validDates.length > 0 ? validDates[0].toISOString() : null
-}
-
 function getCertification(item, content, language) {
   const statusMap = {
     uncertified: {
@@ -151,7 +141,6 @@ export const listItemController = {
     if (!item) {
       return h.redirect(`/error/${statusCodes.notFound}`)
     }
-    const lastUpdatedDate = getLastUpdatedDate(item)
     const certification = getCertification(item, content, language)
     const pageSpecificRecord = buildPageSpecificRecord(
       item,
@@ -171,9 +160,11 @@ export const listItemController = {
       type,
       name: item.name,
       publishedDate: translate('dates', publishedDate, language),
-      updatedDate: lastUpdatedDate
-        ? translate('dates', lastUpdatedDate, language)
-        : translate('dates', publishedDate, language),
+      updatedDate: translate(
+        'dates',
+        item.certificationUpdatedAt ?? publishedDate,
+        language
+      ),
       ...pageSpecificRecord[type],
       companyName: item.companyName,
       certification,

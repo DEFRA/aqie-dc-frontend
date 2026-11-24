@@ -309,10 +309,7 @@ describe('listItemController', () => {
       const { fetchById } = await import('../common/api/api.js')
       const mockItem = makeMockItem({
         publishedDate: '2024-03-15',
-        englandCertification: { status: 'Certified', decidedAt: '2024-04-10' },
-        scotlandCertification: { status: 'Certified', decidedAt: '2024-05-20' },
-        walesCertification: { status: 'Certified', decidedAt: '2024-04-15' },
-        nIrelandCertification: { status: 'Certified', decidedAt: '2024-03-01' }
+        certificationUpdatedAt: '2024-05-20'
       })
       fetchById.mockResolvedValueOnce(mockItem)
 
@@ -322,8 +319,18 @@ describe('listItemController', () => {
       const result = await listItemController.handler(request, h)
 
       expect(result.model.publishedDate).toBe('2024-03-15')
-      // updatedDate should be the most recent DateLastUpdated (Scotland: 2024-05-20)
-      expect(result.model.updatedDate).toBe('2024-05-20T00:00:00.000Z')
+      expect(result.model.updatedDate).toBe('2024-05-20')
+    })
+
+    it('should fall back to the published date when certificationUpdatedAt is missing', async () => {
+      const { fetchById } = await import('../common/api/api.js')
+      fetchById.mockResolvedValueOnce(
+        makeMockItem({ publishedDate: '2024-03-15' })
+      )
+
+      const result = await listItemController.handler(makeRequest(), makeH())
+
+      expect(result.model.updatedDate).toBe('2024-03-15')
     })
 
     it('should pass company name to the view model', async () => {
