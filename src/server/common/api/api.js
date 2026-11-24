@@ -102,7 +102,7 @@ export async function searchAppliances({
   certifiedIn.forEach((value) => params.append('certifiedIn', value))
   fuelsAllowed.forEach((value) => params.append('fuelsAllowed', value))
   applianceType.forEach((value) => params.append('applianceType', value))
-  const url = `${base}/appliances/search?${params.toString()}`
+  const url = `${base}/appliances?${params.toString()}`
 
   try {
     const res = await fetch(url, {
@@ -149,7 +149,7 @@ export async function searchFuels({
   if (query) {
     params.set('q', query)
   }
-  const url = `${base}/fuels/search?${params.toString()}`
+  const url = `${base}/fuels?${params.toString()}`
 
   try {
     const res = await fetch(url, {

@@ -489,7 +489,7 @@ describe('searchAppliances', () => {
 
     const url = new URL(fetch.mock.calls[0][0])
     expect(url.origin + url.pathname).toBe(
-      'http://localhost:3001/appliances/search'
+      'http://localhost:3001/appliances'
     )
     expect(url.searchParams.get('q')).toBe('stove')
     expect(url.searchParams.getAll('certifiedIn')).toEqual(['england', 'wales'])
@@ -568,7 +568,7 @@ describe('searchFuels', () => {
     })
 
     const url = new URL(fetch.mock.calls[0][0])
-    expect(url.origin + url.pathname).toBe('http://localhost:3001/fuels/search')
+    expect(url.origin + url.pathname).toBe('http://localhost:3001/fuels')
     expect(url.searchParams.get('q')).toBe('wood')
     expect(url.searchParams.get('page')).toBe('2')
     // For fuels, normaliseItem only processes companyName and certifiedCountries
