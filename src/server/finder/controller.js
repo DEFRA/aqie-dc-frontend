@@ -1,4 +1,4 @@
-import { fetchAll } from '../common/api/api.js'
+import { fetchAll, searchAppliances, searchFuels } from '../common/api/api.js'
 import { finderContent } from './content.js'
 import {
   singularize,
@@ -8,7 +8,6 @@ import {
   toProperCase,
   buildLanguageToggleHref
 } from '../common/util.js'
-import { searchFunctionality } from './search.js'
 import { applyFinderFilters, buildFinderFilterState } from './filters.js'
 
 export const ITEMS_PER_PAGE = 10
@@ -103,33 +102,59 @@ export const finderController = {
     const sanitizedSearchQuery = clean.replaceAll(/[^a-zA-Z0-9\s.,-]/g, '')
 
     const currentPage = Math.max(1, Number.parseInt(request.query.page) || 1)
-    const totalResponse = await fetchAll(singularize(type))
-    const searchResponse = searchFunctionality(
-      type,
-      totalResponse,
-      sanitizedSearchQuery
-    )
+
+    let pageSpecificRecords, totalRecords, totalPages, validPage
+
+    if (type === 'appliances') {
+      // Use the backend search endpoint with pagination
+      const certifiedIn = Array.isArray(request.query.certifiedIn)
+        ? request.query.certifiedIn
+        : request.query.certifiedIn
+          ? [request.query.certifiedIn]
+          : []
+      const fuelsAllowed = Array.isArray(request.query.fuelsAllowed)
+        ? request.query.fuelsAllowed
+        : request.query.fuelsAllowed
+          ? [request.query.fuelsAllowed]
+          : []
+      const applianceType = Array.isArray(request.query.applianceType)
+        ? request.query.applianceType
+        : request.query.applianceType
+          ? [request.query.applianceType]
+          : []
+
+      const result = await searchAppliances({
+        query: sanitizedSearchQuery,
+        certifiedIn,
+        fuelsAllowed,
+        applianceType,
+        page: currentPage,
+        limit: ITEMS_PER_PAGE
+      })
+
+      pageSpecificRecords = result.data
+      totalRecords = result.pagination.total
+      totalPages = result.pagination.totalPages
+      validPage = result.pagination.page
+    } else {
+      // Use the backend search endpoint for fuels with pagination
+      const result = await searchFuels({
+        query: sanitizedSearchQuery,
+        page: currentPage,
+        limit: ITEMS_PER_PAGE
+      })
+
+      pageSpecificRecords = result.data
+      totalRecords = result.pagination.total
+      totalPages = result.pagination.totalPages
+      validPage = result.pagination.page
+    }
+
     const filterState = buildFinderFilterState({
       query: request.query,
       type,
       language
     })
-    const searchAndFilteredResponse = filterSearchResults(
-      searchResponse,
-      filterState
-    )
-
-    // Calculate pagination
-    const totalRecords = searchAndFilteredResponse.length
-    const totalPages =
-      totalRecords > 0 ? Math.ceil(totalRecords / ITEMS_PER_PAGE) : 0
-    const validPage =
-      totalPages > 0 ? Math.min(currentPage, Math.max(1, totalPages)) : 1
-    const startIndex = (validPage - 1) * ITEMS_PER_PAGE
-    const pageSpecificRecords = searchAndFilteredResponse.slice(
-      startIndex,
-      startIndex + ITEMS_PER_PAGE
-    )
 
     handleTranslationAndCase(type, pageSpecificRecords, language)
     const { paginationLinks, previousPageUrl, nextPageUrl, languageHref } =
@@ -169,30 +194,19 @@ export const finderController = {
   }
 }
 
-// Extracted filtering logic
-function filterSearchResults(searchResponse, filterState) {
-  const { selectedCertifiedIn, selectedFuelsAllowed, selectedApplianceType } =
-    filterState
-  return applyFinderFilters(searchResponse, {
-    selectedCertifiedIn,
-    selectedFuelsAllowed,
-    selectedApplianceType
-  })
-}
-
 // Apply proper case formatting for display
 const handleTranslationAndCase = (type, pageSpecificRecords, language) => {
   if (type === 'appliances') {
     pageSpecificRecords.forEach((item) => {
-      item.fuels = translate('fuels', item.fuels, language)
-      item.manufacturer = toProperCase(item.manufacturer)
+      item.items = translate('fuels', item.items, language)
+      item.companyName = toProperCase(item.companyName)
       item.type = translate('applianceTypes', item.type, language)
-      item.authorisedIn = translate('countries', item.authorisedIn, language)
+      item.certifiedIn = translate('countries', item.certifiedIn, language)
     })
   } else {
     pageSpecificRecords.forEach((item) => {
-      item.manufacturer = toProperCase(item.manufacturer)
-      item.authorisedIn = translate('countries', item.authorisedIn, language)
+      item.companyName = toProperCase(item.companyName)
+      item.certifiedIn = translate('countries', item.certifiedIn, language)
     })
   }
 }
